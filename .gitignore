@@ -1,7 +1,9 @@
 /.vscode
 /util_old
+/util
 /in.txt
-/main
-/misc
 /out.txt
+/misc
 /target
+main
+**/.kattisrc
