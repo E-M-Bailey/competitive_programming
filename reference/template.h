@@ -119,6 +119,7 @@ constexpr T INF = numeric_limits<T>::infinity();
 // Compatibility with ICPC notebook code
 // all and rall excluded since all conflicts with std::ranges::views::all in C++20
 #define rep(i, a, b) for (int i = (a); i < (b); i++)
+#define rrep(i, a, b) for (int i = (b) - 1; i >= (a); i--)
 #define sz(x) (int)(x).size()
 typedef long long ll;
 typedef pi32 pii;
@@ -164,8 +165,8 @@ int main(int argc, const char* argv[])
 		ignore = freopen(argv[2], "w", stdout);
 	}
 
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
 
 #ifdef PRECOMP
 	pre();
