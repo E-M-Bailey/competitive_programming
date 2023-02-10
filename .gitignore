@@ -1,4 +1,5 @@
 /.vscode
+.*
 /util_old
 /util
 /in.txt
