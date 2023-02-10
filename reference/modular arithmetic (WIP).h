@@ -39,7 +39,7 @@ struct mint
 	constexpr friend mint operator-(mint a, mint b) { return a -= b; }
 	constexpr mint& operator*=(mint b) { v = u32((u64)v * b.v % M); return *this; }
 	constexpr friend mint operator*(mint a, mint b) { return a *= b; }
-	constexpr friend mint pow(mint a, mint<PHI> b)
+	constexpr friend mint mpow(mint a, mint<PHI> b)
 	{
 		mint p = 1;
 		for (; b.v; b.v /= 2, a *= a) if (b.v % 2) p *= a;
@@ -50,7 +50,7 @@ struct mint
 		static_assert(PRIME);
 		assert(v);
 		constexpr static mint<PHI> POW = M - 2;
-		return pow(*this, POW);
+		return mpow(*this, POW);
 	}
 	constexpr friend mint inv(mint a) { return a.inv(); }
 	constexpr mint& operator/=(mint b) { return *this *= b.inv(); }

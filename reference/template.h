@@ -8,12 +8,17 @@
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 
-#ifndef DEBUG
-#define assert(x) do {} while (false)
-#endif // DEBUG
+#ifdef DEBUG
+#define DBG(x) x
+#define dassert(x) assert(x)
+#else
+#define DBG(x)
+#define dassert(x) do {} while (0)
+#endif
 
 using namespace std;
 using namespace chrono;
+using namespace string_literals;
 using namespace __gnu_pbds;
 
 template<size_t S, class... Ts>
@@ -59,25 +64,51 @@ struct std::hash<pair<T, U>>
 	}
 };
 
-template<class T>
-inline T read(istream& strm = cin)
+template<class T> [[nodiscard]] constexpr enable_if_t<is_integral_v<T>, T> rup2(T x) noexcept
 {
-	T x;
-	strm >> x;
-	return x;
+	if (x-- == 0) return 1;
+	for (int i = 1; i < int(CHAR_BIT * sizeof(T)); i *= 2) x |= x >> i;
+	return ++x;
 }
 
-template<class T>
-constexpr T rup2(T x)
+template<class T, class C = char, class Tr = char_traits<C>> [[nodiscard]] T read(basic_istream<C, Tr>& is) { T x; is >> x; return x; }
+template<class R, class C = char, class Tr = char_traits<C>> basic_istream<C, Tr>& range_read(basic_istream<C, Tr>& is, R& r) { for (auto& x : r) is >> x; return is; }
+template<class... Ts, class C = char, class Tr = char_traits<C>> [[nodiscard]] constexpr auto variadic_reader(basic_istream<C, Tr>& is) { return [&is](auto&... ts) { return (is >> ... >> ts); }; }
+
+template<class T, class U> istream& operator>>(istream& is, pair<T, U>& x) { return apply(variadic_reader(is), x); }
+template<class... Ts> istream& operator>>(istream& is, tuple<Ts...>& x) { return apply(variadic_reader(is), x); }
+template<class T, size_t N> istream& operator>>(istream& is, array<T, N>& x) { return apply(variadic_reader(is), x); }
+template<class T> istream& operator>>(istream& is, vector<T>& r) { return range_read(is, r); }
+template<class T> istream& operator>>(istream& is, deque<T>& r) { return range_read(is, r); }
+template<class T> istream& operator>>(istream& is, forward_list<T>& r) { return range_read(is, r); }
+template<class T> istream& operator>>(istream& is, list<T>& r) { return range_read(is, r); }
+template<class T> istream& operator>>(istream& is, optional<T>& o) { o.emplace(read<T>(is)); return is; }
+// Allows reading bitstrings without whitespace
+istream& operator>>(istream& is, vector<bool>& r) { for (size_t i = 0; i < size(r); i++) r[i] = read<char>(is) == '1'; return is; }
+
+// Doesn't read the current value until dereferencing or advancing past it.
+// Works with copy_n etc. but not copy etc. since no end iterator exists.
+template<class T, class C = char, class Tr = char_traits<C>, class D = ptrdiff_t> class lazy_istream_iterator
 {
-	static_assert(std::is_integral_v<T>);
-	if (x == 0)
-		return 1;
-	x--;
-	for (int i = 1; i < int(CHAR_BIT * sizeof(T)); i *= 2)
-		x |= x >> i;
-	return x + 1;
-}
+public:
+	using iterator_category = input_iterator_tag;
+	using value_type = T;
+	using difference_type = D;
+	using pointer = const T*;
+	using reference = const T&;
+	using char_type = C;
+	using traits_type = Tr;
+	using istream_type = basic_istream<C, Tr>;
+private:
+	istream_type& is;
+	mutable optional<T> cache;
+public:
+	constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): is(is) {}
+	[[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(is); return *cache; }
+	[[nodiscard]] const T* operator->() const { return &**this; }
+	lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(is); cache.reset(); return *this; }
+	[[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) cin >> cache; lazy_istream_iterator cur(is); swap(cur.cache, cache); return cur; }
+};
 
 template<class T>
 using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
@@ -118,9 +149,10 @@ constexpr T INF = numeric_limits<T>::infinity();
 
 // Compatibility with ICPC notebook code
 // all and rall excluded since all conflicts with std::ranges::views::all in C++20
-#define rep(i, a, b) for (int i = (a); i < (b); i++)
-#define rrep(i, a, b) for (int i = (b) - 1; i >= (a); i--)
-#define sz(x) (int)(x).size()
+#define rep(i, a, b) for (decltype(a + b) i = (a); i < (b); i++)
+#define rrep(i, a, b) for (decltype(a + b) i = (b) - 1; i >= (a); i--)
+#define srep(i, a, b, s) for (decltype(a + b + s) i = (a); i < (b); i += (s))
+#define srrep(i, a, b, s) for (decltype(a + b + s) i = (b) - 1; i >= (a); i -= (s))
 typedef long long ll;
 typedef pi32 pii;
 typedef a2i32 aii;
@@ -129,7 +161,6 @@ typedef vvi32 vvi;
 typedef vi64 vll;
 typedef vbl vb;
 mt19937_64 randy(duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count());
-
 
 // C++20-specific
 #if __cplusplus >= 202002L
