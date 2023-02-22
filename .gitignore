@@ -4,7 +4,7 @@
 /util
 /in.txt
 /out.txt
-/misc
+/.misc
 /target
 main
 **/.kattisrc
