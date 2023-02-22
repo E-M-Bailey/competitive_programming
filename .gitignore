@@ -2,10 +2,11 @@
 .*
 /util_old
 /util
-/in.txt
-/out.txt
 /.misc
 /target
 main
 **/.kattisrc
 .json
+/*.txt
+/*.cpp
+/reference/new template.h
