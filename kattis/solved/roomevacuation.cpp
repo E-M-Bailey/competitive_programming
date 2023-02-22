@@ -1,365 +1,183 @@
-#ifndef TEMPLATE_H_INCLUDED
-#define TEMPLATE_H_INCLUDED
+/*
+BEGIN ANNOTATION
+PROBLEM URL: https://open.kattis.com/problems/roomevacuation
+TAGS: flow, maximum flow, dinic, unit capacities, graph, digraph, directed graph, simulation, grid, vertex capacity
+EXPLANATION:
+Overview: First, we construct a graph with O(nmt) vertices and edges, where each vertex corresponds to a specific location and time
+	and each edge corresponds to a the way an occupant could move at that point in time. Then,
+	and show how to reduce the problem to finding the maximum flow with edge capacities
+END ANNOTATION
+*/
 
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-
-#pragma GCC optimize("O3,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-
-//#undef DEBUG
-
-#ifdef DEBUG
-#define DBG(x) (x)
-#define dassert(x) assert(x)
-#else
-#define DBG(x)
-#define dassert(x) do {} while (0)
-#endif
 
 using namespace std;
-using namespace chrono;
-using namespace __gnu_pbds;
 
-template<size_t S, class... Ts>
-struct TupleHashHelper
-{
-	typedef std::tuple<Ts...> Tup;
-	typedef TupleHashHelper<S - 1, Ts...> Helper;
-	typedef std::tuple_element_t<S - 1, Tup> T;
-	inline constexpr size_t operator()(const Tup& t) const noexcept
-	{
-		return (size_t)31 * Helper()(t) + std::hash<T>()(std::get<S - 1>(t));
-	}
-};
-
-template<class... Ts>
-struct TupleHashHelper<0, Ts...>
-{
-	typedef std::tuple<Ts...> Tup;
-	inline constexpr size_t operator()(const Tup&) const noexcept
-	{
-		return 0;
-	}
-};
-
-template<class... Ts>
-struct std::hash<tuple<Ts...>>
-{
-	typedef std::tuple<Ts...> Tup;
-	static constexpr size_t S = sizeof...(Ts);
-	typedef TupleHashHelper<S, Ts...> Helper;
-	inline constexpr size_t operator()(const Tup& t) const noexcept
-	{
-		return Helper()(t);
-	}
-};
-
-template<class T, class U>
-struct std::hash<pair<T, U>>
-{
-	inline constexpr size_t operator()(const pair<T, U>& p) const noexcept
-	{
-		return (size_t)31 * hash<T>()(p.first) + hash<U>()(p.second);
-	}
-};
-
-template<class T> [[nodiscard]] constexpr enable_if_t<is_integral_v<T>, T> rup2(T x) noexcept
-{
-	if (x-- == 0) return 1;
-	for (int i = 1; i < int(CHAR_BIT * sizeof(T)); i *= 2) x |= x >> i;
-	return ++x;
-}
-
-template<class T, class C = char, class Tr = char_traits<C>> [[nodiscard]] T read(basic_istream<C, Tr>& is) { T x; is >> x; return x; }
-template<class R, class C = char, class Tr = char_traits<C>> basic_istream<C, Tr>& range_read(basic_istream<C, Tr>& is, R& r) { for (auto& x : r) is >> x; return is; }
-template<class... Ts, class C = char, class Tr = char_traits<C>> [[nodiscard]] constexpr auto variadic_reader(basic_istream<C, Tr>& is) { return [&is](auto&... ts) { return (is >> ... >> ts); }; }
-
-template<class T, class U> istream& operator>>(istream& is, pair<T, U>& x) { return apply(variadic_reader(is), x); }
-template<class... Ts> istream& operator>>(istream& is, tuple<Ts...>& x) { return apply(variadic_reader(is), x); }
-template<class T, size_t N> istream& operator>>(istream& is, array<T, N>& x) { return apply(variadic_reader(is), x); }
-template<class T> istream& operator>>(istream& is, vector<T>& r) { return range_read(is, r); }
-template<class T> istream& operator>>(istream& is, deque<T>& r) { return range_read(is, r); }
-template<class T> istream& operator>>(istream& is, forward_list<T>& r) { return range_read(is, r); }
-template<class T> istream& operator>>(istream& is, list<T>& r) { return range_read(is, r); }
-template<class T> istream& operator>>(istream& is, optional<T>& o) { o.emplace(read<T>(is)); return is; }
-// Allows reading bitstrings without whitespace
-istream& operator>>(istream& is, vector<bool>& r) { for (size_t i = 0; i < size(r); i++) r[i] = read<char>(is) == '1'; return is; }
-
-// Doesn't read the current value until dereferencing or advancing past it.
-// Works with copy_n etc. but not copy etc. since no end iterator exists.
-template<class T, class C = char, class Tr = char_traits<C>, class D = ptrdiff_t> class lazy_istream_iterator
-{
-public:
-	using iterator_category = input_iterator_tag;
-	using value_type = T;
-	using difference_type = D;
-	using pointer = const T*;
-	using reference = const T&;
-	using char_type = C;
-	using traits_type = Tr;
-	using istream_type = basic_istream<C, Tr>;
-private:
-	istream_type& is;
-	mutable optional<T> cache;
-public:
-	constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): is(is) {}
-	[[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(is); return *cache; }
-	[[nodiscard]] const T* operator->() const { return &**this; }
-	lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(is); cache.reset(); return *this; }
-	[[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) cin >> cache; lazy_istream_iterator cur(is); swap(cur.cache, cache); return cur; }
-};
-
-template<class T>
-using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
-
-#define MK_TYPES(TYPE, NAME)using NAME=TYPE;using p##NAME=pair<NAME, NAME>;using a2##NAME=array<NAME, 2>;using v##NAME=vector<NAME>;using v##p##NAME=vector<p##NAME>;using v##a2##NAME=vector<a2##NAME>;using vv##NAME=vector<v##NAME>;using vv##p##NAME=vector<v##p##NAME>;using vv##a2##NAME=vector<v##a2##NAME>;using vvv##NAME=vector<vv##NAME>;using vvv##p##NAME=vector<vv##p##NAME>;using vvv##a2##NAME=vector<vv##a2##NAME>;using vvvv##NAME=vector<vvv##NAME>;using vvvv##p##NAME=vector<vvv##p##NAME>;using vvvv##a2##NAME=vector<vvv##a2##NAME>;using l##NAME=list<NAME>;using l##p##NAME=list<p##NAME>;using l##a2##NAME=list<a2##NAME>;using vl##NAME=vector<l##NAME>;using vl##p##NAME=vector<l##p##NAME>;using vl##a2##NAME=vector<l##a2##NAME>;using s##NAME=set<NAME>;using s##p##NAME=set<p##NAME>;using s##a2##NAME=set<a2##NAME>;using vs##NAME=vector<s##NAME>;using vs##p##NAME=vector<s##p##NAME>;using vs##a2##NAME=vector<s##a2##NAME>;template<class Pr> using S##NAME=set<NAME, Pr>;template<class Pr> using S##p##NAME=set<p##NAME, Pr>;template<class Pr> using S##a2##NAME=set<a2##NAME, Pr>;template<class Pr> using vS##NAME=vector<S##NAME<Pr>>;template<class Pr> using vS##p##NAME=vector<S##p##NAME<Pr>>;template<class Pr> using vS##a2##NAME=vector<S##a2##NAME<Pr>>;using ms##NAME=multiset<NAME>;using ms##p##NAME=multiset<p##NAME>;using ms##a2##NAME=multiset<a2##NAME>;using vms##NAME=vector<ms##NAME>;using vms##p##NAME=vector<ms##p##NAME>;using vms##a2##NAME=vector<ms##a2##NAME>;template<class Pr> using MS##NAME=multiset<NAME, Pr>;template<class Pr> using MS##p##NAME=multiset<p##NAME, Pr>;template<class Pr> using MS##a2##NAME=multiset<a2##NAME, Pr>;template<class Pr> using vMS##NAME=vector<MS##NAME<Pr>>;template<class Pr> using vMS##p##NAME=vector<MS##p##NAME<Pr>>;template<class Pr> using vMS##a2##NAME=vector<MS##a2##NAME<Pr>>;using us##NAME=unordered_set<NAME>;using us##p##NAME=unordered_set<p##NAME>;using us##a2##NAME=unordered_set<a2##NAME>;using vus##NAME=vector<us##NAME>;using vus##p##NAME=vector<us##p##NAME>;using vus##a2##NAME=vector<us##a2##NAME>;template<class H, class Eq> using US##NAME=unordered_set<NAME, H, Eq>;template<class H, class Eq> using US##p##NAME=unordered_set<p##NAME, H, Eq>;template<class H, class Eq> using US##a2##NAME=unordered_set<a2##NAME, H, Eq>;template<class H, class Eq> using vUS##NAME=vector<US##NAME<H, Eq>>;template<class H, class Eq> using vUS##p##NAME=vector<US##p##NAME<H, Eq>>;template<class H, class Eq> using vUS##a2##NAME=vector<US##a2##NAME<H, Eq>>;using ums##NAME=unordered_multiset<NAME>;using ums##p##NAME=unordered_multiset<p##NAME>;using ums##a2##NAME=unordered_multiset<a2##NAME>;using vums##NAME=vector<ums##NAME>;using vums##p##NAME=vector<ums##p##NAME>;using vums##a2##NAME=vector<ums##a2##NAME>;template<class H, class Eq> using UMS##NAME=unordered_multiset<NAME, H, Eq>;template<class H, class Eq> using UMS##p##NAME=unordered_multiset<p##NAME, H, Eq>;template<class H, class Eq> using UMS##a2##NAME=unordered_multiset<a2##NAME, H, Eq>;template<class H, class Eq> using vUMS##NAME=vector<UMS##NAME<H, Eq>>;template<class H, class Eq> using vUMS##p##NAME=vector<UMS##p##NAME<H, Eq>>;template<class H, class Eq> using vUMS##a2##NAME=vector<UMS##a2##NAME<H, Eq>>;using q##NAME=queue<NAME>;using q##p##NAME=queue<p##NAME>;using q##a2##NAME=queue<a2##NAME>;using vq##NAME=vector<q##NAME>;using vq##p##NAME=vector<q##p##NAME>;using vq##a2##NAME=vector<q##a2##NAME>;using d##NAME=deque<NAME>;using d##p##NAME=deque<p##NAME>;using d##a2##NAME=deque<a2##NAME>;using vd##NAME=vector<d##NAME>;using vd##p##NAME=vector<d##p##NAME>;using vd##a2##NAME=vector<d##a2##NAME>;using pq##NAME=priority_queue<NAME>;using pq##p##NAME=priority_queue<p##NAME>;using pq##a2##NAME=priority_queue<a2##NAME>;using vpq##NAME=vector<pq##NAME>;using vpq##p##NAME=vector<pq##p##NAME>;using vpq##a2##NAME=vector<pq##a2##NAME>;template<class Pr> using PQ##NAME=priority_queue<NAME, v##NAME, Pr>;template<class Pr> using PQ##p##NAME=priority_queue<p##NAME, v##p##NAME, Pr>;template<class Pr> using PQ##a2##NAME=priority_queue<a2##NAME, v##a2##NAME, Pr>;template<class Pr> using vPQ##NAME=vector<PQ##NAME<Pr>>;template<class Pr> using vPQ##p##NAME=vector<PQ##p##NAME<Pr>>;template<class Pr> using vPQ##a2##NAME=vector<PQ##a2##NAME<Pr>>;
-MK_TYPES(bool, bl);
-MK_TYPES(char, c8);
-MK_TYPES(unsigned char, uc8);
-MK_TYPES(int8_t, i8);
-MK_TYPES(int16_t, i16);
-MK_TYPES(int32_t, i32);
-MK_TYPES(int64_t, i64)
-MK_TYPES(__int128, i128);
-MK_TYPES(uint8_t, u8);
-MK_TYPES(uint16_t, u16);
-MK_TYPES(uint32_t, u32);
-MK_TYPES(uint64_t, u64);
-MK_TYPES(unsigned __int128, u128);
-MK_TYPES(float, f32);
-MK_TYPES(double, f64);
-MK_TYPES(long double, fld);
-MK_TYPES(__float128, f128);
-MK_TYPES(string, str8);
-
-// TODO map typedefs
-
-template<typename T>
-constexpr T MIN = numeric_limits<T>::min();
 template<class T>
 constexpr T MAX = numeric_limits<T>::max();
-template<class T>
-constexpr T INF = numeric_limits<T>::infinity();
-
-#define ALL(c) begin(c), end(c)
-#define CALL(c) cbegin(c), cend(c)
-#define RALL(c) rbegin(c), rend(c)
-#define CRALL(c) crbegin(c), crend(c)
-
-// Compatibility with ICPC notebook code
-// all and rall excluded since all conflicts with std::ranges::views::all in C++20
-#define rep(i, a, b) for (decltype(a) i = (a); i < (b); i++)
-#define rrep(i, a, b) for (decltype(a) i = (b) - 1; i >= (a); i--)
-#define srep(i, a, b, s) for (decltype(a) i = (a); i < (b); i += (s))
-#define srrep(i, a, b, s) for (decltype(a) i = (b) - 1; i >= (a); i -= (s))
-typedef long long ll;
-typedef pi32 pii;
-typedef a2i32 aii;
-typedef vi32 vi;
-typedef vvi32 vvi;
-typedef vi64 vll;
-typedef vbl vb;
-mt19937_64 randy(duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count());
-
-
-// C++20-specific
-#if __cplusplus >= 202002L
-namespace std::ranges
-{
-template<input_or_output_iterator I,
-	subrange_kind K = sized_sentinel_for<I, I> ? subrange_kind::sized : subrange_kind::unsized>
-subrange<I, I, K> subrange_n(I it, typename iterator_traits<I>::difference_type n)
-{
-	return subrange(it, it + n, n);
-}
-}
-
-namespace rng = std::ranges;
-namespace vws = std::views;
-#endif
-
-// Settings Macros:
-//#define T_CASES
-//#define PRECOMP
-//#define PT_NUMS
-
-#ifdef PRECOMP
-void pre();
-#endif // PRECOMP
-void go();
-
-int main(int argc, const char* argv[])
-{
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-
-#ifdef PRECOMP
-	pre();
-#endif // PRECOMP
-
-#ifdef T_CASES
-	int t;
-	cin >> t;
-	for (int tt = 1; tt <= t; tt++)
-	{
-#ifdef PT_NUMS
-		cout << "Case #" << tt << ": ";
-#endif // PT_NUMS
-		go();
-	}
-#else
-	go();
-#endif // T_CASES
-}
-
-#endif // TEMPLATE_H_INCLUDED]
 
 struct edge
 {
-	int w, i;
-	i64 a, b;
-	edge(int w, int i, i64 c): w(w), i(i), a(c), b(c) {}
+	int to; // destination
+	int idx; // index of reverse edge in adj[to]
+	bool cap; // residual capacity
 };
-MK_TYPES(edge, ed);
 
+// Variant of Dinic's algorithm.
+// A simplified version of https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/Dinic.h
+// The version on KACTL runs in O(V E log U), where U is an upper bound on flow and is assumed to be about 2^30.
+// The for-loop that causes the different complexity has been removed from this version, since the change is useless for unit-capacity networks.
+// This version *should* (I'm not 100% sure) have the same time complexity as the usual version of Dinic's algorithm, including for unit-capacity networks.
 struct dinic
 {
-	vi32 L, P, Q;
-	vved A;
-	dinic(int n): L(n), P(n), Q(n), A(n) {}
-	void add(int u, int v, i64 a, i64 b)
+	// Queue used for finding blocking flows with BFS.
+	deque<int> bfs;
+	// Each vertex's BFS level, or 0 if it hasn't been visited yet in the current iteration.
+	vector<int> level;
+	// Number of edges each vertex has already considered in this iteration.
+	vector<int> idx;
+	// Residual network.
+	vector<vector<edge>> adj;
+	// Start and end point of the flow.
+	int source, sink;
+	dinic(int n, int source, int sink):
+		level(n), idx(n), adj(n), source(source), sink(sink)
+	{}
+	// Adds a from->to edge with capacity 1 its reverse with capacity 0 to the residual graph.
+	void add(int from, int to)
 	{
-		dassert(0 <= u && u <= size(A));
-		dassert(0 <= v && v <= size(A));
-		A[u].emplace_back(v, size(A[v]), a);
-		A[v].emplace_back(u, size(A[u]) - 1, b);
+		edge fromTo{ to, (int)size(adj[to]), true };
+		edge toFrom{ from, (int)size(adj[from]), false };
+		adj[from].push_back(fromTo);
+		adj[to].push_back(toFrom);
 	}
-	i64 dfs(int v, int t, i64 f)
+
+	// Looks for an augmenting path in the layered network.
+	// Augments the network and returns true iff one is found.
+	bool dfs(int from)
 	{
-		if (v == t || !f) return f;
-		dassert(0 <= v && v <= size(A));
-		dassert(0 <= v && v <= size(P));
-		for (int& i = P[v]; i < size(A[v]); i++)
+		// Base case
+		if (from == sink)
+			return true;
+		// Iterate over adjacent vertices in the residual graph, skipping those already considered this iteration.
+		for (; idx[from] < (int)size(adj[from]); idx[from]++)
 		{
-			dassert(0 <= v && v <= size(A));
-			dassert(0 <= i && i <= size(A[v]));
-			auto& [w, j, a, b] = A[v][i];
-			dassert(0 <= w && w <= size(L));
-			dassert(0 <= v && v <= size(L));
-			if (L[w] == L[v] + 1) if (i64 p = dfs(w, t, min(f, a)))
+			auto& [to, j, cap] = adj[from][idx[from]];
+			// Only consider edges with positive capacity in the layered graph from which a positive-capacity path to the sink can be found.
+			if (cap && level[to] == level[from] + 1 && dfs(to))
 			{
-				a -= p;
-				dassert(0 <= w && w <= size(A));
-				//cerr << size(A[w]) << endl;
-#ifdef DEBUG
-				for (auto [x, y, z, r] : A[w])
-					cerr << x << ' ' << y << ' ' << z << ' ' << r << endl;
-				cerr << endl;
-#endif
-				dassert(0 <= j && j <= size(A[w]));
-				A[w][j].a += p;
-				return p;
+				// An augmenting path has been found, so augment this edge and return true.
+				cap = false;
+				adj[to][j].cap = true;
+				return true;
 			}
 		}
-		return 0;
+		// No augmenting from->sink path in the level graph.
+		return false;
 	}
-	i64 flow(int s, int t)
+
+	// Computes the maximum flow in the network from source to sink.
+	int flow()
 	{
-		i64 f = 0;
-		dassert(0 <= 0 && 0 <= size(Q));
-		Q[0] = s;
-		dassert(0 <= t && t <= size(L));
-		rep(i, 0, 31) do
+		int flow = 0;
+
+		// For non-unit capacities, this would be enclosed in a for loop, which is the source of the O(log U) in the time complexity.
+		// See the KACTL implementation for an example.
+		do
 		{
-			L.assign(size(Q), 0);
-			P.assign(size(Q), 0);
-			dassert(0 <= s && s <= size(L));
-			int qi = 0, qe = L[s] = 1;
-			while (qi < qe && !L[t])
+			// Reset level and idx
+			fill(begin(level), end(level), 0);
+			level[source] = 1;
+			fill(begin(idx), end(idx), 0);
+
+			// Enqueue the source
+			bfs.push_back(source);
+			while (!bfs.empty() && level[sink] == 0)
 			{
-				dassert(0 <= qi && qi <= size(Q));
-				int v = Q[qi++];
-				dassert(0 <= v && v <= size(A));
-				for (auto [w, j, a, b] : A[v])
+				// Dequeue the current vertex
+				int from = bfs.front();
+				bfs.pop_front();
+				// For each outgoing edge with positive capacity to an unvisited vertex...
+				for (auto [to, idx, cap] : adj[from])
 				{
-					dassert(0 <= w && w <= size(L));
-					if (!L[w] && a >> (30 - i))
+					if (cap && level[to] == 0)
 					{
-						dassert(0 <= qe && qe <= size(Q));
-						Q[qe++] = w;
-						dassert(0 <= w && w <= size(L));
-						dassert(0 <= v && v <= size(L));
-						L[w] = L[v] + 1;
+						// ... put it in the next level and enqueue it.
+						level[to] = level[from] + 1;
+						bfs.push_back(to);
 					}
 				}
 			}
-			while (i64 p = dfs(s, t, MAX<i64>)) f += p;
-		} while (L[t]);
-		return f;
-	}
-	void dbg()
-	{
-#ifdef DEBUG
-		cerr << size(L) << ' ' << size(P) << ' ' << size(Q) << ' ' << size(A) << endl;
-		rep(i, 0, size(L))
-		{
-			cerr << ' ' << i << ' ' << L[i] << ' ' << P[i] << ' ' << Q[i] << ' ' << size(A[i]) << endl;
-			rep(j, 0, size(A[i]))
-			{
-				cerr << "  " << j << ' ' << A[i][j].w << ' ' << A[i][j].i << ' ' << A[i][j].a << ' ' << A[i][j].b << endl;
-				dassert(A[i][j].i < A[A[i][j].w].size());
-			}
-		}
-#endif
+			bfs.clear();
+			// Augment the residual graph with a blocking flow.
+			// This is done by repeatedly finding augmenting paths in the layered graph until none exist.
+			while (dfs(source))
+				flow++;
+			// Iterate until the BFS terminates without reaching the sink.
+			// This happens only once the sink is disconnected and the flow is maximized
+		} while (level[sink] != 0);
+		return flow;
 	}
 };
 
-constexpr array<pi32, 5> DIR{ pi32(-1, 0), pi32(0, -1), pi32(1, 0), pi32(0, 1), pi32(0, 0) };
+// Legal moves
+constexpr array<pair<int, int>, 5> DIR{
+	make_pair(-1, 0),
+	make_pair(0, -1),
+	make_pair(1, 0),
+	make_pair(0, 1),
+	make_pair(0, 0),
+};
 
-void go()
+int main()
 {
-	//dassert(false);
-	int n, m, l;
-	cin >> n >> m >> l;
-	l++;
-	vvc8 G(n, vc8(m));
-	cin >> G;
-	const auto idx = [n, m, l](int i, int j, int k)
-	{
-		return 2 * (k + l * (j + m * i));
-	};
-	int N = n * m * l * 2 + 2;
-	int s = N - 2, t = N - 1;
-	dinic D(N);
-	rep(i, 0, n) rep(j, 0, m) rep(k, 0, l)
-	{
-		dassert(0 <= i && i <= size(G));
-		dassert(0 <= j && j <= size(G[i]));
-		char g = G[i][j];
-		int a = idx(i, j, k), b = a + 1;
-		D.add(a, b, 1, 0);
+	// Parse input
+	int n, m, t;
+	cin >> n >> m >> t;
+	vector<string> grid(n);
+	for (string& row : grid)
+		cin >> row;
 
-		if ((g == 'P' || g == '.') && k < l - 1)
-			for (auto [di, dj] : DIR)
+	// Nodes are ordered by row, then column, then time, followed by the source and the sink.
+	int N = n * m * (t + 1) * 2 + 2;
+	int source = N - 2, sink = N - 1;
+	// The index of the virtual vertex at cell (i, j) and time k. If u = idx(i, j, k), the vertices for
+	//     incoming and outgoing edges making up this virtual vertex are 2u and 2u+1, respectively.
+	const auto index = [n, m, t](int i, int j, int k)
+	{
+		return k + (t + 1) * (j + m * i);
+	};
+
+	dinic D(N, source, sink);
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			for (int k = 0; k <= t; k++)
 			{
-				int i2 = i + di, j2 = j + dj;
-				if (i2 < 0 || i2 >= n || j2 < 0 || j2 >= m) continue;
-				int c = idx(i2, j2, k + 1);
-				D.add(b, c, 1, 0);
+				char cell = grid[i][j];
+				// Current vertex.
+				int from = index(i, j, k), fromIn = 2 * from, fromOut = 2 * from + 1;
+				// Edge simulating vertex capacity.
+				D.add(fromIn, fromOut);
+
+				// If not from an exit, an obstacle, or the last time slice...
+				if (cell != 'E' && cell != '#' && k < t)
+					// ... to each reachable cell in the next time slice...
+					for (auto [di, dj] : DIR)
+					{
+						int i2 = i + di, j2 = j + dj;
+						// ... except positions outside the grid and obstacles...
+						if (i2 < 0 || i2 >= n || j2 < 0 || j2 >= m || grid[i2][j2] == '#')
+							continue;
+						// ... add an edge.
+						int to = index(i2, j2, k + 1), toIn = 2 * to;
+						D.add(fromOut, toIn);
+					}
+				// Connect the source to each person's starting point in the first time slice
+				if (cell == 'P' && k == 0)
+					D.add(source, fromIn);
+				// Connect each exit to the sink at every time slice
+				if (cell == 'E')
+					D.add(fromOut, sink);
 			}
-		if (g == 'P' && k == 0)
-			D.add(s, a, 1, 0);
-		if (g == 'E')
-			D.add(b, t, 1, 0);
-	}
-	//D.dbg();
-	cout << D.flow(s, t) << endl;
+	cout << D.flow() << endl;
 }
