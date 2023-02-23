@@ -1,4 +1,6 @@
 
+#include "template.h"
+
 constexpr u32 phi(u32 a)
 {
 	u32 phi = a;
@@ -23,6 +25,7 @@ struct mint
 	constexpr static u32 MOD = M;
 	constexpr static u32 PHI = PHI<M>;
 	constexpr static bool PRIME = PRIME<M>;
+	constexpr static mint<PHI> INV_POW = M - 2;
 
 	u32 v;
 
@@ -49,8 +52,7 @@ struct mint
 	{
 		static_assert(PRIME);
 		assert(v);
-		constexpr static mint<PHI> POW = M - 2;
-		return mpow(*this, POW);
+		return mpow(*this, INV_POW);
 	}
 	constexpr friend mint inv(mint a) { return a.inv(); }
 	constexpr mint& operator/=(mint b) { return *this *= b.inv(); }
