@@ -135,11 +135,11 @@ auto& operator>>(istrm auto& is, tuple_like auto&& x) { return apply([&](auto&&.
 auto& operator<<(ostrm auto& os, tuple_like auto&& x) { return apply([&](auto&&... ts) -> auto& { return (os << ... << ts); }, x); }
 template<class T> auto& operator>>(istrm auto& is, optional<T>&& o) { o.emplace(read<T>(is)); return is; }
 template<class T> auto& operator<<(ostrm auto& os, optional<T>&& o) { if (o) os << *o; return os; }
-template<istrm S> S& operator>>(S& is, readable_range<S> auto&& r) { for (auto& x : r) is >> x; return is; }
-template<ostrm S> S& operator<<(S& os, writable_range<S> auto&& r) { for (auto& x : r) os << x; return os; }
+template<istrm S> S& operator>>(S& is, readable_range<S> auto&& r) { for (auto it = begin(r); it != end(r); ++it) is >> *it; return is; }
+template<ostrm S> S& operator<<(S& os, writable_range<S> auto&& r) { for (auto it = begin(r); it != end(r); ++it) os << *it; return os; }
 
 // Allows reading bitstrings without whitespace
-istream& operator>>(istream& is, vector<bool>& r) { for (size_t i = 0; i < size(r); i++) r[i] = read<char>(is) == '1'; return is; }
+auto& operator>>(istrm auto& is, vector<bool>& r) { for (auto it = begin(r); it != end(r); it++) *it = read<char>(is) == '1'; return is; }
 
 // Doesn't read the current value until dereferencing or advancing past it.
 // Works with copy_n etc. but not copy etc. since no end iterator exists.
