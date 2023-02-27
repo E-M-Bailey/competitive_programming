@@ -1,7 +1,7 @@
 
 #include "template.h"
 
-constexpr u32 phi(u32 a)
+[[nodiscard]] constexpr u32 phi(u32 a)
 {
 	u32 phi = a;
 	for (u32 i = 2; (u64)i * i <= a; i++)
@@ -12,7 +12,6 @@ constexpr u32 phi(u32 a)
 	}
 	return a < 2 ? phi : phi / a * (a - 1);
 }
-constexpr bool prime(u32 a) { return phi(a) + 1 == a; }
 template<u32 a> constexpr u32 PHI = phi(a);
 template<u32 a> constexpr bool PRIME = PHI<a> +1 == a;
 
@@ -25,7 +24,8 @@ struct mint
 	constexpr static u32 MOD = M;
 	constexpr static u32 PHI = PHI<M>;
 	constexpr static bool PRIME = PRIME<M>;
-	constexpr static mint<PHI> INV_POW = M - 2;
+	using pow_t = mint<PHI>;
+	constexpr static pow_t INV_POW = M - 2;
 
 	u32 v;
 
@@ -33,37 +33,37 @@ struct mint
 	template<class T, typename enable_if<is_integral<T>::value, int>::type = 0>
 	constexpr mint(T v): v(v < 0 ? v % M + M : v % M) {}
 
-	constexpr u32 val() const { return v; }
-	constexpr friend mint operator+(mint a) { return a; }
-	constexpr friend mint operator-(mint a) { if (a.v) a.v = M - a.v; return a; }
+	[[nodiscard]] constexpr u32 val() const { return v; }
+	[[nodiscard]] constexpr friend mint operator+(mint a) { return a; }
+	[[nodiscard]] constexpr friend mint operator-(mint a) { if (a.v) a.v = M - a.v; return a; }
 	constexpr mint& operator+=(mint b) { if ((v += b.v) >= M) v -= M; return *this; }
-	constexpr friend mint operator+(mint a, mint b) { return a += b; }
+	[[nodiscard]] constexpr friend mint operator+(mint a, mint b) { return a += b; }
 	constexpr mint& operator-=(mint b) { if ((v += M - b.v) >= M) v -= M; return *this; }
-	constexpr friend mint operator-(mint a, mint b) { return a -= b; }
+	[[nodiscard]] constexpr friend mint operator-(mint a, mint b) { return a -= b; }
 	constexpr mint& operator*=(mint b) { v = u32((u64)v * b.v % M); return *this; }
-	constexpr friend mint operator*(mint a, mint b) { return a *= b; }
-	constexpr friend mint mpow(mint a, mint<PHI> b)
+	[[nodiscard]] constexpr friend mint operator*(mint a, mint b) { return a *= b; }
+	[[nodiscard]] constexpr friend mint mpow(mint a, pow_t b)
 	{
 		mint p = 1;
 		for (; b.v; b.v /= 2, a *= a) if (b.v % 2) p *= a;
 		return p;
 	}
-	constexpr mint inv() const
+	[[nodiscard]] constexpr mint mpow(pow_t b) { return mpow(*this, b); }
+	[[nodiscard]] constexpr mint inv(mint a) requires PRIME const
 	{
-		static_assert(PRIME);
-		assert(v);
+		dassert(a);
 		return mpow(*this, INV_POW);
 	}
-	constexpr friend mint inv(mint a) { return a.inv(); }
+	[[nodiscard]] constexpr friend mint inv(mint a) { return a.inv(); }
 	constexpr mint& operator/=(mint b) { return *this *= b.inv(); }
-	constexpr friend mint operator/(mint a, mint b) { return a /= b; }
-	constexpr friend bool operator==(mint a, mint b) { return a.v == b.v; }
-	constexpr friend bool operator!=(mint a, mint b) { return a.v != b.v; }
-	constexpr friend bool operator<(mint a, mint b) { return a.v < b.v; }
-	constexpr friend bool operator<=(mint a, mint b) { return a.v <= b.v; }
-	constexpr friend bool operator>(mint a, mint b) { return a.v > b.v; }
-	constexpr friend bool operator>=(mint a, mint b) { return a.v >= b.v; }
-	constexpr operator u32() const { return v; }
+	[[nodiscard]] constexpr friend mint operator/(mint a, mint b) { return a /= b; }
+	[[nodiscard]] constexpr friend bool operator==(mint a, mint b) { return a.v == b.v; }
+	[[nodiscard]] constexpr friend bool operator!=(mint a, mint b) { return a.v != b.v; }
+	[[nodiscard]] constexpr friend bool operator<(mint a, mint b) { return a.v < b.v; }
+	[[nodiscard]] constexpr friend bool operator<=(mint a, mint b) { return a.v <= b.v; }
+	[[nodiscard]] constexpr friend bool operator>(mint a, mint b) { return a.v > b.v; }
+	[[nodiscard]] constexpr friend bool operator>=(mint a, mint b) { return a.v >= b.v; }
+	[[nodiscard]] constexpr operator u32() const { return v; }
 	friend istream& operator>>(istream& istrm, mint& a) { intmax_t v; istrm >> v; a = v; return istrm; }
 	friend ostream& operator<<(ostream& ostrm, mint a) { return ostrm << a.v; }
 };
