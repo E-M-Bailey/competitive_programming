@@ -21,97 +21,91 @@ using namespace chrono;
 using namespace string_literals;
 using namespace __gnu_pbds;
 
+// TODO fix tuple hashing
 template<size_t S, class... Ts>
 struct TupleHashHelper
 {
-    typedef std::tuple<Ts...> Tup;
-    typedef TupleHashHelper<S - 1, Ts...> Helper;
-    typedef std::tuple_element_t<S - 1, Tup> T;
-    inline constexpr size_t operator()(const Tup& t) const noexcept
-    {
-        return (size_t)31 * Helper()(t) + std::hash<T>()(std::get<S - 1>(t));
-    }
+	typedef std::tuple<Ts...> Tup;
+	typedef TupleHashHelper<S - 1, Ts...> Helper;
+	typedef std::tuple_element_t<S - 1, Tup> T;
+	inline constexpr size_t operator()(const Tup& t) const noexcept
+	{
+		return (size_t)31 * Helper()(t) + std::hash<T>()(std::get<S - 1>(t));
+	}
 };
 
 template<class... Ts>
 struct TupleHashHelper<0, Ts...>
 {
-    typedef std::tuple<Ts...> Tup;
-    inline constexpr size_t operator()(const Tup&) const noexcept
-    {
-        return 0;
-    }
+	typedef std::tuple<Ts...> Tup;
+	inline constexpr size_t operator()(const Tup&) const noexcept
+	{
+		return 0;
+	}
 };
 
 template<class... Ts>
 struct std::hash<tuple<Ts...>>
 {
-    typedef std::tuple<Ts...> Tup;
-    static constexpr size_t S = sizeof...(Ts);
-    typedef TupleHashHelper<S, Ts...> Helper;
-    inline constexpr size_t operator()(const Tup& t) const noexcept
-    {
-        return Helper()(t);
-    }
+	typedef std::tuple<Ts...> Tup;
+	static constexpr size_t S = sizeof...(Ts);
+	typedef TupleHashHelper<S, Ts...> Helper;
+	inline constexpr size_t operator()(const Tup& t) const noexcept
+	{
+		return Helper()(t);
+	}
 };
 
 template<class T, class U>
 struct std::hash<pair<T, U>>
 {
-    inline constexpr size_t operator()(const pair<T, U>& p) const noexcept
-    {
-        return (size_t)31 * hash<T>()(p.first) + hash<U>()(p.second);
-    }
+	inline constexpr size_t operator()(const pair<T, U>& p) const noexcept
+	{
+		return (size_t)31 * hash<T>()(p.first) + hash<U>()(p.second);
+	}
 };
-
-template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
-{
-    if (x-- == 0) return 1;
-    for (int i = 1; i < int(CHAR_BIT * sizeof(T)); i *= 2) x |= x >> i;
-    return ++x;
-}
 
 /* iterator example
 template<class T> class optional_iterator
 {
 private:
-    T* val = nullptr;
-    bool done = true;
-    template<template<class> class C> constexpr bool cmp(const optional_iterator& it) const noexcept
-    {
-        dassert(val == it.val);
-        return C<bool>()(done, it.done);
-    }
+	T* val = nullptr;
+	bool done = true;
+	template<template<class> class C> constexpr bool cmp(const optional_iterator& it) const noexcept
+	{
+		dassert(val == it.val);
+		return C<bool>()(done, it.done);
+	}
 public:
-    using value_type = T;
-    using difference_type = ptrdiff_t;
-    using pointer = T*;
-    using reference = T&;
-    using iterator_category = random_access_iterator_tag;
-    using iterator_concept = contiguous_iterator_tag;
-    constexpr optional_iterator() noexcept = default;
-    constexpr optional_iterator(optional<T>& opt) noexcept: val(opt ? &*opt : nullptr), done(opt) {}
-    constexpr optional_iterator(const optional<T>& opt) noexcept: val(opt ? &*opt : nullptr), done(opt) {}
-    constexpr optional_iterator& operator++() noexcept { dassert(!done); done = true; return *this; }
-    constexpr optional_iterator& operator--() noexcept { dassert(done && opt && *opt); done = false; return *this; }
-    constexpr [[nodiscard]] optional_iterator operator++(int) noexcept { auto it = *this; ++* this; return it; }
-    constexpr [[nodiscard]] optional_iterator operator--(int) noexcept { auto it = *this; --* this; return it; }
-    constexpr optional_iterator& operator+=(difference_type n) noexcept { dassert(done + n == 0 || done + n == 1); done = done + n; return *this; }
-    constexpr optional_iterator& operator-=(difference_type n) noexcept { dassert(done - n == 0 || done - n == 1); done = done - n; return *this; }
-    constexpr [[nodiscard]] optional_iterator operator+(difference_type n) const noexcept { optional_iterator it = *this; return it += n; }
-    constexpr [[nodiscard]] optional_iterator operator-(difference_type n) const noexcept { optional_iterator it = *this; return it -= n; }
-    constexpr [[nodiscard]] optional_iterator operator-(difference_type n) const noexcept { optional_iterator it = *this; return it -= n; }
-    constexpr friend [[nodiscard]] optional_iterator operator+(difference_type n, const optional_iterator& it) noexcept { return it + n; }
-    constexpr [[nodiscard]] optional_iterator operator-(const optional_iterator& it) { dassert(val == it.val); return static_cast<difference_type>(done) - it.done; }
-    constexpr [[nodiscard]] T& operator*() const { dassert(!done); return *opt; }
-    constexpr [[nodiscard]] T* operator->() const { dassert(!done); return opt; }
-    constexpr [[nodiscard]] T& operator[](difference_type n) { return *(*this + n); }
-    constexpr [[nodiscard]] bool operator==(const optional_iterator& it) const noexcept { return cmp<equal_to>(it); }
-    constexpr [[nodiscard]] bool operator!=(const optional_iterator& it) const noexcept { return cmp<not_equal_to>(it); }
-    constexpr [[nodiscard]] bool operator<(const optional_iterator& it) const noexcept { return cmp<less>(it); }
-    constexpr [[nodiscard]] bool operator<=(const optional_iterator& it) const noexcept { return cmp<less_equal>(it); }
-    constexpr [[nodiscard]] bool operator>(const optional_iterator& it) const noexcept { return cmp<greater>(it); }
-    constexpr [[nodiscard]] bool operator>=(const optional_iterator& it) const noexcept { return cmp<greater_equal>(it); }
+	using value_type = T;
+	using difference_type = ptrdiff_t;
+	using pointer = T*;
+	using reference = T&;
+	using iterator_category = random_access_iterator_tag;
+	using iterator_concept = contiguous_iterator_tag;
+	constexpr optional_iterator() noexcept = default;
+	constexpr optional_iterator(optional<T>& opt) noexcept: val(opt ? &*opt : nullptr), done(opt) {}
+	constexpr optional_iterator(const optional<T>& opt) noexcept: val(opt ? &*opt : nullptr), done(opt) {}
+	constexpr optional_iterator& operator++() noexcept { dassert(!done); done = true; return *this; }
+	constexpr optional_iterator& operator--() noexcept { dassert(done && opt && *opt); done = false; return *this; }
+	constexpr [[nodiscard]] optional_iterator operator++(int) noexcept { auto it = *this; ++* this; return it; }
+	constexpr [[nodiscard]] optional_iterator operator--(int) noexcept { auto it = *this; --* this; return it; }
+	constexpr optional_iterator& operator+=(difference_type n) noexcept { dassert(done + n == 0 || done + n == 1); done = done + n; return *this; }
+	constexpr optional_iterator& operator-=(difference_type n) noexcept { dassert(done - n == 0 || done - n == 1); done = done - n; return *this; }
+	constexpr [[nodiscard]] optional_iterator operator+(difference_type n) const noexcept { optional_iterator it = *this; return it += n; }
+	constexpr [[nodiscard]] optional_iterator operator-(difference_type n) const noexcept { optional_iterator it = *this; return it -= n; }
+	constexpr [[nodiscard]] optional_iterator operator-(difference_type n) const noexcept { optional_iterator it = *this; return it -= n; }
+	constexpr friend [[nodiscard]] optional_iterator operator+(difference_type n, const optional_iterator& it) noexcept { return it + n; }
+	constexpr [[nodiscard]] optional_iterator operator-(const optional_iterator& it) { dassert(val == it.val); return static_cast<difference_type>(done) - it.done; }
+	constexpr [[nodiscard]] T& operator*() const { dassert(!done); return *opt; }
+	constexpr [[nodiscard]] T* operator->() const { dassert(!done); return opt; }
+	constexpr [[nodiscard]] T& operator[](difference_type n) { return *(*this + n); }
+	constexpr [[nodiscard]] bool operator==(const optional_iterator& it) const noexcept { return cmp<equal_to>(it); }
+	constexpr [[nodiscard]] bool operator!=(const optional_iterator& it) const noexcept { return cmp<not_equal_to>(it); }
+	constexpr [[nodiscard]] bool operator<(const optional_iterator& it) const noexcept { return cmp<less>(it); }
+	constexpr [[nodiscard]] bool operator<=(const optional_iterator& it) const noexcept { return cmp<less_equal>(it); }
+	constexpr [[nodiscard]] bool operator>(const optional_iterator& it) const noexcept { return cmp<greater>(it); }
+	constexpr [[nodiscard]] bool operator>=(const optional_iterator& it) const noexcept { return cmp<greater_equal>(it); }
 };*/
 
 template<class> struct is_istrm: public false_type {};
@@ -122,9 +116,9 @@ template<class C, class Tr> struct is_ostrm<basic_ostream<C, Tr>>: public true_t
 template<class S> concept ostrm = is_ostrm<S>::value;
 template<class T> struct tuple_like_helper
 {
-    template<class U> static bool_constant<sizeof(U) == sizeof(U)> f(U*);
-    static false_type f(...);
-    using type = decltype(f((tuple_size<T>*)nullptr));
+	template<class U> static bool_constant<sizeof(U) == sizeof(U)> f(U*);
+	static false_type f(...);
+	using type = decltype(f((tuple_size<T>*)nullptr));
 };
 template<class T> concept tuple_like = tuple_like_helper<remove_reference_t<T>>::type::value;
 template<class R, class S> concept read_as_range = !tuple_like<R> && ranges::range<R> && ranges::output_range<R, ranges::range_value_t<R>>&& istrm<S>&& requires(S& is, ranges::iterator_t<R> it) { {is >> *it} -> same_as<S&>; };
@@ -141,37 +135,248 @@ template<ostrm S> S& operator<<(S& os, write_as_range<S> auto&& r) { for (auto i
 // Allows reading bitstrings without whitespace
 auto& operator>>(istrm auto& is, vector<bool>& r) { for (auto it = begin(r); it != end(r); it++) *it = read<char>(is) == '1'; return is; }
 
+template<template<class...> class C, class... Args> concept template_constructible_from = requires { C(declval<Args>()...);};
+
+// TODO more constructors
+template<class T, size_t S>
+struct rarray
+{
+	using array_type = std::array<T, S>;
+	using value_type = array_type::value_type;
+	using size_type = array_type::size_type;
+	using difference_type = array_type::difference_type;
+	using reference = array_type::reference;
+	using const_reference = array_type::const_reference;
+	using pointer = array_type::pointer;
+	using const_pointer = array_type::const_pointer;
+	using iterator = array_type::iterator;
+	using const_iterator = array_type::const_iterator;
+	using reverse_iterator = array_type::reverse_iterator;
+	using const_reverse_iterator = array_type::const_reverse_iterator;
+	array_type a;
+	[[nodiscard]] constexpr auto& at(size_t pos) { return a.at(pos); }
+	[[nodiscard]] constexpr const auto& at(size_t pos) const { return a.at(pos); }
+	[[nodiscard]] constexpr auto& operator[](size_t pos) { return a[pos]; }
+	[[nodiscard]] constexpr const auto& operator[](size_t pos) const { return a[pos]; }
+	[[nodiscard]] constexpr auto& front() { return a.front(); }
+	[[nodiscard]] constexpr const auto& front() const { return a.front(); }
+	[[nodiscard]] constexpr auto& back() { return a.back(); }
+	[[nodiscard]] constexpr const auto& back() const { return a.back(); }
+	[[nodiscard]] constexpr auto data() { return a.data(); }
+	[[nodiscard]] constexpr auto data() const { return a.data(); }
+	[[nodiscard]] constexpr auto begin() noexcept { return a.begin(); }
+	[[nodiscard]] constexpr auto begin() const noexcept { return a.begin(); }
+	[[nodiscard]] constexpr auto cbegin() const noexcept { return a.cbegin(); }
+	[[nodiscard]] constexpr auto end() noexcept { return a.end(); }
+	[[nodiscard]] constexpr auto end() const noexcept { return a.end(); }
+	[[nodiscard]] constexpr auto cend() const noexcept { return a.cend(); }
+	[[nodiscard]] constexpr auto rbegin() noexcept { return a.rbegin(); }
+	[[nodiscard]] constexpr auto rbegin() const noexcept { return a.rbegin(); }
+	[[nodiscard]] constexpr auto crbegin() const noexcept { return a.crbegin(); }
+	[[nodiscard]] constexpr auto rend() noexcept { return a.rend(); }
+	[[nodiscard]] constexpr auto rend() const noexcept { return a.rend(); }
+	[[nodiscard]] constexpr auto crend() const noexcept { return a.crend(); }
+	[[nodiscard]] constexpr auto size() const noexcept { return a.size(); }
+	[[nodiscard]] constexpr auto empty() const noexcept { return a.empty(); }
+	constexpr void fill(const T& t) { a.fill(t); }
+	constexpr void swap(rarray& y) noexcept(noexcept(a.swap(y.a))) { a.swap(y.a); }
+	constexpr friend void swap(rarray& x, rarray& y) noexcept(noexcept(x.swap(y))) { swap(x.a, y.a); }
+	[[nodiscard]] constexpr rarray() = default;
+	[[nodiscard]] constexpr rarray(array_type&& a) noexcept: a(forward<array_type>(a)) {}
+	template<input_iterator It> [[nodiscard]] constexpr rarray(It first, It last)
+	{
+		for (auto it = begin(); it != end(); it++)
+		{
+			dassert(first != last);
+			*it = forward<T>(*first++);
+		}
+		dassert(first == last);
+	}
+	constexpr operator const array_type& () const { return a; }
+	constexpr operator array_type& () { return a; }
+};
+
+template<size_t N> struct sarray { template<class T> using type = array<T, N>; };
+
+// Port of std::ranges::to to C++20 based on draft n4910
+// TODO specialization for std::array
+constexpr struct from_range_t {} from_range;
+template<class C> concept reservable_container = ranges::sized_range<C> && requires(C & c, ranges::range_size_t<C> n)
+{
+	c.reserve(n);
+	{ c.capacity() } -> same_as<decltype(n)>;
+	{ c.max_size() } -> same_as<decltype(n)>;
+};
+template<class C, class R> concept container_insertable = requires (C & c, R && r)
+{
+	requires (requires { c.push_back(forward<R>(r)); } || requires { c.insert(c.end(), forward<R>(r)); });
+};
+template<class R, class C> constexpr auto container_inserter(C& c)
+{
+	if constexpr (requires { c.push_back(declval<R>()); })
+		return back_inserter(c);
+	else
+		return inserter(c, c.end());
+}
+template<class C, ranges::input_range R, class... Args> requires (!ranges::view<C>) struct to_helper_1
+{
+	constexpr C operator()(R&& r, Args&&... args) const
+	{
+		if constexpr (!ranges::input_range<C> || convertible_to<ranges::range_reference_t<R>, ranges::range_value_t<C>>)
+		{
+			if constexpr (constructible_from<C, R, Args...>)
+				return C(forward<R>(r), forward<Args>(args)...);
+			else if constexpr (constructible_from<C, from_range_t, R, Args...>)
+				return C(from_range, forward<R>(r), forward<Args>(args)...);
+			else if constexpr (ranges::common_range<R>
+				&& derived_from<typename iterator_traits<ranges::iterator_t<R>>::iterator_category, input_iterator_tag>
+				&& constructible_from<C, ranges::iterator_t<R>, ranges::sentinel_t<R>, Args...>)
+				return C(ranges::begin(r), ranges::end(r), forward<Args>(args)...);
+			else
+			{
+				C c(forward<Args>(args)...);
+				if constexpr (ranges::sized_range<R> && reservable_container<C>)
+					c.reserve(static_cast<ranges::range_size_t<C>>(ranges::size(r)));
+				ranges::copy(r, container_inserter<ranges::range_reference_t<R>>(c));
+				return c;
+			}
+		}
+		else
+			return to<C>(r | views::transform([](auto&& elem)
+				{
+					return to<ranges::range_value_t<C>>(std::forward<decltype(elem)>(elem));
+				}), std::forward<Args>(args)...);
+	}
+};
+template<class T, size_t N, ranges::input_range R> struct to_helper_1<array<T, N>, R> // Nonstandard
+{
+	constexpr array<T, N> operator()(R&& r) const
+	{
+		array<T, N> c{};
+		auto it = ranges::copy(r, ranges::begin(c)).out;
+		dassert(it - begin(c) == N);
+		return c;
+	}
+};
+template<class C, ranges::input_range R, class... Args> requires (!ranges::view<C>) constexpr C to(R&& r, Args&&... args)
+{
+	return to_helper_1<C, R, Args...>()(forward<R>(r), forward<Args>(args)...);
+}
+template<size_t N, ranges::input_range R> constexpr auto to(R&& r) // Nonstandard
+{
+	return to<array<ranges::range_value_t<R>, N>>(forward<R>(r));
+}
+template<template<class...> class C, ranges::input_range R, class... Args> constexpr auto to(R&& r, Args&&... args)
+{
+	struct input_iterator
+	{
+		using iterator_category [[maybe_unused]] = input_iterator_tag;
+		using value_type [[maybe_unused]] = ranges::range_value_t<R>;
+		using difference_type [[maybe_unused]] = ptrdiff_t;
+		using pointer [[maybe_unused]] = add_pointer_t<ranges::range_reference_t<R>>;
+		using reference [[maybe_unused]] = ranges::range_reference_t<R>;
+		reference operator*() const;
+		pointer operator->() const;
+		input_iterator& operator++();
+		input_iterator operator++(int);
+		bool operator==(const input_iterator&) const;
+	};
+	if constexpr (template_constructible_from<C, R, Args...>) return to<decltype(C(declval<R>(), declval<Args>()...))>(forward<R>(r), forward<Args>(args)...);
+	else if constexpr (template_constructible_from<C, from_range_t, R, Args...>) return to<decltype(C(from_range, declval<R>(), declval<Args>()...))>(forward<R>(r), forward<Args>(args)...);
+	else return to<decltype(C(declval<input_iterator>(), declval<input_iterator>(), declval<Args>()...))>(forward<R>(r), forward<Args>(args)...);
+}
+// Based loosely on libstdc++'s std::bind_front implementation
+template<class C, class... Args> struct To1
+{
+private:
+	using I = index_sequence_for<Args...>;
+	tuple<Args...> b;
+	template<class S, size_t... I, ranges::range R> static constexpr C call(S&& s, index_sequence<I...>, R&& r) { return to<C, R, Args...>(forward<R>(r), get<I>(forward<S>(s).b)...); }
+public:
+	template<class... A> explicit constexpr To1(int, A&&... a) noexcept((is_nothrow_constructible_v<Args, A> && ...)): b(forward<A>(a)...) { static_assert(sizeof...(Args) == sizeof...(A)); }
+	template<ranges::range R> constexpr C operator()(R&& r)& { return call(*this, I(), forward<R>(r)); }
+	template<ranges::range R> constexpr C operator()(R&& r) const& { return call(*this, I(), forward<R>(r)); }
+	template<ranges::range R> constexpr C operator()(R&& r)&& { return call(move(*this), I(), forward<R>(r)); }
+	template<ranges::range R> constexpr C operator()(R&& r) const&& { return call(move(*this), I(), forward<R>(r)); }
+};
+template<size_t N> struct To2
+{
+private:
+	template<class S, ranges::range R> static constexpr auto call(S&& s, R&& r) { return to<N>(forward<R>(r)); }
+public:
+	template<ranges::range R> constexpr auto operator()(R&& r)& { return call(*this, forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const& { return call(*this, forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r)&& { return call(move(*this), forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const&& { return call(move(*this), forward<R>(r)); }
+};
+template<template<class...> class C, class... Args> struct To3
+{
+private:
+	using I = index_sequence_for<Args...>;
+	tuple<Args...> b;
+	template<class S, size_t... I, ranges::range R> static constexpr auto call(S&& s, index_sequence<I...>, R&& r) { return to<C, R, Args...>(forward<R>(r), get<I>(forward<S>(s).b)...); }
+public:
+	template<class... A> explicit constexpr To3(int, A&&... a) noexcept((is_nothrow_constructible_v<Args, A> && ...)): b(forward<A>(a)...) { static_assert(sizeof...(Args) == sizeof...(A)); }
+	template<ranges::range R> constexpr auto operator()(R&& r)& { return call(*this, I(), forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const& { return call(*this, I(), forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r)&& { return call(move(*this), I(), forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const&& { return call(move(*this), I(), forward<R>(r)); }
+};
+template<class C, class... Args> requires (!ranges::view<C>) constexpr auto to(Args&&... args) { return To1<C, Args...>(0, forward<Args>(args)...); }
+template<size_t N> constexpr auto to() { return To2<N>(0); }
+template<template<class...> class C, class... Args> constexpr auto to(Args&&... args) { return To3<C, Args...>(0, forward<Args>(args)...); }
+
 // Doesn't read the current value until dereferencing or advancing past it.
 // Works with copy_n etc. but not copy etc. since no end iterator exists.
 template<class T, class C = char, class Tr = char_traits<C>, class D = ptrdiff_t> class lazy_istream_iterator
 {
 public:
-    using iterator_category = input_iterator_tag;
-    using value_type = T;
-    using difference_type = D;
-    using pointer = const T*;
-    using reference = const T&;
-    using char_type = C;
-    using traits_type = Tr;
-    using istream_type = basic_istream<C, Tr>;
+	using iterator_category = input_iterator_tag;
+	using value_type = T;
+	using difference_type = D;
+	using pointer = const T*;
+	using reference = const T&;
+	using char_type = C;
+	using traits_type = Tr;
+	using istream_type = basic_istream<C, Tr>;
 private:
-    istream_type& is;
-    mutable optional<T> cache;
+	istream_type& is;
+	mutable optional<T> cache;
 public:
-    constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): is(is) {}
-    [[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(is); return *cache; }
-    [[nodiscard]] const T* operator->() const { return &**this; }
-    lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(is); cache.reset(); return *this; }
-    [[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) cin >> cache; lazy_istream_iterator cur(is); swap(cur.cache, cache); return cur; }
+	constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): is(is) {}
+	[[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(is); return *cache; }
+	[[nodiscard]] const T* operator->() const { return &**this; }
+	lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(is); cache.reset(); return *this; }
+	[[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) cin >> cache; lazy_istream_iterator cur(is); swap(cur.cache, cache); return cur; }
 };
 
 template<class T>
 using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-[[nodiscard]] constexpr u32 phi(u32 a)
+template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
 {
-	u32 phi = a;
-	for (u32 i = 2; (u64)i * i <= a; i++)
+	if (x-- == 0) return 1;
+	for (int i = 1; i < int(CHAR_BIT * sizeof(T)); i *= 2) x |= x >> i;
+	return ++x;
+}
+template<unsigned_integral T> [[nodiscard]] constexpr T isqrtc(T x)
+{
+	T ub = ((T)1 << (8 * sizeof(x) - countl_zero(x) + 1) / 2) + 1;
+	T r = *ranges::lower_bound(views::iota((T)0, ub), x, {}, [](T r) { return r * r; });
+	return r;
+}
+template<unsigned_integral T> [[nodiscard]] constexpr T isqrtf(T x)
+{
+	T r = isqrtc(x);
+	return r - (r * r != x);
+}
+template<uint64_t N> constexpr uint32_t ISQRTC = isqrtc(N);
+template<uint64_t N> constexpr uint32_t ISQRTF = ISQRTC<N> -(ISQRTC<N> *ISQRTC<N> != N);
+
+[[nodiscard]] constexpr uint32_t phi(uint32_t a)
+{
+	uint32_t phi = a;
+	for (uint32_t i = 2; (uint64_t)i * i <= a; i++)
 	{
 		if (a % i) continue;
 		phi = phi / i * (i - 1);
@@ -179,35 +384,34 @@ using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_no
 	}
 	return a < 2 ? phi : phi / a * (a - 1);
 }
-template<u32 a> constexpr u32 PHI = phi(a);
-template<u32 a> constexpr bool PRIME = PHI<a> +1 == a;
+template<uint32_t a> constexpr uint32_t PHI = phi(a);
+template<uint32_t a> constexpr bool PRIME = PHI<a> +1 == a;
 
-template<u32 M>
-struct mint
+template<uint32_t M> struct mint
 {
 	static_assert(0 < M);
 	static_assert(M < 1u << 31);
 
-	constexpr static u32 MOD = M;
-	constexpr static u32 PHI = PHI<M>;
+	constexpr static uint32_t MOD = M;
+	constexpr static uint32_t PHI = PHI<M>;
 	constexpr static bool PRIME = PRIME<M>;
 	using pow_t = mint<PHI>;
 	constexpr static pow_t INV_POW = M - 2;
 
-	u32 v;
+	uint32_t v;
 
 	constexpr mint() = default;
 	template<class T, typename enable_if<is_integral<T>::value, int>::type = 0>
 	constexpr mint(T v): v(v < 0 ? v % M + M : v % M) {}
 
-	[[nodiscard]] constexpr u32 val() const { return v; }
+	[[nodiscard]] constexpr uint32_t val() const { return v; }
 	[[nodiscard]] constexpr friend mint operator+(mint a) { return a; }
 	[[nodiscard]] constexpr friend mint operator-(mint a) { if (a.v) a.v = M - a.v; return a; }
 	constexpr mint& operator+=(mint b) { if ((v += b.v) >= M) v -= M; return *this; }
 	[[nodiscard]] constexpr friend mint operator+(mint a, mint b) { return a += b; }
 	constexpr mint& operator-=(mint b) { if ((v += M - b.v) >= M) v -= M; return *this; }
 	[[nodiscard]] constexpr friend mint operator-(mint a, mint b) { return a -= b; }
-	constexpr mint& operator*=(mint b) { v = u32((u64)v * b.v % M); return *this; }
+	constexpr mint& operator*=(mint b) { v = uint32_t((uint64_t)v * b.v % M); return *this; }
 	[[nodiscard]] constexpr friend mint operator*(mint a, mint b) { return a *= b; }
 	[[nodiscard]] constexpr friend mint mpow(mint a, pow_t b)
 	{
@@ -216,7 +420,7 @@ struct mint
 		return p;
 	}
 	[[nodiscard]] constexpr mint mpow(pow_t b) { return mpow(*this, b); }
-	[[nodiscard]] constexpr mint inv(mint a) requires PRIME const
+	[[nodiscard]] constexpr mint inv(mint a) const requires PRIME
 	{
 		dassert(a);
 		return mpow(*this, INV_POW);
@@ -230,7 +434,7 @@ struct mint
 	[[nodiscard]] constexpr friend bool operator<=(mint a, mint b) { return a.v <= b.v; }
 	[[nodiscard]] constexpr friend bool operator>(mint a, mint b) { return a.v > b.v; }
 	[[nodiscard]] constexpr friend bool operator>=(mint a, mint b) { return a.v >= b.v; }
-	[[nodiscard]] constexpr operator u32() const { return v; }
+	[[nodiscard]] constexpr operator uint32_t() const { return v; }
 	friend istream& operator>>(istream& istrm, mint& a) { intmax_t v; istrm >> v; a = v; return istrm; }
 	friend ostream& operator<<(ostream& ostrm, mint a) { return ostrm << a.v; }
 };
@@ -289,22 +493,21 @@ mt19937_64 randy(duration_cast<nanoseconds>(high_resolution_clock::now().time_si
 namespace std::ranges
 {
 template<input_or_output_iterator I,
-    subrange_kind K = sized_sentinel_for<I, I> ? subrange_kind::sized : subrange_kind::unsized>
+	subrange_kind K = sized_sentinel_for<I, I> ? subrange_kind::sized : subrange_kind::unsized>
 subrange<I, I, K> subrange_n(I it, typename iterator_traits<I>::difference_type n)
 {
-    return subrange(it, it + n, n);
+	return subrange(it, it + n, n);
 }
 }
 
-namespace rng = std::ranges;
-namespace vws = std::views;
+namespace views = ranges::views;
 #endif
 
 // Settings Macros:
-//#define T_CASES
+#define T_CASES
 //#define PRECOMP
 //#define PT_NUMS
-//#define INTRCTV
+#define OFFLINE
 
 #ifdef PRECOMP
 void pre();
@@ -313,33 +516,33 @@ void go();
 
 int main(int argc, const char* argv[])
 {
-#ifndef INTRCTV
-    if (argc > 1)
-    {
-        ignore = freopen(argv[1], "r", stdin);
-        ignore = freopen(argv[2], "w", stdout);
-    }
-#endif // INTRCTV
+#ifdef OFFLINE
+	if (argc > 1)
+	{
+		ignore = freopen(argv[1], "r", stdin);
+		ignore = freopen(argv[2], "w", stdout);
+	}
+#endif // OFFLINE
 
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
 
 #ifdef PRECOMP
-    pre();
+	pre();
 #endif // PRECOMP
 
 #ifdef T_CASES
-    int t;
-    cin >> t;
-    for (int tt = 1; tt <= t; tt++)
-    {
+	int t;
+	cin >> t;
+	for (int tt = 1; tt <= t; tt++)
+	{
 #ifdef PT_NUMS
-        cout << "Case #" << tt << ": ";
+		cout << "Case #" << tt << ": ";
 #endif // PT_NUMS
-        go();
-    }
+		go();
+	}
 #else
-    go();
+	go();
 #endif // T_CASES
 }
 

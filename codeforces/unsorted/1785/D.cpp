@@ -196,6 +196,8 @@ struct rarray
 	constexpr operator array_type& () { return a; }
 };
 
+template<size_t N> struct sarray { template<class T> using type = array<T, N>; };
+
 // Port of std::ranges::to to C++20 based on draft n4910
 // TODO specialization for std::array
 constexpr struct from_range_t {} from_range;
@@ -216,32 +218,53 @@ template<class R, class C> constexpr auto container_inserter(C& c)
 	else
 		return inserter(c, c.end());
 }
+template<class C, ranges::input_range R, class... Args> requires (!ranges::view<C>) struct to_helper_1
+{
+	constexpr C operator()(R&& r, Args&&... args) const
+	{
+		if constexpr (!ranges::input_range<C> || convertible_to<ranges::range_reference_t<R>, ranges::range_value_t<C>>)
+		{
+			if constexpr (constructible_from<C, R, Args...>)
+				return C(forward<R>(r), forward<Args>(args)...);
+			else if constexpr (constructible_from<C, from_range_t, R, Args...>)
+				return C(from_range, forward<R>(r), forward<Args>(args)...);
+			else if constexpr (ranges::common_range<R>
+				&& derived_from<typename iterator_traits<ranges::iterator_t<R>>::iterator_category, input_iterator_tag>
+				&& constructible_from<C, ranges::iterator_t<R>, ranges::sentinel_t<R>, Args...>)
+				return C(ranges::begin(r), ranges::end(r), forward<Args>(args)...);
+			else
+			{
+				C c(forward<Args>(args)...);
+				if constexpr (ranges::sized_range<R> && reservable_container<C>)
+					c.reserve(static_cast<ranges::range_size_t<C>>(ranges::size(r)));
+				ranges::copy(r, container_inserter<ranges::range_reference_t<R>>(c));
+				return c;
+			}
+		}
+		else
+			return to<C>(r | views::transform([](auto&& elem)
+				{
+					return to<ranges::range_value_t<C>>(std::forward<decltype(elem)>(elem));
+				}), std::forward<Args>(args)...);
+	}
+};
+template<class T, size_t N, ranges::input_range R> struct to_helper_1<array<T, N>, R> // Nonstandard
+{
+	constexpr array<T, N> operator()(R&& r) const
+	{
+		array<T, N> c{};
+		auto it = ranges::copy(r, ranges::begin(c)).out;
+		dassert(it - begin(c) == N);
+		return c;
+	}
+};
 template<class C, ranges::input_range R, class... Args> requires (!ranges::view<C>) constexpr C to(R&& r, Args&&... args)
 {
-	if constexpr (!ranges::input_range<C> || convertible_to<ranges::range_reference_t<R>, ranges::range_value_t<C>>)
-	{
-		if constexpr (constructible_from<C, R, Args...>)
-			return C(forward<R>(r), forward<Args>(args)...);
-		else if constexpr (constructible_from<C, from_range_t, R, Args...>)
-			return C(from_range, forward<R>(r), forward<Args>(args)...);
-		else if constexpr (ranges::common_range<R>
-			&& derived_from<typename iterator_traits<ranges::iterator_t<R>>::iterator_category, input_iterator_tag>
-			&& constructible_from<C, ranges::iterator_t<R>, ranges::sentinel_t<R>, Args...>)
-			return C(ranges::begin(r), ranges::end(r), forward<Args>(args)...);
-		else
-		{
-			C c(forward<Args>(args)...);
-			if constexpr (ranges::sized_range<R> && reservable_container<C>)
-				c.reserve(static_cast<ranges::range_size_t<C>>(ranges::size(r)));
-			ranges::copy(r, container_inserter<ranges::range_reference_t<R>>(c));
-			return c;
-		}
-	}
-	else
-		return to<C>(r | views::transform([](auto&& elem)
-			{
-				return to<ranges::range_value_t<C>>(std::forward<decltype(elem)>(elem));
-			}), std::forward<Args>(args)...);
+	return to_helper_1<C, R, Args...>()(forward<R>(r), forward<Args>(args)...);
+}
+template<size_t N, ranges::input_range R> constexpr auto to(R&& r) // Nonstandard
+{
+	return to<array<ranges::range_value_t<R>, N>>(forward<R>(r));
 }
 template<template<class...> class C, ranges::input_range R, class... Args> constexpr auto to(R&& r, Args&&... args)
 {
@@ -276,21 +299,32 @@ public:
 	template<ranges::range R> constexpr C operator()(R&& r)&& { return call(move(*this), I(), forward<R>(r)); }
 	template<ranges::range R> constexpr C operator()(R&& r) const&& { return call(move(*this), I(), forward<R>(r)); }
 };
-template<template<class...> class C, class... Args> struct To2
+template<size_t N> struct To2
+{
+private:
+	template<class S, ranges::range R> static constexpr auto call(S&& s, R&& r) { return to<N>(forward<R>(r)); }
+public:
+	template<ranges::range R> constexpr auto operator()(R&& r)& { return call(*this, forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const& { return call(*this, forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r)&& { return call(move(*this), forward<R>(r)); }
+	template<ranges::range R> constexpr auto operator()(R&& r) const&& { return call(move(*this), forward<R>(r)); }
+};
+template<template<class...> class C, class... Args> struct To3
 {
 private:
 	using I = index_sequence_for<Args...>;
 	tuple<Args...> b;
 	template<class S, size_t... I, ranges::range R> static constexpr auto call(S&& s, index_sequence<I...>, R&& r) { return to<C, R, Args...>(forward<R>(r), get<I>(forward<S>(s).b)...); }
 public:
-	template<class... A> explicit constexpr To2(int, A&&... a) noexcept((is_nothrow_constructible_v<Args, A> && ...)): b(forward<A>(a)...) { static_assert(sizeof...(Args) == sizeof...(A)); }
+	template<class... A> explicit constexpr To3(int, A&&... a) noexcept((is_nothrow_constructible_v<Args, A> && ...)): b(forward<A>(a)...) { static_assert(sizeof...(Args) == sizeof...(A)); }
 	template<ranges::range R> constexpr auto operator()(R&& r)& { return call(*this, I(), forward<R>(r)); }
 	template<ranges::range R> constexpr auto operator()(R&& r) const& { return call(*this, I(), forward<R>(r)); }
 	template<ranges::range R> constexpr auto operator()(R&& r)&& { return call(move(*this), I(), forward<R>(r)); }
 	template<ranges::range R> constexpr auto operator()(R&& r) const&& { return call(move(*this), I(), forward<R>(r)); }
 };
 template<class C, class... Args> requires (!ranges::view<C>) constexpr auto to(Args&&... args) { return To1<C, Args...>(0, forward<Args>(args)...); }
-template<template<class...> class C, class... Args> constexpr auto to(Args&&... args) { return To2<C, Args...>(0, forward<Args>(args)...); }
+template<size_t N> constexpr auto to() { return To2<N>(0); }
+template<template<class...> class C, class... Args> constexpr auto to(Args&&... args) { return To3<C, Args...>(0, forward<Args>(args)...); }
 
 // Doesn't read the current value until dereferencing or advancing past it.
 // Works with copy_n etc. but not copy etc. since no end iterator exists.
@@ -318,7 +352,6 @@ public:
 
 template<class T>
 using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
-
 
 template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
 {
@@ -520,17 +553,15 @@ template<u32 N> struct sieve
 private:
 	[[nodiscard]] static constexpr auto lp()
 	{
-		array<u32, N> c = to<rarray<u32, N>>(views::iota(0u, N));
+		auto c = to<N>(views::iota(0u, N));
 		rep(i, 2, N) if (c[i] == i) srep(j, i * 2, N, i) c[j] = min(c[j], i);
 		return c;
 	}
 public:
 	static constexpr auto LP = lp();
-private:
-	static constexpr auto PVW = views::filter([](u32 p) { return LP[p] == p; });
-public:
-	static constexpr auto COUNT = ranges::count(views::iota(2u, N) | views::filter([](u32 p) { return LP[p] == p; }));
-	static constexpr array<u32, COUNT> PRIMES = to<rarray<u32, COUNT>>(views::iota(2u, N)) | views::filter([](u32 p) { return LP[p] == p; });
+	static constexpr auto IS_PRIME = [](u32 p) { return LP[p] == p; };
+	static constexpr auto COUNT = ranges::distance(views::iota(2u, N) | views::filter(IS_PRIME));
+	static constexpr auto PRIMES = to<COUNT>(views::iota(2u, N) | views::filter(IS_PRIME));
 };
 
 
