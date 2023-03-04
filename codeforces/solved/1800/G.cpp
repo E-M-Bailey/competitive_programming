@@ -19,7 +19,7 @@
 using namespace std;
 using namespace chrono;
 using namespace string_literals;
-using namespace __gnu_pbds;
+namespace pbds = __gnu_pbds;
 
 // TODO fix tuple hashing
 template<size_t S, class... Ts>
@@ -351,7 +351,7 @@ public:
 };
 
 template<class T>
-using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+using os_set = pbds::tree<T, pbds::null_type, less<T>, pbds::rb_tree_tag, pbds::tree_order_statistics_node_update>;
 
 template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
 {
@@ -548,6 +548,8 @@ int main(int argc, const char* argv[])
 
 #endif // TEMPLATE_H_INCLUDED
 
+/* Hash-based solution:
+
 TDEFS2(mint<1000000009>, mnt1);
 TDEFS2(mint<1000000021>, mnt2);
 
@@ -623,4 +625,87 @@ void go()
 	P22.resize(n);
 	dfs1(-1, 0);
 	cout << (SM[0] ? "YES" : "NO") << endl;
+}
+*/
+
+struct node
+{
+	int id = -1;
+	bool s = true;
+	map<int, int> C{};
+};
+TDEFS1(node);
+struct trie
+{
+	int ctr = 0;
+	vnode N = vnode(1);
+	int find(const vi32& X)
+	{
+		int c = 0;
+		for (int x : X)
+		{
+			node& nd = N[c];
+			auto [it, ins] = nd.C.try_emplace(x, size(N));
+			if (ins)
+				N.emplace_back();
+			c = it->second;
+		}
+		if (N[c].id < 0) N[c].id = ctr++;
+		return N[c].id;
+	}
+	void clear()
+	{
+		ctr = 0;
+		N.assign(1, {});
+	}
+};
+
+trie T;
+vvi32 G;
+vbl S;
+
+int dfs(int u, int v)
+{
+	erase(G[v], u);
+	int m = size(G[v]);
+	vi32 I(m);
+	rep(i, 0, m)
+		I[i] = dfs(v, G[v][i]);
+	ranges::sort(I);
+	bool s = true;
+	int c1 = 0;
+	rep(i, 0, size(I))
+	{
+		if (i < size(I) - 1 && I[i] == I[i + 1])
+		{
+			i++;
+			continue;
+		}
+		s &= S[I[i]];
+		c1++;
+	}
+	s &= c1 <= 1;
+	int id = T.find(I);
+	S.resize(max(size(S), (size_t)id));
+	S[id] = s;
+	return id;
+}
+
+void go()
+{
+	int n;
+	cin >> n;
+	T.clear();
+	T.N.reserve(n);
+	G.assign(n, {});
+	S.resize(n);
+	rep(i, 1, n)
+	{
+		int u, v;
+		cin >> u >> v;
+		u--; v--;
+		G[u].push_back(v);
+		G[v].push_back(u);
+	}
+	cout << (S[dfs(-1, 0)] ? "YES" : "NO") << endl;
 }
