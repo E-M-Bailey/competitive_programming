@@ -19,7 +19,7 @@
 using namespace std;
 using namespace chrono;
 using namespace string_literals;
-using namespace __gnu_pbds;
+namespace pbds = __gnu_pbds;
 
 // TODO fix tuple hashing
 template<size_t S, class... Ts>
@@ -351,7 +351,7 @@ public:
 };
 
 template<class T>
-using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+using os_set = pbds::tree<T, pbds::null_type, less<T>, pbds::rb_tree_tag, pbds::tree_order_statistics_node_update>;
 
 template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
 {
@@ -370,7 +370,7 @@ template<unsigned_integral T> [[nodiscard]] constexpr T isqrtf(T x)
 	T r = isqrtc(x);
 	return r - (r * r != x);
 }
-template<uint64_t N> constexpr uint32_t ISQRTC = isqrtc(N);
+template<uint64_t N> constexpr uint32_t ISQRTC = static_cast<uint32_t>(isqrtc(N));
 template<uint64_t N> constexpr uint32_t ISQRTF = ISQRTC<N> -(ISQRTC<N> *ISQRTC<N> != N);
 
 [[nodiscard]] constexpr uint32_t phi(uint32_t a)
@@ -401,39 +401,67 @@ template<uint32_t M> struct mint
 	uint32_t v;
 
 	constexpr mint() = default;
-	template<class T, typename enable_if<is_integral<T>::value, int>::type = 0>
-	constexpr mint(T v): v(v < 0 ? v % M + M : v % M) {}
-
+	constexpr mint(integral auto v): v(static_cast<uint32_t>(v < 0 ? v % M + M : v % M)) { if (this->v == M) this->v = 0; }
 	[[nodiscard]] constexpr uint32_t val() const { return v; }
+	constexpr mint& operator++() { if (++v == M) v = 0; return *this; }
+	[[nodiscard]] constexpr mint operator++(int) { mint a = *this; ++* this; return a; }
+	constexpr mint& operator--() { if (v-- == 0) v = M - 1; return *this; }
+	[[nodiscard]] constexpr mint operator--(int) { mint a = *this; --* this; return a; }
 	[[nodiscard]] constexpr friend mint operator+(mint a) { return a; }
 	[[nodiscard]] constexpr friend mint operator-(mint a) { if (a.v) a.v = M - a.v; return a; }
 	constexpr mint& operator+=(mint b) { if ((v += b.v) >= M) v -= M; return *this; }
+	constexpr mint& operator+=(integral auto b) { return *this += mint(b); }
 	[[nodiscard]] constexpr friend mint operator+(mint a, mint b) { return a += b; }
+	[[nodiscard]] constexpr friend mint operator+(mint a, integral auto b) { return a + mint(b); }
+	[[nodiscard]] constexpr friend mint operator+(integral auto a, mint b) { return mint(a) + b; }
 	constexpr mint& operator-=(mint b) { if ((v += M - b.v) >= M) v -= M; return *this; }
+	constexpr mint& operator-=(integral auto b) { return *this -= mint(b); }
 	[[nodiscard]] constexpr friend mint operator-(mint a, mint b) { return a -= b; }
+	[[nodiscard]] constexpr friend mint operator-(mint a, integral auto b) { return a - mint(b); }
+	[[nodiscard]] constexpr friend mint operator-(integral auto a, mint b) { return mint(a) - b; }
 	constexpr mint& operator*=(mint b) { v = uint32_t((uint64_t)v * b.v % M); return *this; }
+	constexpr mint& operator*=(integral auto b) { return *this *= mint(b); }
 	[[nodiscard]] constexpr friend mint operator*(mint a, mint b) { return a *= b; }
+	[[nodiscard]] constexpr friend mint operator*(mint a, integral auto b) { return a * mint(b); }
+	[[nodiscard]] constexpr friend mint operator*(integral auto a, mint b) { return mint(a) * b; }
 	[[nodiscard]] constexpr friend mint mpow(mint a, pow_t b)
 	{
 		mint p = 1;
 		for (; b.v; b.v /= 2, a *= a) if (b.v % 2) p *= a;
 		return p;
 	}
-	[[nodiscard]] constexpr mint mpow(pow_t b) { return mpow(*this, b); }
-	[[nodiscard]] constexpr mint inv(mint a) const requires PRIME
+	[[nodiscard]] constexpr friend mint mpow(mint a, integral auto b) { return mpow(a, pow_t(b)); }
+	[[nodiscard]] constexpr mint pow(pow_t b) const { return mpow(*this, b); }
+	[[nodiscard]] constexpr mint pow(integral auto b) const { return mpow(*this, pow_t(b)); }
+	[[nodiscard]] constexpr mint inv() const requires PRIME
 	{
-		dassert(a);
+		dassert(*this);
 		return mpow(*this, INV_POW);
 	}
-	[[nodiscard]] constexpr friend mint inv(mint a) { return a.inv(); }
-	constexpr mint& operator/=(mint b) { return *this *= b.inv(); }
-	[[nodiscard]] constexpr friend mint operator/(mint a, mint b) { return a /= b; }
+	[[nodiscard]] constexpr friend mint minv(mint a) requires PRIME { return a.inv(); }
+	constexpr mint& operator/=(mint b) requires PRIME { return *this *= b.inv(); }
+	constexpr mint& operator/=(integral auto b) requires PRIME { return *this /= mint(b); }
+	[[nodiscard]] constexpr friend mint operator/(mint a, mint b) requires PRIME { return a /= b; }
+	[[nodiscard]] constexpr friend mint operator/(mint a, integral auto b) requires PRIME { return a / mint(b); }
+	[[nodiscard]] constexpr friend mint operator/(integral auto a, mint b) requires PRIME { return mint(a) / b; }
 	[[nodiscard]] constexpr friend bool operator==(mint a, mint b) { return a.v == b.v; }
+	[[nodiscard]] constexpr friend bool operator==(mint a, integral auto b) { return a == mint(b); }
+	[[nodiscard]] constexpr friend bool operator==(integral auto a, mint b) { return mint(a) == b; }
 	[[nodiscard]] constexpr friend bool operator!=(mint a, mint b) { return a.v != b.v; }
+	[[nodiscard]] constexpr friend bool operator!=(mint a, integral auto b) { return a != mint(b); }
+	[[nodiscard]] constexpr friend bool operator!=(integral auto a, mint b) { return mint(a) != b; }
 	[[nodiscard]] constexpr friend bool operator<(mint a, mint b) { return a.v < b.v; }
+	[[nodiscard]] constexpr friend bool operator<(mint a, integral auto b) { return a < mint(b); }
+	[[nodiscard]] constexpr friend bool operator<(integral auto a, mint b) { return mint(a) < b; }
 	[[nodiscard]] constexpr friend bool operator<=(mint a, mint b) { return a.v <= b.v; }
+	[[nodiscard]] constexpr friend bool operator<=(mint a, integral auto b) { return a <= mint(b); }
+	[[nodiscard]] constexpr friend bool operator<=(integral auto a, mint b) { return mint(a) <= b; }
 	[[nodiscard]] constexpr friend bool operator>(mint a, mint b) { return a.v > b.v; }
+	[[nodiscard]] constexpr friend bool operator>(mint a, integral auto b) { return a > mint(b); }
+	[[nodiscard]] constexpr friend bool operator>(integral auto a, mint b) { return mint(a) > b; }
 	[[nodiscard]] constexpr friend bool operator>=(mint a, mint b) { return a.v >= b.v; }
+	[[nodiscard]] constexpr friend bool operator>=(mint a, integral auto b) { return a >= mint(b); }
+	[[nodiscard]] constexpr friend bool operator>=(integral auto a, mint b) { return mint(a) >= b; }
 	[[nodiscard]] constexpr operator uint32_t() const { return v; }
 	friend istream& operator>>(istream& istrm, mint& a) { intmax_t v; istrm >> v; a = v; return istrm; }
 	friend ostream& operator<<(ostream& ostrm, mint a) { return ostrm << a.v; }
@@ -475,10 +503,10 @@ constexpr T INF = numeric_limits<T>::infinity();
 
 // Compatibility with ICPC notebook code
 // all and rall excluded since all conflicts with std::ranges::views::all in C++20
-#define rep(i, a, b) for (decltype(a + b) i = (a); i < (b); i++)
-#define rrep(i, a, b) for (decltype(a + b) i = (b) - 1; i >= (a); i--)
-#define srep(i, a, b, s) for (decltype(a + b + s) i = (a); i < (b); i += (s))
-#define srrep(i, a, b, s) for (decltype(a + b + s) i = (b) - 1; i >= (a); i -= (s))
+#define rep(i, a, b) for (decltype((a) + (b)) i = (a); i < (b); ++i)
+#define rrep(i, a, b) for (decltype((a) + (b)) i = (b) - 1; i >= (a); --i)
+#define srep(i, a, b, s) for (decltype((a) + (b) + s) i = (a); i < (b); i += (s))
+#define srrep(i, a, b, s) for (decltype((a) + (b) + s) i = (b) - 1; i >= (a); i -= (s))
 typedef long long ll;
 typedef pi32 pii;
 typedef a2i32 aii;
