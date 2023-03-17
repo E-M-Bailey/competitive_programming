@@ -138,6 +138,7 @@ auto& operator>>(istrm auto& is, vector<bool>& r) { for (auto it = begin(r); it 
 template<template<class...> class C, class... Args> concept template_constructible_from = requires { C(declval<Args>()...);};
 
 // TODO more constructors
+/*
 template<class T, size_t S>
 struct rarray
 {
@@ -194,7 +195,7 @@ struct rarray
 	}
 	constexpr operator const array_type& () const { return a; }
 	constexpr operator array_type& () { return a; }
-};
+};*/
 
 template<size_t N> struct sarray { template<class T> using type = array<T, N>; };
 
@@ -340,14 +341,62 @@ public:
 	using traits_type = Tr;
 	using istream_type = basic_istream<C, Tr>;
 private:
-	istream_type& is;
+	istream_type& s;
 	mutable optional<T> cache;
 public:
-	constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): is(is) {}
-	[[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(is); return *cache; }
+	constexpr lazy_istream_iterator(basic_istream<C, Tr>& is): s(is) {}
+	[[nodiscard]] const T& operator*() const { if (!cache) cache = read<T>(s); return *cache; }
 	[[nodiscard]] const T* operator->() const { return &**this; }
-	lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(is); cache.reset(); return *this; }
-	[[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) cin >> cache; lazy_istream_iterator cur(is); swap(cur.cache, cache); return cur; }
+	lazy_istream_iterator& operator++() { if (!cache) ignore = read<T>(s); cache.reset(); return *this; }
+	[[nodiscard]] lazy_istream_iterator operator++(int) { if (!cache) s >> cache; lazy_istream_iterator cur(s); swap(cur.cache, cache); return cur; }
+};
+// Iterate over set bits of an integer
+// TODO Maybe specialize for bitset
+template<integral T> class biterator
+{
+private:
+	using U = make_unsigned_t<T>;
+	static constexpr T BITS = sizeof(T) * CHAR_BIT;
+	T a = 0, b = 0; // Unused, used bits
+	static constexpr int lo_idx(T t) { return countr_zero<U>(t); }
+	static constexpr int hi_idx(T t) { return BITS - countl_zero<U>(t); }
+	constexpr T a_lo() const { return a & -a; }
+	constexpr T b_hi() const { return T(1) << hi_idx(b); }
+	constexpr void sw(T bit) { a ^= bit; b ^= bit; }
+	template<template<class> class C> constexpr auto cmp(const biterator& it) const noexcept { return C<T>()(it.a, a); }
+public:
+	using value_type = int;
+	using difference_type = int;
+	using pointer = int*;
+	using const_pointer = int*;
+	using reference = int;
+	using const_reference = int;
+	using iterator_category = bidirectional_iterator_tag;
+	using iterator_concept = bidirectional_iterator_tag;
+	constexpr biterator() noexcept = default;
+	constexpr biterator(T val) noexcept: a(val) {}
+	constexpr biterator& operator++() noexcept { dassert(a); sw(a_lo()); return *this; }
+	constexpr biterator& operator--() noexcept { dassert(b); sw(b_hi()); return *this; }
+	[[nodiscard]] constexpr biterator operator++(int) noexcept { auto it = *this; ++* this; return it; }
+	[[nodiscard]] constexpr biterator operator--(int) noexcept { auto it = *this; --* this; return it; }
+	[[nodiscard]] constexpr int idx() const noexcept { return lo_idx(a); }
+	[[nodiscard]] constexpr T bit() const noexcept { return a_lo(); }
+	[[nodiscard]] constexpr pair<int, T> operator*() const noexcept { dassert(a); return { idx(), bit() }; }
+	[[nodiscard]] constexpr bool operator==(const biterator& it) const noexcept { return cmp<equal_to>(it); }
+	[[nodiscard]] constexpr bool operator!=(const biterator& it) const noexcept { return cmp<not_equal_to>(it); }
+	[[nodiscard]] constexpr bool operator<(const biterator& it) const noexcept { return cmp<less>(it); }
+	[[nodiscard]] constexpr bool operator<=(const biterator& it) const noexcept { return cmp<less_equal>(it); }
+	[[nodiscard]] constexpr bool operator>(const biterator& it) const noexcept { return cmp<greater>(it); }
+	[[nodiscard]] constexpr bool operator>=(const biterator& it) const noexcept { return cmp<greater_equal>(it); }
+	[[nodiscard]] constexpr strong_ordering operator<=>(const biterator& it) const noexcept { return cmp<compare_three_way>(it); }
+};
+
+template<integral T> struct bits: public ranges::view_interface<bits<T>>
+{
+	T x;
+	[[nodiscard]] constexpr bits(T val = 0): x(val) {}
+	[[nodiscard]] constexpr biterator<T> begin() { return biterator<T>(x); }
+	[[nodiscard]] constexpr biterator<T> end() { return biterator<T>(); }
 };
 
 template<class T>
@@ -362,8 +411,7 @@ template<integral T> [[nodiscard]] constexpr T rup2(T x) noexcept
 template<unsigned_integral T> [[nodiscard]] constexpr T isqrtc(T x)
 {
 	T ub = ((T)1 << (8 * sizeof(x) - countl_zero(x) + 1) / 2) + 1;
-	T r = *ranges::lower_bound(views::iota((T)0, ub), x, {}, [](T r) { return r * r; });
-	return r;
+	return *ranges::lower_bound(views::iota((T)0, ub), x, {}, [](T r) { return r * r; });
 }
 template<unsigned_integral T> [[nodiscard]] constexpr T isqrtf(T x)
 {
@@ -401,7 +449,7 @@ template<uint32_t M> struct mint
 	uint32_t v;
 
 	constexpr mint() = default;
-	constexpr mint(integral auto v): v(static_cast<uint32_t>(v < 0 ? v % M + M : v % M)) { if (this->v == M) this->v = 0; }
+	constexpr mint(integral auto u): v(static_cast<uint32_t>(u < 0 ? u % M + M : u % M)) { if (v == M) v = 0; }
 	[[nodiscard]] constexpr uint32_t val() const { return v; }
 	constexpr mint& operator++() { if (++v == M) v = 0; return *this; }
 	[[nodiscard]] constexpr mint operator++(int) { mint a = *this; ++* this; return a; }
@@ -532,7 +580,7 @@ namespace views = ranges::views;
 #endif
 
 // Settings Macros:
-#define T_CASES
+//#define T_CASES
 //#define PRECOMP
 //#define PT_NUMS
 #define OFFLINE
