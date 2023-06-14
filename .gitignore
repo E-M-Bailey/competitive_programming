@@ -12,3 +12,8 @@ main
 /*.cpp
 /reference/new_template.h
 /project_euler
+**/in.txt
+**/out.txt
+**/*.in
+**/*.out
+**/*.ans
