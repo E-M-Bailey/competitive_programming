@@ -1,19 +1,25 @@
-/.vscode
-/test
-.*
-/util_old
-/util
-/.misc
-/target
-main
-**/.kattisrc
-.json
-/*.txt
-/*.cpp
-/reference/new_template.h
-/project_euler
-**/in.txt
-**/out.txt
+#Ignore files without extensions
+*
+!*.*
+!*/
+
+# Ignore data files
+**/*.txt
+**/*.json
 **/*.in
 **/*.out
 **/*.ans
+
+# Ignore directories beginning with a dot
+**/.*/
+
+# Don't leak Project Euler solutions
+/project_euler
+
+# Ignore top-level C++ source files
+/*.h
+/*.cpp
+
+# Ignore files that may contain sensitive information
+**/.cprc
+**/.kattisrc
