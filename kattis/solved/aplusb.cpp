@@ -2,7 +2,7 @@
 
 using namespace std;
 
-typedef double T;
+typedef long double T;
 typedef complex<T> C;
 
 constexpr int rup2(int n)
