@@ -51,15 +51,10 @@ int main()
 					G[idx].emplace_back(idx2, T[i][j][dd] + 1);
 				}
 			}
-	// G[n * m * 4].emplace_back(IDX(0, 1, 0), 1);
-	// G[n * m * 4].emplace_back(IDX(1, 0, 3), 1);
-	// G[IDX(0, 0, 1)].emplace_back(n * m * 4 + 1, 0);
-	// G[IDX(0, 0, 2)].emplace_back(n * m * 4 + 1, 0);
 
 	auto dist = [&](int s, int t)
 	{
 		vector<int> D(N, INT_MAX / 2);
-		// vector<int> P(N, -1);
 		vector<bool> V(N);
 		priority_queue<pair<int, int>> PQ;
 		PQ.emplace(0, s);
@@ -78,25 +73,15 @@ int main()
 				int dw = d + wt;
 				if (dw < D[w])
 				{
-					// P[w] = v;
 					D[w] = dw;
 					PQ.emplace(-dw, w);
 				}
 			}
 		}
-		// for (int i = t; i >= 0; i = P[i])
-		// 	cerr << ' ' << i / (m * 4) << '_' << (i / 4) % m << '_' << i % 4;
-		// cerr << endl;
 		return D[t];
 	};
 
 	int64_t ans = LLONG_MAX;
-
-	// for (int i = 0; i < n; i++)
-	// 	for (int j = 0; j < m; j++)
-	// 		for (int d = 0; d < 4; d++)
-	// 			for (auto idx2 : G[IDX(i, j, d)])
-	// 				if (idx2 == G[IDX(1, 0, 3)])
 
 	for (int a : array<int, 2>{IDX(0, 1, 0), IDX(1, 0, 3)})
 		for (int d : array<int, 2>{IDX(0, 0, 1), IDX(0, 0, 2)})
@@ -107,7 +92,6 @@ int main()
 					int64_t d1 = dist(a, b) + 1,
 						d2 = dist(b, c),
 						d3 = dist(c, d);
-					// cerr << sd << ' ' << td << ' ' << d1 << ' ' << d2 << ' ' << d3 << endl;
 					ans = min(ans, d1 + d2 + d3);
 				}
 	cout << ans;
