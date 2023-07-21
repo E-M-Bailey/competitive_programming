@@ -1,7 +1,7 @@
 /*
 BEGIN ANNOTATION:
 PROBLEM URL: https://open.kattis.com/problems/absolutelysymmetric
-TAGS: matrix, matrices, math, parith
+TAGS: matrix, matrices, math, parity
 EXPLANATION:
 Consider any pair of entries a = A[i,j], b = A[j,i].
 For m = 1, 2, ..., k, call the corresponding entries in the answer am = Xm[i,j] and bm = Xm[j,i].
