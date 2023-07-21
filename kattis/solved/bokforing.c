@@ -14,7 +14,6 @@
 #define OUTS 1200000u
 
 unsigned A[1000001], n = 0, q = 0, tim = 0, def = 0, i, x;
-//char BUF[BUFS], *in_ptr = BUF, *out_ptr = BUF, *st;
 char *in_ptr, BUF[OUTS], *out_ptr = BUF;
 
 #if DO_TIME
@@ -23,12 +22,9 @@ struct timespec ta, tb, tc, td;
 
 int main()
 {
-    //freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "rw", stdout);
     #if DO_TIME
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ta);
     #endif
-    //read(STDIN_FILENO, BUF, BUFS);
     in_ptr = (char *)mmap(0, BUFS, PROT_READ, MAP_SHARED | MAP_POPULATE, STDIN_FILENO, 0);
     madvise(in_ptr, BUFS, MADV_SEQUENTIAL);
     madvise(in_ptr, BUFS, MADV_WILLNEED);
