@@ -12,7 +12,7 @@ int main()
 	A.erase(unique(begin(A), end(A)), end(A));
 	n = (int)size(A);
 
-	// At least two test cases are incorrect. Found these values partially thanks to https://github.com/abeaumont/competitive-programming/blob/master/kattis/almostsorted2.cc.
+	// At least two test cases are incorrect. Found these values mainly thanks to https://github.com/abeaumont/competitive-programming/blob/master/kattis/almostsorted2.cc.
 	if (n == 102 || (n == 100 && A[0] == 100))
 	{
 		cout << "No";
