@@ -27,7 +27,6 @@ int parse(string::const_iterator first, string::const_iterator last)
 			return -1;
 	}
 
-	cerr << base << ' ' << string(pfirst, plast) << endl;
 	if (pfirst == plast)
 		return -1;
 	int ans = 0;
