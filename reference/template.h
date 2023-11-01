@@ -1,12 +1,17 @@
 #ifndef TEMPLATE_H_INCLUDED
 #define TEMPLATE_H_INCLUDED
 
+#pragma GCC optimize("Ofast,no-stack-protector,unroll-loops")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,sse4.1,sse4.2,popcnt,abm,mmx,avx,avx2,fma")
+#ifndef GODBOLT
+#pragma GCC target("tune=native")
+#endif
+
 #include <bits/stdc++.h>
+#include <immintrin.h>
+#include <nmmintrin.h>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
-
-#pragma GCC optimize("O3,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 
 #ifdef DEBUG
 #define DBG(x) x
@@ -413,10 +418,18 @@ template<unsigned_integral T> [[nodiscard]] constexpr T isqrtc(T x)
 	T ub = ((T)1 << (8 * sizeof(x) - countl_zero(x) + 1) / 2) + 1;
 	return *ranges::lower_bound(views::iota((T)0, ub), x, {}, [](T r) { return r * r; });
 }
+template<signed_integral T> [[nodiscard]] constexpr T isqrtc(T x)
+{
+	return isqrtc<make_unsigned_t<T>>(x);
+}
 template<unsigned_integral T> [[nodiscard]] constexpr T isqrtf(T x)
 {
 	T r = isqrtc(x);
 	return r - (r * r != x);
+}
+template<signed_integral T> [[nodiscard]] constexpr T isqrtf(T x)
+{
+	return isqrtf<make_unsigned_t<T>>(x);
 }
 template<uint64_t N> constexpr uint32_t ISQRTC = static_cast<uint32_t>(isqrtc(N));
 template<uint64_t N> constexpr uint32_t ISQRTF = ISQRTC<N> -(ISQRTC<N> *ISQRTC<N> != N);
@@ -534,7 +547,7 @@ TDEFS2(float, f32);
 TDEFS2(double, f64);
 TDEFS2(long double, fld);
 TDEFS2(__float128, f128);
-TDEFS2(string, str8);
+TDEFS1(string);
 // TODO map typedefs
 
 template<typename T>
@@ -580,7 +593,7 @@ namespace views = ranges::views;
 #endif
 
 // Settings Macros:
-//#define T_CASES
+#define T_CASES
 //#define PRECOMP
 //#define PT_NUMS
 #define OFFLINE
