@@ -1,7 +1,7 @@
 /*
 BEGIN ANNOTATION
 PROBLEM URL: https://open.kattis.com/problems/satisfaction
-TAGS:
+TAGS: recursion, recursive descent, parsing, string, string parsing, ast, abstract syntax tree, bitset, constant factor, optimization, SIMD
 EXPLANATION:
 We can parse the programming language using recursive descent. Then, we can solve the problem by recursing on the
 resulting abstract syntax tree.
