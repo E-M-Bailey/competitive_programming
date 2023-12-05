@@ -30,13 +30,19 @@ int main()
 	{
 		int tens = 0, ones = 0;
 		for (size_t i = 0; i < size(line); i++)
+		{
 			for (auto const &[name, value] : digits)
+			{
 				if (std::equal(begin(name), end(name), begin(line) + i))
 				{
 					if (tens == 0)
+					{
 						tens = value;
+					}
 					ones = value;
 				}
+			}
+		}
 		sum += tens * 10 + ones;
 	}
 	std::cout << sum;

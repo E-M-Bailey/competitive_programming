@@ -22,16 +22,24 @@ int main()
 			for (int x; is_round >> x >> color;)
 			{
 				if (color == "red,")
+				{
 					r += x;
+				}
 				else if (color == "green,")
+				{
 					g += x;
+				}
 				else
+				{
 					b += x;
+				}
 			}
 			good &= r <= 12 && g <= 13 && b <= 14;
 		}
 		if (good)
+		{
 			sum += i;
+		}
 	}
 	std::cout << sum;
 }

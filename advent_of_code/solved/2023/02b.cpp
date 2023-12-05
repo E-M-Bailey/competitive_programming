@@ -24,11 +24,17 @@ int main()
 			for (int x; is_round >> x >> color;)
 			{
 				if (color == "red,")
+				{
 					r += x;
+				}
 				else if (color == "green,")
+				{
 					g += x;
+				}
 				else
+				{
 					b += x;
+				}
 			}
 			min_r = std::max(min_r, r);
 			min_g = std::max(min_g, g);
