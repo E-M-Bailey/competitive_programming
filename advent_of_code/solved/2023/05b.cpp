@@ -100,7 +100,9 @@ int main()
 
 		ranges.clear();
 		for (auto [a, b] : ranges_temp)
+		{
 			add_range(a, b);
+		}
 	}
 
 	std::cout << ranges.front().first;
