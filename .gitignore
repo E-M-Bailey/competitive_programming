@@ -1,4 +1,4 @@
-#Ignore files without extensions
+# Ignore files without extensions
 *
 !*.*
 !*/
@@ -16,9 +16,14 @@
 # Don't leak Project Euler solutions
 /project_euler
 
-# Ignore top-level C++ source files
+# Ignore top-level source files
 /*.h
 /*.cpp
+/*.java
+/*.py
+/*.ipynb
+/*.s
+/*.asm
 
 # Ignore files that may contain sensitive information
 **/.cprc
