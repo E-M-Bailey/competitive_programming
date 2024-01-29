@@ -1,0 +1,2 @@
+#include <bits/stdc++.h>
+using namespace std;int n,k,u,v,p,C[20];vector<int>G[100001];void dfs(int x,int y,int*A){iota(A,A+k,1);for(int z:G[y])if(z!=x){int R[k],a=999999,j,b=a,i=k;for(dfs(y,z,R);i--;)if((b=min(b,R[i]))<a)swap(a,b),j=i;for(i=k;i--;)A[i]+=a;A[j]+=b-a;}}int main(){cin>>n>>k;for(p=n;--p;)cin>>u>>v,G[u].push_back(v),G[v].push_back(u);dfs(1,1,C);cout<<(k==1&&n>1?-1:*min_element(C,C+k));}
