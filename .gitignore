@@ -28,3 +28,6 @@
 # Ignore files that may contain sensitive information
 **/.cprc
 **/.kattisrc
+
+# Un-ignore dactl submodule
+!/dactl/
