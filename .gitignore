@@ -29,5 +29,6 @@
 **/.cprc
 **/.kattisrc
 
-# Un-ignore dactl submodule
+# Un-ignore submodules
 !/dactl/
+!/kattis-cli/
