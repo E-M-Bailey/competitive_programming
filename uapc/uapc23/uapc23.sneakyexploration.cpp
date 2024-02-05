@@ -2,7 +2,7 @@
 
 using namespace std;
 
-vector<int> S;
+vector<int>			S;
 vector<vector<int>> G;
 
 int n;
@@ -13,7 +13,8 @@ void dfs1(int u, int v)
 	S[v] = 1;
 	for (int w : G[v])
 	{
-		if (w == u) continue;
+		if (w == u)
+			continue;
 		dfs1(v, w);
 		S[v] += S[w];
 	}
@@ -24,23 +25,25 @@ void dfs2(int u, int v, int up)
 	int cs = up;
 	for (int w : G[v])
 	{
-		if (w == u) continue;
+		if (w == u)
+			continue;
 		dfs2(v, w, up + S[v] - S[w]);
 		if (r >= 0)
 			return;
 		cs = max(cs, S[w]);
 	}
-	//cerr << v << ' ' << cs << endl;
+	// cerr << v << ' ' << cs << endl;
 	if (cs * 2 <= n)
 		r = v;
 }
 
-void dfs3(int u, int v, vector<int>& V)
+void dfs3(int u, int v, vector<int> &V)
 {
 	V.push_back(v);
 	for (int w : G[v])
 	{
-		if (w == u) continue;
+		if (w == u)
+			continue;
 		dfs3(v, w, V);
 	}
 }
@@ -59,7 +62,7 @@ int main()
 		v--;
 		G[u].push_back(v);
 		G[v].push_back(u);
-		md = max({ md, (int)size(G[u]), (int)size(G[v]) });
+		md = max({md, (int)size(G[u]), (int)size(G[v])});
 	}
 
 	if (n == 1)
@@ -96,7 +99,7 @@ int main()
 	for (int i = 0; i < size(G[r]); i++)
 		PQ.push(i);
 
-	int add = -1;
+	int			add = -1;
 	vector<int> ans{r};
 	while (size(ans) < n)
 	{

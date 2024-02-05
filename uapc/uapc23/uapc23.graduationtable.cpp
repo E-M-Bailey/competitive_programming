@@ -6,10 +6,10 @@ vector<vector<pair<int, int64_t>>> G;
 
 struct dso
 {
-	int n;
-	vector<int> P, R, M, E;
+	int				n;
+	vector<int>		P, R, M, E;
 	vector<int64_t> S;
-	dso(int n): n(n), P(n), R(n, 1), M(n, numeric_limits<int>::max() / 2), S(n), E(n)
+	dso(int n) : n(n), P(n), R(n, 1), M(n, numeric_limits<int>::max() / 2), S(n), E(n)
 	{
 		iota(begin(P), end(P), 0);
 	}
@@ -28,7 +28,8 @@ struct dso
 		E[x]++;
 		S[x] += c;
 		M[x] = min(M[x], c);
-		if (x == y) return false;
+		if (x == y)
+			return false;
 		if (R[x] < R[y])
 			swap(x, y);
 		P[y] = x;

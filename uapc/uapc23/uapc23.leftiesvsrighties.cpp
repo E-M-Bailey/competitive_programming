@@ -3,16 +3,12 @@ using namespace std;
 
 int main()
 {
-
-
-
-
 	int T, n;
 	cin >> T >> n;
 	vector<int> L(T), R(T);
 	for (int i = 0; i < n; i++)
 	{
-		int t;
+		int	 t;
 		char c;
 		cin >> t >> c;
 		t--;
@@ -21,7 +17,7 @@ int main()
 
 	constexpr int NIL = numeric_limits<int>::max() / 2;
 
-	int off = T * n;
+	int			off = T * n;
 	vector<int> C(2 * off + 1, NIL), P(2 * off + 1);
 	C[off] = 0;
 	vector<pair<int, int>> O;
@@ -78,8 +74,8 @@ int main()
 	// 	unordered_set<int> I;
 	// 	for (int i = 0; i < T; i++)
 	// 		I.insert(i);
-	// 	//sort(begin(I), end(I), [&](int t, int u) { int a = min(L[t], R[t]) >= 0, b = min(L[u], R[u]) >= 0; return a < b; });
-	// 	for (int t = 0; t < T; t++)
+	// 	//sort(begin(I), end(I), [&](int t, int u) { int a = min(L[t], R[t]) >= 0, b = min(L[u], R[u]) >= 0; return a <
+	// b; }); 	for (int t = 0; t < T; t++)
 	// 	{
 	// 		if (L[t] == 0)
 	// 		{
