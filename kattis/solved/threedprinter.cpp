@@ -62,8 +62,6 @@ v3 norm(tri const &t)
 
 void point_out(v3 c, tri &t)
 {
-	//cerr << t.a << ' ' << t.b << ' ' << t.c << endl;
-	//cerr << (t.b - c)
 	if ((t.b - c) * norm(t) < 0)
 		swap(t.a, t.c);
 }
@@ -71,7 +69,6 @@ void point_out(v3 c, tri &t)
 T vol_with_0(tri const &t)
 {
 	T vol = t.a * (t.b ^ t.c) / 6;
-	//cerr << t.a << ' ' << t.b << ' ' << t.c << ' ' << vol;
 	return vol;
 }
 
@@ -118,23 +115,3 @@ int main()
 	}
 	cout << fixed << setprecision(2) << ans;
 }
-
-/*
-1
-6
-4 0 0 0 0 0 1 0 1 1 0 1 0
-4 0 0 0 0 0 1 1 0 1 1 0 0
-4 0 0 0 0 1 0 1 1 0 1 0 0
-4 1 1 1 1 1 0 1 0 0 1 0 1
-4 1 1 1 1 1 0 0 1 0 0 1 1
-4 1 1 1 1 0 1 0 0 1 0 1 1
-*/
-
-/*
-1
-4
-3 0 0 0 0 0 1 0 1 0
-3 0 0 0 0 0 1 1 0 0
-3 0 0 0 0 1 0 1 0 0
-3 0 0 1 0 1 0 1 0 0
-*/
