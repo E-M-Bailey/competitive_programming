@@ -4,7 +4,7 @@ using namespace std;
 
 int main()
 {
-	string s;
+	string					   s;
 	unordered_map<string, int> F;
 	while (cin >> s)
 	{

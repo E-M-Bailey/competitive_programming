@@ -1,12 +1,13 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 
-constexpr int MAXB = 317, MAXN = MAXB * MAXB;
-int n, m, k, q, bl, bs = 0;
-int A[MAXN]{};
-int B[MAXN]{};
-bool V[MAXN]{};
-vector<int> BL[MAXB]{};
+constexpr int			MAXB = 317, MAXN = MAXB * MAXB;
+int						n, m, k, q, bl, bs = 0;
+int						A[MAXN]{};
+int						B[MAXN]{};
+bool					V[MAXN]{};
+vector<int>				BL[MAXB]{};
 unordered_map<int, int> CC;
 
 bool all_in(int i)
@@ -17,16 +18,13 @@ bool all_in(int i)
 	return true;
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-		(ignore = freopen(argv[1], "r", stdin)) = freopen(argv[2], "w", stdout);
-
 	cin >> n;
 	CC.reserve(n);
 	for (int i = 0; i < n; i++)
 	{
-		int& a = A[i];
+		int &a = A[i];
 		cin >> a;
 		a = CC.emplace(a, size(CC)).first->second;
 	}
@@ -69,7 +67,7 @@ int main(int argc, const char* argv[])
 			b = it->second;
 			if (V[b])
 				continue;
-			V[b] = true;
+			V[b]	= true;
 			B[bs++] = b;
 		}
 		int j = i;
@@ -84,6 +82,6 @@ int main(int argc, const char* argv[])
 		}
 		while (bs)
 			V[B[--bs]] = false;
-		cout << j - i << endl;
+		cout << j - i << '\n';
 	}
 }

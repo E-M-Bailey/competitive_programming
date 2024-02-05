@@ -30,12 +30,12 @@ struct dso
 
 vector<vector<int>> G;
 vector<vector<int>> P;
-vector<int> L;
-void dfs(int v)
+vector<int>			L;
+void				dfs(int v)
 {
 	for (int w : G[v])
 	{
-		L[w] = L[v] + 1;
+		L[w]	= L[v] + 1;
 		auto it = find(begin(G[w]), end(G[w]), v);
 		G[w].erase(it);
 		P[w].push_back(v);

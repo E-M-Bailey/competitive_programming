@@ -19,7 +19,7 @@ int main()
 {
 	int n;
 	cin >> n;
-	vector<array<int, 5>> A(n);
+	vector<array<int, 5>>			  A(n);
 	unordered_map<array<int, 5>, int> F;
 	for (auto &AA : A)
 	{

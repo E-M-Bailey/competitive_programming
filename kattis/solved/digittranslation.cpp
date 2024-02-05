@@ -10,7 +10,7 @@ int main()
 {
 	cin.tie(0)->sync_with_stdio(0);
 	vector<pair<int, int>> R;
-	string s;
+	string				   s;
 	cin >> s;
 	int n = (int)s.size();
 	for (int i = 0; i < n; i++)
@@ -18,7 +18,7 @@ int main()
 			if (i + W[j].size() <= s.size() && s.substr(i, W[j].size()) == W[j])
 				R.emplace_back(i, i + (int)W[j].size());
 	vector<vector<int>> C;
-	int p = 0;
+	int					p = 0;
 	for (auto [l, r] : R)
 	{
 		if (l >= p)

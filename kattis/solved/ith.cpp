@@ -8,7 +8,7 @@ int main()
 	while (cin >> n >> m >> k, n)
 	{
 		vector<pair<int, int>> X;
-		vector<bool> R(n), C(m), U(n + m - 1), D(n + m - 1);
+		vector<bool>		   R(n), C(m), U(n + m - 1), D(n + m - 1);
 		while (k--)
 		{
 			int x, y;
@@ -23,7 +23,7 @@ int main()
 		}
 
 		int ans = 0;
-		
+
 		for (int i = 0; i < n; i++)
 			for (int j = 0; j < m; j++)
 				ans += !(R[i] || C[j] || U[i - j + m - 1] || D[i + j]);

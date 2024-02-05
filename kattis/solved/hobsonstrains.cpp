@@ -2,14 +2,8 @@
 
 using namespace std;
 
-int main(int argc, char const *argv[])
+int main()
 {
-	if (argc > 2)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	size_t n, k;
 	cin >> n >> k;
 
@@ -20,11 +14,11 @@ int main(int argc, char const *argv[])
 		p--;
 	}
 
-	vector<bool> vis(n);
+	vector<bool>		   vis(n);
 	vector<vector<size_t>> ch(n);
 	vector<vector<size_t>> cy;
-	vector<size_t> st;
-	vector<size_t> pos(n, SIZE_MAX);
+	vector<size_t>		   st;
+	vector<size_t>		   pos(n, SIZE_MAX);
 
 	for (size_t i = 0; i < n; i++)
 	{
@@ -52,7 +46,7 @@ int main(int argc, char const *argv[])
 					ch[v].push_back(st.back());
 					vis[st.back()] = true;
 					pos[st.back()] = SIZE_MAX;
-					v = st.back();
+					v			   = st.back();
 					st.pop_back();
 				}
 				break;
@@ -62,9 +56,9 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	vector<bool> state(n);
+	vector<bool>	   state(n);
 	vector<deque<int>> dq(n);
-	vector<int> ksum(n), ans(n);
+	vector<int>		   ksum(n), ans(n);
 
 	for (auto const &cyc : cy)
 	{

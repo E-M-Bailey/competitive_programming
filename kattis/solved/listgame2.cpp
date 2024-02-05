@@ -16,13 +16,14 @@ int main()
 			{
 				P.back()++;
 				x /= i;
-			} while (x % i == 0);
+			}
+			while (x % i == 0);
 		}
 	}
 	if (x > 1)
 		P.push_back(2);
 	sort(rbegin(P), rend(P));
-	int n = (int)P.size();
+	int			n = (int)P.size();
 	vector<int> M(n + 1);
 	M[0] = 1;
 	for (int i = 0; i < n; i++)

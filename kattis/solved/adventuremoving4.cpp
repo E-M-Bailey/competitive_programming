@@ -2,8 +2,8 @@
 
 using namespace std;
 
-int n = 0;
-vector<vector<int>> DP;
+int					   n = 0;
+vector<vector<int>>	   DP;
 vector<pair<int, int>> S;
 
 int f(int i, int g)

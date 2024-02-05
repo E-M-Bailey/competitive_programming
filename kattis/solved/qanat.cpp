@@ -8,7 +8,7 @@ typedef long double T;
 
 const T E = 1e-9l;
 
-void tridiag(vector<T> d, const vector<T>& p, const vector<T>& q, vector<T>& b)
+void tridiag(vector<T> d, const vector<T> &p, const vector<T> &q, vector<T> &b)
 {
 	vector<int> tr(n);
 	for (int i = 0; i < n - 1; i++)
@@ -19,7 +19,7 @@ void tridiag(vector<T> d, const vector<T>& p, const vector<T>& q, vector<T>& b)
 			if (i + 2 < n)
 				b[i + 2] -= b[i] * q[i + 1] / p[i];
 			d[i + 1] = q[i];
-			tr[++i] = 1;
+			tr[++i]	 = 1;
 		}
 		else
 		{
@@ -44,14 +44,9 @@ void tridiag(vector<T> d, const vector<T>& p, const vector<T>& q, vector<T>& b)
 	}
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		freopen(argv[1], "r", stdin);
-		freopen(argv[2], "w", stdout);
-	}
-
+	cin.tie(0)->sync_with_stdio(0);
 	cin >> w >> h >> n;
 	n += 2;
 
@@ -60,7 +55,7 @@ int main(int argc, const char* argv[])
 
 	vector<T> b(n, 0), d(n, 1), p(n - 1, g), q(n - 1, g);
 	p[0] = q[n - 2] = 0;
-	b[n - 1] = w;
+	b[n - 1]		= w;
 
 	tridiag(d, p, q, b);
 

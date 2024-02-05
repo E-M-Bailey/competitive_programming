@@ -9,7 +9,7 @@ int main()
 	{
 		cout << n << ' ';
 		int64_t sum = 1;
-		int n2 = n;
+		int		n2	= n;
 		for (int i = 2; i * i <= n2; i++)
 		{
 			int mul = 1;
@@ -22,7 +22,7 @@ int main()
 		}
 		if (n2 != 1)
 			sum *= n2 + 1;
-		
+
 		if (sum == 2 * n)
 			cout << "perfect";
 		else if (abs(sum - 2 * n) <= 2)

@@ -3,14 +3,14 @@
 using namespace std;
 
 map<vector<int>, int> A;
-vector<vector<int>> B;
-vector<int> T;
+vector<vector<int>>	  B;
+vector<int>			  T;
 
 int main()
 {
 	int tc;
 	cin >> tc;
-	string s;
+	string		s;
 	vector<int> res;
 	while (tc--)
 	{
@@ -63,7 +63,7 @@ int main()
 			{
 				int i = T.back();
 				T.pop_back();
-				int j = T.back();
+				int	 j	= T.back();
 				auto it = lower_bound(cbegin(B[j]), cend(B[j]), i);
 				if (it != cend(B[j]) && *it == i)
 					break;

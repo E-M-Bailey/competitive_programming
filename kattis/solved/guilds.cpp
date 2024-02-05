@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-int dfs(const vector<int>& P, vector<int>& A, int v)
+int dfs(const vector<int> &P, vector<int> &A, int v)
 {
 	if (A[v] >= 0)
 		return A[v];
@@ -16,8 +16,8 @@ int main()
 	int n;
 	cin >> n;
 	unordered_map<string, int> N;
-	vector<int> P;
-	vector<int> L;
+	vector<int>				   P;
+	vector<int>				   L;
 	while (n--)
 	{
 		string A, B;
@@ -29,11 +29,11 @@ int main()
 		L.push_back(a);
 	}
 	vector<string> D(size(N));
-	for (const auto& [s, i] : N)
+	for (const auto &[s, i] : N)
 		D[i] = s;
 	vector<int> A(size(N), -1);
 	for (int i = 0; i < size(N); i++)
 		dfs(P, A, i);
 	for (int l : L)
-		cout << D[l] << ' ' << D[A[l]] << endl;
+		cout << D[l] << ' ' << D[A[l]] << '\n';
 }

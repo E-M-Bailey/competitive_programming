@@ -25,11 +25,11 @@ int main()
 			for (int i = 0; i < m - 1; i++)
 				if (abs(I[i] - I[i + 1]) == 1)
 					adj |= 1 << i;
-			
+
 			int nocrosses = 0;
 			do
 			{
-				nocrosses = (int)((unsigned)nocrosses - 1) & adj;
+				nocrosses	= (int)((unsigned)nocrosses - 1) & adj;
 				double cost = s + t * 2 * m;
 				for (int i = 0; i < m - 1; i++)
 				{

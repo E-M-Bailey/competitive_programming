@@ -6,12 +6,14 @@ int main()
 	int n;
 	cin >> n;
 	vector<int> O(n);
-	for (int i = 0; i < n; i++) for (int j = 0; j < n; j++)
-	{
-		char c;
-		cin >> c;
-		if (c == '(') O[j]++;
-	}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+		{
+			char c;
+			cin >> c;
+			if (c == '(')
+				O[j]++;
+		}
 	vector<int> V(n);
 	for (int i = 0; i < n; i++)
 	{

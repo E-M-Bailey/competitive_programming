@@ -6,7 +6,7 @@ int64_t constexpr P1 = 1000000009, P2 = 1000000021, A1 = 5, A2 = 7, I1 = 2000000
 
 bool op(vector<int> &A)
 {
-	int n = (int)A.size();
+	int		n	= (int)A.size();
 	int64_t h1l = 0, h1r = 0, h2l = 0, h2r = 0, b1 = 1, b2 = 1;
 	for (int i = n - 1, j = n - 2; j >= 0; i--, j -= 2)
 	{
@@ -35,13 +35,15 @@ int main()
 
 	string s;
 	cin >> s;
-	int n = (int)s.size();
+	int			n = (int)s.size();
 	vector<int> A(n);
 	for (int i = 0; i < n; i++)
 		A[i] = C[(int)s[i]];
 
-	while (op(A)) {}
+	while (op(A))
+	{}
 	reverse(begin(A), end(A));
-	while (op(A)) {}
+	while (op(A))
+	{}
 	cout << A.size();
 }

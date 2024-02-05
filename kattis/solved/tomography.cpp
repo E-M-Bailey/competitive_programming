@@ -7,7 +7,7 @@ int main()
 	int m, n;
 	cin >> m >> n;
 	vector<int> A(m), B(n);
-	int sum = 0;
+	int			sum = 0;
 	for (int &a : A)
 	{
 		cin >> a;
@@ -20,14 +20,13 @@ int main()
 	}
 
 	vector<vector<int>> Q(n);
-	int cnt = 0;
+	int					cnt = 0;
 	for (int i = 0; i < m; i++)
 		if (--A[i] >= 0)
 		{
 			Q[A[i]].push_back(i);
 			cnt++;
 		}
-
 
 	vector<int> C(m);
 	for (int b : B)
@@ -56,5 +55,4 @@ int main()
 	}
 
 	cout << (cnt == 0 ? "Yes" : "No");
-
 }

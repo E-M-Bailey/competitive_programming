@@ -52,7 +52,8 @@ int main()
 				{
 					cur++;
 					n2 /= p;
-				} while (HP[n2] == p);
+				}
+				while (HP[n2] == p);
 				pw *= cur;
 			}
 			if (powof(n, x) == pw)

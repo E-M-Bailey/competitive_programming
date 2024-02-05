@@ -10,7 +10,7 @@ int main()
 	ios_base::sync_with_stdio(0);
 
 	string pr;
-	int n;
+	int	   n;
 	cin >> pr >> n;
 	char st = pr.back();
 

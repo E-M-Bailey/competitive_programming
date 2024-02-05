@@ -33,17 +33,8 @@ int main()
 	int64_t n;
 	cin >> n;
 
-	array<array<int64_t, 3>, 3> M
-	{
-		array<int64_t, 3>{1, 1, 1},
-		array<int64_t, 3>{1, 0, 0},
-		array<int64_t, 3>{0, 0, 1}
-	};
-	array<array<int64_t, 1>, 3> X
-	{
-		array<int64_t, 1>{2},
-		array<int64_t, 1>{1},
-		array<int64_t, 1>{1}
-	}, Y = mpow(M, n - 1) * X;
+	array<array<int64_t, 3>, 3> M{array<int64_t, 3>{1, 1, 1}, array<int64_t, 3>{1, 0, 0}, array<int64_t, 3>{0, 0, 1}};
+	array<array<int64_t, 1>, 3> X{array<int64_t, 1>{2}, array<int64_t, 1>{1}, array<int64_t, 1>{1}},
+		Y = mpow(M, n - 1) * X;
 	cout << Y[1][0];
 }

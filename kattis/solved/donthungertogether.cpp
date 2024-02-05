@@ -12,11 +12,11 @@ int main()
 		cin >> q >> f;
 
 	priority_queue<pair<int, double>, vector<pair<int, double>>, greater<pair<int, double>>> Q;
-	double lo = 0, hi = 1e9;
+	double																					 lo = 0, hi = 1e9;
 	for (int x = 0; x < 80; x++)
 	{
-		double mid = (lo + hi) / 2;
-		bool good = true;
+		double mid	= (lo + hi) / 2;
+		bool   good = true;
 		for (int i = 0; i < n; i++)
 		{
 			auto [q, f] = A[i];

@@ -7,7 +7,7 @@ int main()
 	int n, a;
 	cin >> n >> a;
 	vector<int> E(n);
-	for (int& e : E)
+	for (int &e : E)
 		cin >> e;
 	sort(E.rbegin(), E.rend());
 	int ans = 0;

@@ -29,7 +29,7 @@ int main()
 		for (int &x : X)
 			cin >> x;
 
-		vector<int> D(n, INT_MAX);
+		vector<int>	 D(n, INT_MAX);
 		vector<bool> V(n);
 		D[s] = 0;
 		priority_queue<pair<int, int>> PQ;

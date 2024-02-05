@@ -6,7 +6,7 @@ int main()
 {
 	int n, m, k;
 	cin >> n >> m >> k;
-	vector<int> C(n);
+	vector<int>			C(n);
 	vector<vector<int>> IC(k);
 	for (int i = 0; i < n; i++)
 	{
@@ -25,9 +25,9 @@ int main()
 		G[C[a]][b].push_back(a);
 	}
 
-	int64_t ans = 0;
+	int64_t			ans = 0;
 	vector<int64_t> DP(n);
-	vector<int> P;
+	vector<int>		P;
 	for (int mask = 1; mask < 1 << k; mask++)
 		if (mask & (mask - 1))
 		{
@@ -45,7 +45,8 @@ int main()
 							DP[j] += DP[l];
 				for (int i : IC[P.back()])
 					ans += DP[i];
-			} while (next_permutation(begin(P), end(P)));
+			}
+			while (next_permutation(begin(P), end(P)));
 		}
 	cout << ans;
 }

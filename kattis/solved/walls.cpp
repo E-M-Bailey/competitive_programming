@@ -7,7 +7,7 @@ int main()
 	int l, w, n, r2;
 	cin >> l >> w >> n >> r2;
 	r2 = r2 * r2 * 4;
-	pair<int, int> const W[4]{ {-l, 0}, {l, 0}, {0, -w}, {0, w} };
+	pair<int, int> const W[4]{{-l, 0}, {l, 0}, {0, -w}, {0, w}};
 
 	vector<uint8_t> C(n);
 	for (uint8_t &c : C)
@@ -53,5 +53,4 @@ int main()
 		cout << "Impossible";
 	else
 		cout << ans;
-
 }

@@ -6,7 +6,7 @@ int main()
 {
 	string S;
 	cin >> S;
-	auto it = cbegin(S);
+	auto		it = cbegin(S);
 	vector<int> T;
 	while (it != cend(S))
 	{
@@ -16,7 +16,7 @@ int main()
 			if (*it == 'S')
 			{
 				++it;
-				int val = 0;
+				int	 val = 0;
 				bool neg = *it++ == 'T';
 				while (*it != 'N')
 					val = 2 * val + (*it++ == 'T');

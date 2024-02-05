@@ -2,14 +2,8 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	const int LIM = 10007;
 
 	array<int, LIM + 1> LP{};
@@ -20,11 +14,11 @@ int main(int argc, const char* argv[])
 					LP[j] = i;
 
 	array<array<int, 3>, LIM + 1> A{};
-	const array<int, 3> UNIT = { INT_MAX, INT_MAX, INT_MAX };
-	A[1] = UNIT;
+	const array<int, 3>			  UNIT = {INT_MAX, INT_MAX, INT_MAX};
+	A[1]							   = UNIT;
 	for (int p = 1, q = 2;;)
 	{
-		A[q] = UNIT;
+		A[q]	= UNIT;
 		A[q][0] = 1;
 		for (int i = q - 1; i > p; i--)
 		{
@@ -35,7 +29,7 @@ int main(int argc, const char* argv[])
 				if (min(A[j][2], j) <= min(A[best][2], best))
 					best = j;
 			}
-			A[i] = A[best];
+			A[i]	= A[best];
 			A[i][2] = min(A[i][2], best);
 			rotate(begin(A[i]), begin(A[i]) + 2, end(A[i]));
 		}
@@ -54,7 +48,7 @@ int main(int argc, const char* argv[])
 	while (T--)
 	{
 		char c;
-		int n;
+		int	 n;
 		cin >> c >> n;
 		array<int, 3> a = A[n];
 		rotate(begin(a), begin(a) + (c == 'O' ? 0 : c == 'E' ? 2 : 1), end(a));

@@ -10,7 +10,7 @@ int main()
 	{
 		int k, n;
 		cin >> k >> n;
-		
+
 		int p = 0, q = 1;
 
 		for (int m = 32 - __builtin_clz(n); m >= 0; m--)

@@ -17,7 +17,6 @@ int main()
 		G[b].insert(a);
 	}
 
-
 	vector<int> D1;
 	for (int v = 0; v < n; v++)
 		if (G[v].size() == 1)

@@ -6,7 +6,7 @@ int main()
 {
 	int n, dummy;
 	cin >> n;
-	vector<int> A{ 0 }, X;
+	vector<int>	 A{0}, X;
 	vector<bool> S(n, true);
 	A.reserve(n);
 	X.reserve(n);

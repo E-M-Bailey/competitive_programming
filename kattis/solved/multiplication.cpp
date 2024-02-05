@@ -7,8 +7,8 @@ int main()
 	string A, B;
 	while (cin >> A >> B, A != "0")
 	{
-		int m = (int)A.size(), n = (int)B.size();
-		int M = 5 + 4 * m, N = 5 + 4 * n;
+		int			   m = (int)A.size(), n = (int)B.size();
+		int			   M = 5 + 4 * m, N = 5 + 4 * n;
 		vector<string> G(N, string(M, ' '));
 		G[0][0] = G[0][M - 1] = G[N - 1][0] = G[N - 1][M - 1] = '+';
 
@@ -41,12 +41,12 @@ int main()
 			{
 				int a = A[j] - '0', b = B[i] - '0';
 				G[I + 1][J + 3] = G[I + 2][J + 2] = G[I + 3][J + 1] = '/';
-				G[I + 1][J + 1] = char(a * b / 10 + '0');
-				G[I + 3][J + 3] = char(a * b % 10 + '0');
+				G[I + 1][J + 1]										= char(a * b / 10 + '0');
+				G[I + 3][J + 3]										= char(a * b % 10 + '0');
 			}
 
 		string C = to_string(atoi(A.c_str()) * atoi(B.c_str()));
-		int l = (int)C.size();
+		int	   l = (int)C.size();
 		for (int k = 0, I = (m + n == l ? 2 : 6); k < l - m; k++, I += 4)
 		{
 			G[I + 3][1] = C[k];

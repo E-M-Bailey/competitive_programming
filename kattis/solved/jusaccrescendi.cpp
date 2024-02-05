@@ -2,17 +2,11 @@
 
 using namespace std;
 
-mt19937_64 randy(12039801);
+mt19937_64					  randy(12039801);
 uniform_int_distribution<int> distr(-1000, 1000);
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	int T, B;
 	cin >> T >> B;
 	int T3 = T * (T - 1) * (T - 2) / 6;
@@ -26,8 +20,8 @@ int main(int argc, const char* argv[])
 					vector<pair<int, int>> P;
 					while ((int)P.size() < T)
 					{
-						int x = distr(randy), y = distr(randy);
-						int& e = x % 2 ? (y % 2 ? d : c) : (y % 2 ? b : a);
+						int	 x = distr(randy), y = distr(randy);
+						int &e = x % 2 ? (y % 2 ? d : c) : (y % 2 ? b : a);
 						if (e == 0)
 							continue;
 						bool col = false;
@@ -36,7 +30,7 @@ int main(int argc, const char* argv[])
 							{
 								auto [x1, y1] = P[i];
 								auto [x2, y2] = P[j];
-								col = (x1 - x) * (y2 - y) == (x2 - x) * (y1 - y);
+								col			  = (x1 - x) * (y2 - y) == (x2 - x) * (y1 - y);
 							}
 						if (!col)
 						{

@@ -9,12 +9,12 @@ int main()
 	cin >> t;
 	while (t--)
 	{
-		int k;
+		int	   k;
 		string s;
 		cin >> k >> s;
 		auto pos = s.find('/');
-		int p = stoi(s.substr(0, pos)), q = stoi(s.substr(pos + 1));
-		
+		int	 p = stoi(s.substr(0, pos)), q = stoi(s.substr(pos + 1));
+
 		int ans = 0, p2 = 1;
 		while (p)
 		{
@@ -27,7 +27,7 @@ int main()
 			}
 			p2 *= 2;
 		}
-		
+
 		cout << k << ' ' << ans << '\n';
 	}
 }

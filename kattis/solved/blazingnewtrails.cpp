@@ -6,8 +6,8 @@ int n, m, k, w;
 
 struct edge
 {
-	int u, v;
-	int64_t c;
+	int			u, v;
+	int64_t		c;
 	friend bool operator<(edge const &a, edge const &b)
 	{
 		return a.c < b.c;
@@ -15,16 +15,14 @@ struct edge
 };
 
 vector<edge> E0, E1;
-int a, b;
+int			 a, b;
 
 struct dso
 {
-	int k;
+	int			k;
 	vector<int> R, P;
 
-	dso() :
-		R(n),
-		P(n)
+	dso() : R(n), P(n)
 	{
 		reset();
 	}
@@ -64,7 +62,7 @@ pair<int64_t, int> solve(int64_t lam)
 	D.reset();
 
 	int64_t cst = 0;
-	int ct = 0;
+	int		ct	= 0;
 
 	int i = 0, j = 0;
 	while ((i < a || j < b) && D.k > 1)
@@ -88,17 +86,12 @@ pair<int64_t, int> solve(int64_t lam)
 
 	if (D.k > 1)
 		ct = -1;
-	return { cst, ct };
+	return {cst, ct};
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
-	if (argc > 2)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
+	cin.tie(0)->sync_with_stdio(0);
 	cin >> n >> m >> k >> w;
 
 	vector<bool> S(n);
@@ -118,7 +111,7 @@ int main(int argc, char const *argv[])
 		u--;
 		v--;
 		bool sp = S[u] ^ S[v];
-		(sp ? E1 : E0).push_back(edge{ u, v, c });
+		(sp ? E1 : E0).push_back(edge{u, v, c});
 	}
 	sort(begin(E0), end(E0));
 	sort(begin(E1), end(E1));
@@ -142,13 +135,13 @@ int main(int argc, char const *argv[])
 
 	while (lo < hi)
 	{
-		int64_t lam = lo + (hi - lo) / 2;
+		int64_t lam	 = lo + (hi - lo) / 2;
 		auto [c, ct] = solve(lam);
 		if (ct > w)
 			lo = lam + 1;
 		else
 		{
-			hi = lam;
+			hi	= lam;
 			ans = c - w * lam;
 		}
 	}

@@ -14,20 +14,18 @@ END ANNOTATION
 
 using namespace std;
 
-int process(const string& str)
+int process(const string &str)
 {
-	//cerr << st << ' ' << ed << endl;
 	int dash;
 	if ((dash = str.find('-')) == str.npos)
-    {
+	{
 		return 1;
-    }
+	}
 	else
 	{
-	    //cerr << dash << endl;
-		string A = str.substr(0, dash), B = str.substr(dash + 1, str.size() - dash - 1);
+		string		 A = str.substr(0, dash), B = str.substr(dash + 1, str.size() - dash - 1);
 		stringstream a(A), b(B);
-		int rst, red;
+		int			 rst, red;
 		a >> rst;
 		b >> red;
 		return red - rst + 1;
@@ -36,14 +34,12 @@ int process(const string& str)
 
 int main()
 {
+	cin.tie(0)->sync_with_stdio(0);
 	string str;
 	cin >> str;
 	int st = 0, ed = -1, ans = 0;
 	while (st = ed + 1, (ed = str.find(';', st)) != str.npos)
-	{
-	    ans += process(str.substr(st, ed - st));
-	    //cerr << ans << endl;
-	}
+		ans += process(str.substr(st, ed - st));
 	ans += process(str.substr(st, str.size()));
 	cout << ans;
 }

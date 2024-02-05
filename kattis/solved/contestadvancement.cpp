@@ -9,7 +9,7 @@ int main()
 	cin >> n >> k >> c;
 
 	vector<priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>> A(n);
-	auto const cmp = [&](int a, int b)
+	auto const																				cmp = [&](int a, int b)
 	{
 		return A[a].top().first > A[b].top().first;
 	};
@@ -26,7 +26,7 @@ int main()
 	}
 
 	vector<pair<int, int>> ans;
-	vector<int> mult(n);
+	vector<int>			   mult(n);
 	while (!B.empty() && ans.size() < k)
 	{
 		int s = B.top();
@@ -50,7 +50,7 @@ int main()
 			B.push(s);
 	}
 
-	sort (begin(ans), end(ans));
+	sort(begin(ans), end(ans));
 	for (auto a : ans)
 		cout << a.second << '\n';
 }

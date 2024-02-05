@@ -3,10 +3,10 @@
 using namespace std;
 
 vector<vector<int>> G;
-vector<int> CI;
+vector<int>			CI;
 vector<vector<int>> CC;
-vector<int> D;
-queue<int> Q;
+vector<int>			D;
+queue<int>			Q;
 
 void dfs(int u, int v)
 {
@@ -74,12 +74,12 @@ int main()
 			dfs(i, i);
 		}
 	vector<int> A(CC.size());
-	int ans = 0;
+	int			ans = 0;
 	for (int i = 0; i < (int)CC.size(); i++)
 	{
 		int a = diam(i);
-		ans = max(ans, a);
-		A[i] = (a + 1) / 2;
+		ans	  = max(ans, a);
+		A[i]  = (a + 1) / 2;
 	}
 	if (A.size() >= 2)
 	{

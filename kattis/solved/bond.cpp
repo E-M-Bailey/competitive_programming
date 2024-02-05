@@ -2,7 +2,7 @@
 
 inline __float128 log(__float128 f)
 {
-    return logl(f);
+	return logl(f);
 }
 
 typedef double F;
@@ -22,10 +22,10 @@ void go()
 				Q[w][j] = -log(P[w][j]);
 		}
 
-	vi32 m = hungarian<F>(Q, 1e-13);
-    F ans = 1;
-    for (int w = 0; w < n; w++)
-            ans *= P[w][m[w]];
+	vi32 m	 = hungarian<F>(Q, 1e-13);
+	F	 ans = 1;
+	for (int w = 0; w < n; w++)
+		ans *= P[w][m[w]];
 
-    cout << fixed << setprecision(9) << f64(100 * ans);
+	cout << fixed << setprecision(9) << f64(100 * ans);
 }

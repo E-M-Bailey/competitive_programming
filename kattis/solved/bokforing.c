@@ -1,10 +1,5 @@
-#define DO_TIME 0
-
 #pragma GCC optimize("Ofast")
 
-#if DO_TIME
-#include <time.h>
-#endif
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -16,24 +11,13 @@
 unsigned A[1000001], n = 0, q = 0, tim = 0, def = 0, i, x;
 char *in_ptr, BUF[OUTS], *out_ptr = BUF;
 
-#if DO_TIME
-struct timespec ta, tb, tc, td;
-#endif
-
 int main()
 {
-    #if DO_TIME
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ta);
-    #endif
     in_ptr = (char *)mmap(0, BUFS, PROT_READ, MAP_SHARED | MAP_POPULATE, STDIN_FILENO, 0);
     madvise(in_ptr, BUFS, MADV_SEQUENTIAL);
     madvise(in_ptr, BUFS, MADV_WILLNEED);
     madvise(in_ptr, BUFS, MADV_HUGEPAGE);
     madvise(in_ptr, BUFS, MADV_POPULATE_READ);    
-
-    #if DO_TIME
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tb);
-    #endif
 
     do
         n = 10 * n + *in_ptr - '0';
@@ -111,17 +95,6 @@ int main()
             __builtin_unreachable();
         }
     }
-    #if DO_TIME
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tc);
-    #endif
 
     write(STDOUT_FILENO, BUF, out_ptr - BUF);
-
-    #if DO_TIME
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &td);
-    fprintf(stderr, "%f\n%f\n%f\n",
-        (tb.tv_sec - ta.tv_sec) + (tb.tv_nsec - ta.tv_nsec) * 0.000000001,
-        (tc.tv_sec - tb.tv_sec) + (tc.tv_nsec - tb.tv_nsec) * 0.000000001,
-        (td.tv_sec - tc.tv_sec) + (td.tv_nsec - tc.tv_nsec) * 0.000000001);
-    #endif
 }

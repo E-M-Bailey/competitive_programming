@@ -2,13 +2,9 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
+	cin.tie(0)->sync_with_stdio(0);
 	int n;
 	cin >> n;
 	int ans = n;

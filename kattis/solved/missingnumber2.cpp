@@ -12,12 +12,11 @@ int main()
 		string str, A;
 		cin >> str;
 		vector<int> ans;
-		int a = 0;
+		int			a = 0;
 		for (int l = 0; l < 5 && l < (int)size(str); l++)
 		{
-			
-			a = 10 * a + str[l] - '0';
-			int cur = a, curans = -1;
+			a		 = 10 * a + str[l] - '0';
+			int	 cur = a, curans = -1;
 			bool bad = false;
 			for (int ptr = 0; ptr < (int)size(str);)
 			{
@@ -59,7 +58,7 @@ int main()
 			}
 		}
 		sort(begin(ans), end(ans));
-		
+
 		cout << ans.size() << '\n';
 		for (auto x : ans)
 			cout << x << ' ';

@@ -7,7 +7,7 @@ int main()
 	int t;
 	cin >> t;
 	array<__uint128_t, 100> A, B, C;
-	string s;
+	string					s;
 	while (t--)
 	{
 		int n, m;

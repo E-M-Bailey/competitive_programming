@@ -3,8 +3,8 @@
 using namespace std;
 
 unordered_map<string, int> ID;
-vector<int> T;
-int id()
+vector<int>				   T;
+int						   id()
 {
 	string s;
 	cin >> s;
@@ -32,7 +32,7 @@ int main()
 		if (c == 'E')
 		{
 			int x = id();
-			T[x] = (int)S.size();
+			T[x]  = (int)S.size();
 			S.push_back(x);
 		}
 		else if (c == 'D')

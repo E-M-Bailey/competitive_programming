@@ -4,9 +4,9 @@ using namespace std;
 // 0-indexed Fenwick tree; based on KACTL implementation
 struct BIT
 {
-	int n;
+	int				n;
 	vector<int64_t> S;
-	BIT(int n): n(n), S(n) {}
+	BIT(int n) : n(n), S(n) {}
 	// Add d to position i
 	void upd(int i, int d)
 	{
@@ -23,7 +23,7 @@ struct BIT
 };
 
 // Coordinate compression. Y becomes the inverse mapping.
-unordered_map<int, int> compress(vector<int>& Y)
+unordered_map<int, int> compress(vector<int> &Y)
 {
 	// Sort and remove duplicates, then construct inverse map
 	sort(begin(Y), end(Y));
@@ -44,8 +44,8 @@ struct point
 struct cmp
 {
 	int x;
-	cmp(int x): x(x) {}
-	bool operator()(const point& l, const point& r) const
+	cmp(int x) : x(x) {}
+	bool operator()(const point &l, const point &r) const
 	{
 		// (x1 - x) / y1 < (x2 - x) / y2
 		return (int64_t)(l.x - x) * r.y < (int64_t)(r.x - x) * l.y;
@@ -56,14 +56,14 @@ struct cmp
 //  - below the horizontal line at y0, and
 //  - left of the line connecting (x0, y0) with (x, 0).
 // Values are multiplied by mul and added to the point's entry in S.
-void go(vector<point>& P, vector<int64_t>& S, const unordered_map<int, int>& CC, int x, int mul)
+void go(vector<point> &P, vector<int64_t> &S, const unordered_map<int, int> &CC, int x, int mul)
 {
 	// Sweep radially about (x, 0) in clockwise order
 	sort(begin(P), end(P), cmp(x));
 	// Stores values encountered so far, keyed by compressed y-coordinate
 	int k = size(CC);
 	BIT T(k);
-	for (auto& [i, x, y, v] : P)
+	for (auto &[i, x, y, v] : P)
 	{
 		int cc = CC.find(y)->second;
 		// Compute sum for this point
@@ -71,7 +71,6 @@ void go(vector<point>& P, vector<int64_t>& S, const unordered_map<int, int>& CC,
 		// Update T for later points
 		T.upd(cc, v);
 	}
-	cerr << endl;
 }
 
 int main()
@@ -81,8 +80,8 @@ int main()
 	vector<point> P(n);
 	for (int i = 0; i < n; i++)
 	{
-		auto& [j, x, y, v] = P[i];
-		j = i;
+		auto &[j, x, y, v] = P[i];
+		j				   = i;
 		cin >> x >> y >> v;
 	}
 

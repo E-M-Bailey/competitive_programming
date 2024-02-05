@@ -3,7 +3,7 @@
 using namespace std;
 
 int16_t cnt[1 << 19][10][10];
-int8_t valxy[1 << 19][10][10], valxz[1 << 19][10][10], valyz[1 << 19][10][10];
+int8_t	valxy[1 << 19][10][10], valxz[1 << 19][10][10], valyz[1 << 19][10][10];
 
 int main()
 {
@@ -59,7 +59,8 @@ int main()
 				int j = i + r;
 				if (cnt[j][x][y] > lim && valxy[j][x][y] >= 0 && valxz[j][x][z] >= 0 && valyz[j][y][z] >= 0)
 				{
-					cout << "triple correlation " << x << '(' << b - a << ')' << y << '(' << c - b << ')' << z << " found";
+					cout << "triple correlation " << x << '(' << b - a << ')' << y << '(' << c - b << ')' << z
+						 << " found";
 					return 0;
 				}
 			}

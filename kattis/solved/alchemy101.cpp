@@ -11,7 +11,7 @@ array<array<short, 1024>, 1001> pre()
 	for (int i = 1; i <= 1000; ++i)
 		for (int j = 0; j < 1024; ++j)
 		{
-			int k = j ^ i;
+			int k  = j ^ i;
 			int pj = p[i - 1][j];
 			int pk = p[i - 1][k];
 
@@ -44,7 +44,8 @@ int main()
 			m = *a++ = P[m][x];
 			x ^= m;
 			m--;
-		} while (P[m][x] != -1);
+		}
+		while (P[m][x] != -1);
 		cout << (a - A) << '\n';
 		do
 			cout << *--a << ' ';

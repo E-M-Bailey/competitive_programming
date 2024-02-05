@@ -8,10 +8,10 @@ template<class T>
 class rmq
 {
 public:
-	int m;
-	vector<T> A;
+	int				 m;
+	vector<T>		 A;
 	vector<uint64_t> M;
-	vector<int> S;
+	vector<int>		 S;
 
 private:
 	inline int argmin(int i, int j) const
@@ -35,7 +35,7 @@ public:
 	template<class It1, class It2>
 	inline rmq(It1 first, It2 last) : A(first, last), M(A.size()), S(A.size())
 	{
-		m = (int)A.size() / 64;
+		m			  = (int)A.size() / 64;
 		uint64_t mask = 0;
 		for (int i = (int)A.size(); i-- > 0; mask <<= 1)
 		{
@@ -59,7 +59,7 @@ public:
 		if (il < ir)
 		{
 			int k = 31 - __builtin_clz(ir - il);
-			ans = argmin(ans, argmin(S[m * k + il], S[m * k + ir - (1 << k)]));
+			ans	  = argmin(ans, argmin(S[m * k + il], S[m * k + ir - (1 << k)]));
 		}
 		return ans;
 	}
@@ -94,12 +94,8 @@ private:
 	// Merge the suffix arrays for indices divisible, and not divisible, by 3.
 	// This is similar to the merge subroutine used in merge sort.
 	template<class T>
-	static inline void merge(
-		int n0, int n1, int n02,
-		T const S[], int A[],
-		int const A0[],
-		int const S12[], int const A12[]
-	)
+	static inline void
+	merge(int n0, int n1, int n02, T const S[], int A[], int const A0[], int const S12[], int const A12[])
 	{
 		int i = 0, i0 = 0, i12 = n0 - n1; // i12 starts at n0 - n1 to skip the dummy suffix if it exists.
 		while (i0 < n0 && i12 < n02)
@@ -109,7 +105,7 @@ private:
 			{
 				int b0 = a0 * 3, b1 = a12 * 3 + 1, a2 = a12 + n0;
 				// Compare by next character then remaining suffix.
-				tuple<T, int> key0{ S[b0], S12[a0] }, key1{ S[b1], S12[a2] };
+				tuple<T, int> key0{S[b0], S12[a0]}, key1{S[b1], S12[a2]};
 				if (key0 < key1) // Next suffix is a0 * 3.
 				{
 					A[i++] = b0;
@@ -125,7 +121,7 @@ private:
 			{
 				int b0 = a0 * 3, b2 = (a12 - n0) * 3 + 2, a1 = a12 - n0 + 1;
 				// Compare by next two characters then remaining suffix.
-				tuple<T, T, int> key0{ S[b0], S[b0 + 1], S12[a0 + n0] }, key2{ S[b2], S[b2 + 1], S12[a1] };
+				tuple<T, T, int> key0{S[b0], S[b0 + 1], S12[a0 + n0]}, key2{S[b2], S[b2 + 1], S12[a1]};
 				if (key0 < key2) // Next suffix is b0.
 				{
 					A[i++] = b0;
@@ -145,7 +141,7 @@ private:
 		while (i12 < n02) // 0 (mod 3) suffixes are done: add remaining 1 and 2 (mod 3) suffixes.
 		{
 			int a12 = A12[i12++];
-			A[i++] = a12 < n0 ? a12 * 3 + 1 : (a12 - n0) * 3 + 2;
+			A[i++]	= a12 < n0 ? a12 * 3 + 1 : (a12 - n0) * 3 + 2;
 		}
 	}
 
@@ -160,14 +156,11 @@ private:
 	}
 
 	template<class T>
-	static inline void lcps(
-		int n, int n0, int n02,
-		T const S[], int const A[], int L[],
-		int const S12[], int const L12[]
-	)
+	static inline void
+	lcps(int n, int n0, int n02, T const S[], int const A[], int L[], int const S12[], int const L12[])
 	{
 		auto R12 = rmq<int>(L12, L12 + n02);
-		L[0] = 0;
+		L[0]	 = 0;
 		// Compute a lower bound to lcp(i - 1, i) within 2 of the actual value by casework on A[i - 1] % 3 and A[i] % 3.
 		for (int i = 1; i < n; i++)
 		{
@@ -181,19 +174,11 @@ private:
 			if (a3 == 0)
 			{
 				if (b3 == 0) // 0, 0
-					L[i] = S[a] == S[b]
-					? 1 + 3 * query(R12, S12, a / 3, b / 3)
-					: 0;
+					L[i] = S[a] == S[b] ? 1 + 3 * query(R12, S12, a / 3, b / 3) : 0;
 				else if (b3 == 1) // 0, 1
-					L[i] = S[a] == S[b]
-					? 1 + 3 * query(R12, S12, a / 3, b / 3 + n0)
-					: 0;
+					L[i] = S[a] == S[b] ? 1 + 3 * query(R12, S12, a / 3, b / 3 + n0) : 0;
 				else // 0, 2
-					L[i] = S[a] == S[b]
-					? S[a + 1] == S[b + 1]
-					? 2 + 3 * query(R12, S12, a / 3 + n0, b / 3 + 1)
-					: 1
-					: 0;
+					L[i] = S[a] == S[b] ? S[a + 1] == S[b + 1] ? 2 + 3 * query(R12, S12, a / 3 + n0, b / 3 + 1) : 1 : 0;
 			}
 			else if (a3 == 1)
 			{
@@ -211,7 +196,8 @@ private:
 	}
 
 	// Computes the suffix array A and LCP array L of S, which has length n and values in [1, lim), in O(n).
-	// Preconditions: n >= 2 and S should be padded with three zeros at the end (i.e. s[n], s[n + 1], and s[n + 2] should be zero.)
+	// Preconditions: n >= 2 and S should be padded with three zeros at the end (i.e. s[n], s[n + 1], and s[n + 2]
+	// should be zero.)
 	template<class T>
 	static inline void suffix_array_impl(T const S[], int A[], int L[], int n, int lim)
 	{
@@ -239,13 +225,13 @@ private:
 
 		// Rank these indices by (S[i], S[i + 1], S[i + 2]), accounting for ties.
 		// S12 is partitioned into these ranks for 1 (mod 3) indices on the left and for 2 (mod 3) indices on the right.
-		int lim2 = 0;
-		auto tup = make_tuple(-1, -1, -1);
+		int	 lim2 = 0;
+		auto tup  = make_tuple(-1, -1, -1);
 		for (int i = 0; i < n02; i++)
 		{
-			auto tup2 = make_tuple(S[A12[i]], S[A12[i] + 1], S[A12[i] + 2]);
+			auto tup2									 = make_tuple(S[A12[i]], S[A12[i] + 1], S[A12[i] + 2]);
 			S12[A12[i] / 3 + (A12[i] % 3 == 1 ? 0 : n0)] = lim2 += tup2 != tup;
-			tup = tup2;
+			tup											 = tup2;
 		}
 
 		// Compute the ranks and the suffix array for indices not divisible by 3.
@@ -263,7 +249,7 @@ private:
 			for (int i = 0; i < n02; i++)
 			{
 				A12[S12[i] - 1] = i;
-				L12[i] = 0;
+				L12[i]			= 0;
 			}
 
 		// Generate suffix array for indices divisible by 0:
@@ -288,10 +274,10 @@ public:
 	inline suffix_array(It first, It last)
 	{
 		typedef typename iterator_traits<It>::value_type T;
-		int n;
+		int												 n;
 		{
 			vector<T> S;
-			T lim = 0;
+			T		  lim = 0;
 			S.insert(S.end(), first, last);
 			for (auto &s : S)
 				lim = max(lim, ++s);
@@ -311,7 +297,7 @@ public:
 int suffix_array::C[suffix_array::MAXN];
 
 char str[50'000'001];
-int main()
+int	 main()
 {
 	vector<int> ans;
 	ans.reserve(5'000'000);
@@ -329,13 +315,13 @@ int main()
 
 		ans.clear();
 		auto [A, B, L] = suffix_array(str + a, str + c);
-		int p_len = b - a;
+		int p_len	   = b - a;
 
 		for (int i = B[0]; L[i--] >= p_len;)
 			ans.push_back(A[i] - (p_len + 1));
 		for (int i = B[0]; ++i < c - a && L[i] >= p_len;)
 			ans.push_back(A[i] - (p_len + 1));
-		
+
 		sort(begin(ans), end(ans));
 		for (int x : ans)
 			cout << x << ' ';

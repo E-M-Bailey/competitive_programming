@@ -13,7 +13,7 @@ int main()
 {
 	int n;
 	cin >> n;
-	vector<int> X(2 * n), Y(2 * n);
+	vector<int>						  X(2 * n), Y(2 * n);
 	vector<tuple<int, int, int, int>> R(n);
 	for (int i = 0; i < n; i++)
 	{
@@ -27,8 +27,8 @@ int main()
 	X.erase(unique(begin(X), end(X)), end(X));
 	sort(begin(Y), end(Y));
 	Y.erase(unique(begin(Y), end(Y)), end(Y));
-	vector<int> IX(200001), IY(200001);
-	int w = (int)X.size() - 1, h = (int)Y.size() - 1;
+	vector<int>			IX(200001), IY(200001);
+	int					w = (int)X.size() - 1, h = (int)Y.size() - 1;
 	vector<vector<int>> S(w + 1), E(w + 1);
 	for (int i = 0; i <= w; i++)
 		IX[X[i]] = i;
@@ -40,8 +40,8 @@ int main()
 		E[IX[get<2>(R[i])]].push_back(i);
 	}
 	vector<int> cnt(h);
-	int cur = 0;
-	int64_t tot = 0;
+	int			cur = 0;
+	int64_t		tot = 0;
 	for (int i = 0; i < w; i++)
 	{
 		for (int j : S[i])

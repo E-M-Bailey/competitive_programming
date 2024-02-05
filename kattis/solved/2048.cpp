@@ -1,19 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void rot(array<array<int, 4>, 4>& G)
+void rot(array<array<int, 4>, 4> &G)
 {
 	static array<array<int, 4>, 4> G2;
-	for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++)
-		G2[3 - j][i] = G[i][j];
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			G2[3 - j][i] = G[i][j];
 	G = G2;
 }
 
 int main()
 {
 	array<array<int, 4>, 4> G;
-	for (auto& GG : G)
-		for (int& g : GG)
+	for (auto &GG : G)
+		for (int &g : GG)
 			cin >> g;
 	int r;
 	cin >> r;
@@ -33,7 +34,7 @@ int main()
 			if (!rp && size(S) && g == S.back())
 			{
 				S.back() = g * 2;
-				rp = true;
+				rp		 = true;
 			}
 			else
 			{
@@ -48,9 +49,10 @@ int main()
 	for (int i = r; i < 4; i++)
 		rot(G);
 
-	for (const auto& GG : G) {
+	for (const auto &GG : G)
+	{
 		for (int g : GG)
 			cout << g << ' ';
-		cout << endl;
+		cout << '\n';
 	}
 }

@@ -4,10 +4,11 @@ using namespace std;
 
 const double PI2 = 8 * atan(4);
 
-void fft_helper(vector<complex<double>>& X, complex<double> w)
+void fft_helper(vector<complex<double>> &X, complex<double> w)
 {
 	int n = size(X);
-	if (n <= 1) return;
+	if (n <= 1)
+		return;
 
 	vector<complex<double>> A(n / 2), B(n / 2);
 	for (int i = 0; i < n; i++)
@@ -19,23 +20,23 @@ void fft_helper(vector<complex<double>>& X, complex<double> w)
 	complex<double> wi = 1;
 	for (int i = 0; i < n / 2; i++)
 	{
-		X[i] = A[i] + wi * B[i];
+		X[i]		 = A[i] + wi * B[i];
 		X[i + n / 2] = A[i] - wi * B[i];
 		wi *= w;
 	}
 }
 
-void fft(vector<complex<double>>& X)
+void fft(vector<complex<double>> &X)
 {
 	double a = PI2 / size(X);
-	fft_helper(X, { cos(a), -sin(a) });
+	fft_helper(X, {cos(a), -sin(a)});
 }
 
-void ifft(vector<complex<double>>& X)
+void ifft(vector<complex<double>> &X)
 {
 	double a = PI2 / size(X);
-	fft_helper(X, { cos(a), sin(a) });
-	for (auto& x : X)
+	fft_helper(X, {cos(a), sin(a)});
+	for (auto &x : X)
 		x /= size(X);
 }
 

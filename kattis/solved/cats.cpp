@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int t, m, n, N, k, P[2000], R[2000];
+int					 t, m, n, N, k, P[2000], R[2000];
 tuple<int, int, int> E[1999000];
 
 int find(int x)

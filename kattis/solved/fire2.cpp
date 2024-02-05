@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int main(int argc, char const *argv[])
+int main()
 {
 	int t;
 	cin >> t;
@@ -14,8 +14,8 @@ int main(int argc, char const *argv[])
 		for (string &row : GR)
 			cin >> row;
 
-		vector<bool> D(w * h), E(w * h), F(w * h);
-		vector<int> A, B, C;
+		vector<bool>		D(w * h), E(w * h), F(w * h);
+		vector<int>			A, B, C;
 		vector<vector<int>> G(w * h);
 		for (int i = 0, idx = 0; i < h; i++)
 			for (int j = 0; j < w; j++, idx++)
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
 			}
 
 		bool esc = D[A[0]];
-		int tim = 1;
+		int	 tim = 1;
 		while (!esc && !A.empty())
 		{
 			tim++;

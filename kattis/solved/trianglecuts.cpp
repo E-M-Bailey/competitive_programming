@@ -2,7 +2,7 @@
 
 using namespace std;
 
-vector<int> glue(const vector<int>& A, const vector<int>& B)
+vector<int> glue(const vector<int> &A, const vector<int> &B)
 {
 	vector<int> C;
 	for (int i = 1; i < A.size(); i++)
@@ -18,12 +18,12 @@ vector<int> glue(const vector<int>& A, const vector<int>& B)
 	return C;
 }
 
-bool valid(const vector<int>& A)
+bool valid(const vector<int> &A)
 {
 	return A.size() <= 4 && *max_element(A.begin(), A.end()) < 180;
 }
 
-bool same(const vector<int>& A, const vector<int>& B)
+bool same(const vector<int> &A, const vector<int> &B)
 {
 	if (A.size() != B.size())
 		return false;
@@ -33,7 +33,7 @@ bool same(const vector<int>& A, const vector<int>& B)
 	return false;
 }
 
-bool test(const vector<int>& large, const vector<vector<int>>& small)
+bool test(const vector<int> &large, const vector<vector<int>> &small)
 {
 	if (small.size() == 1)
 		return same(large, small.front());
@@ -68,16 +68,16 @@ bool test(const vector<int>& large, const vector<vector<int>>& small)
 
 int main()
 {
-    vector<int> large(3);
+	vector<int>			large(3);
 	vector<vector<int>> small(4, vector<int>(3));
 	for (;;)
 	{
-		for (int& a : large)
+		for (int &a : large)
 			cin >> a;
 		if (large.front() == 0)
 			break;
-		for (vector<int>& s : small)
-			for (int& a : s)
+		for (vector<int> &s : small)
+			for (int &a : s)
 				cin >> a;
 		cout << (test(large, small) ? "yes\n" : "no\n");
 	}

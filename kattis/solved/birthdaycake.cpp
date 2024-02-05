@@ -6,7 +6,7 @@ struct candle
 {
 	int x, y;
 
-	friend istream& operator>>(istream& is, candle& c)
+	friend istream &operator>>(istream &is, candle &c)
 	{
 		return is >> c.x >> c.y;
 	}
@@ -22,28 +22,28 @@ struct line
 {
 	int a, b, c;
 
-	friend istream& operator>>(istream& is, line& l)
+	friend istream &operator>>(istream &is, line &l)
 	{
 		return is >> l.a >> l.b >> l.c;
 	}
 
-	friend pair<long double, long double> isect(const line& l1, const line& l2)
+	friend pair<long double, long double> isect(const line &l1, const line &l2)
 	{
 		int det = l1.a * l2.b - l1.b * l2.a;
 		if (det == 0)
 			return NIL;
 		// neg. inv.
 		long double f = 1.l / det, a = -l2.b * f, b = l1.b * f, c = l2.a * f, d = -l1.a * f;
-		return { a * l1.c + b * l2.c, c * l1.c + d * l2.c };
+		return {a * l1.c + b * l2.c, c * l1.c + d * l2.c};
 	}
 
-	bool side(const candle& C) const
+	bool side(const candle &C) const
 	{
 		return a * C.x + b * C.y + c > 0;
 	}
 };
 
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
 	if (argc > 1)
 	{
@@ -55,11 +55,11 @@ int main(int argc, const char* argv[])
 	cin >> n >> m >> r;
 
 	vector<candle> C(n);
-	for (candle& c : C)
+	for (candle &c : C)
 		cin >> c;
 
 	vector<line> L(m);
-	for (line& l : L)
+	for (line &l : L)
 		cin >> l;
 
 	int ct = m + 1;
@@ -79,7 +79,7 @@ int main(int argc, const char* argv[])
 		for (int j = i + 1; j < n; j++)
 		{
 			bool fnd = false;
-			for (const line& l : L)
+			for (const line &l : L)
 				if (l.side(C[i]) != l.side(C[j]))
 				{
 					fnd = true;

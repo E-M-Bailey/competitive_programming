@@ -2,15 +2,15 @@
 
 using namespace std;
 
-int n;
+int								n;
 unordered_map<int64_t, int64_t> P;
-vector<int64_t> A;
+vector<int64_t>					A;
 
 void solve(int l, int r, int k)
 {
 	if (k < 0 || l == r)
-		return;	
-	int m = r;
+		return;
+	int		m	= r;
 	int64_t bit = (int64_t)1 << k;
 	while (A[m - 1] & bit)
 		m--;

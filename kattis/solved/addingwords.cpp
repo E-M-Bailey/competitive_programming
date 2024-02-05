@@ -8,9 +8,9 @@ int main()
 	ios_base::sync_with_stdio(0);
 
 	unordered_map<string, int> defs;
-	vector<string> names(2001);
-	string cmd, token;
-	int val;
+	vector<string>			   names(2001);
+	string					   cmd, token;
+	int						   val;
 	while (cin >> cmd)
 	{
 		if (cmd[0] == 'd')
@@ -36,7 +36,7 @@ int main()
 		else
 		{
 			bool un = false;
-			val = 1000;
+			val		= 1000;
 			for (char op = '+'; op != '='; cin >> op, cout << op << ' ')
 			{
 				cin >> token;

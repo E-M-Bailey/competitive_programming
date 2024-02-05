@@ -2,7 +2,7 @@
 
 using namespace std;
 
-string ln;
+string		 ln;
 vector<bool> rd(int k)
 {
 	vector<bool> ans(k);
@@ -28,7 +28,7 @@ int main()
 			nd[i] = rd(k);
 			cr[i] = rd(k);
 		}
-		vector<int> V(m);
+		vector<int>			V(m);
 		vector<vector<int>> G(n);
 		for (int &v : V)
 		{

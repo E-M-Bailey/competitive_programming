@@ -4,17 +4,17 @@ using namespace std;
 #pragma GCC optimize("Ofast,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 
-using u16 = uint16_t;
-using u32 = uint32_t;
-using u64 = uint64_t;
+using u16		= uint16_t;
+using u32		= uint32_t;
+using u64		= uint64_t;
 constexpr u32 B = 1'000'000'000, MAXP = 940'198;
 constexpr u16 D = 9, MAXN = 5000, MAXQ = 1000, MAXD = 377;
 
-u32 S[MAXP];
-u32 I[MAXN + 2];
-u32 C[MAXD];
+u32	 S[MAXP];
+u32	 I[MAXN + 2];
+u32	 C[MAXD];
 bool V[MAXN + 1];
-u16 N[MAXQ];
+u16	 N[MAXQ];
 
 u16 rd()
 {
@@ -46,26 +46,26 @@ int main()
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 
-	u16 q = rd();
+	u16 q	 = rd();
 	u16 maxn = 0;
 	for (u16 i = 0; i < q; i++)
 	{
-		u16& n = N[i] = rd();
-		V[n] = true;
+		u16 &n = N[i] = rd();
+		V[n]		  = true;
 		if (n > maxn)
 			maxn = n;
 	}
 
 	u16 cback = 1;
-	u32 s = 1;
+	u32 s	  = 1;
 	S[0] = C[0] = 1;
-	I[0] = 0;
+	I[0]		= 0;
 	u64 y = 2, z = 2;
 	for (u16 n = 1; n <= maxn; ++n, y += 4, ++z)
 	{
-		I[n] = s;
+		I[n]	= s;
 		u64 car = 0;
-		u16 c = 0;
+		u16 c	= 0;
 		while (c != cback)
 		{
 			car += C[c] * y;

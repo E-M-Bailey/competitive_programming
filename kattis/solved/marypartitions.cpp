@@ -2,14 +2,8 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	int T;
 	cin >> T;
 	while (T--)

@@ -3,10 +3,9 @@ BEGIN ANNOTATION
 PROBLEM URL: https://open.kattis.com/problems/roomevacuation
 TAGS: flow, maximum flow, dinic, unit capacities, graph, digraph, directed graph, simulation, grid, vertex capacity
 EXPLANATION:
-Overview: First, we construct a graph with O(nmt) vertices and edges, where each vertex corresponds to a specific location and time
-	and each edge corresponds to a the way an occupant could move at that point in time. Then,
-	and show how to reduce the problem to finding the maximum flow with edge capacities
-END ANNOTATION
+Overview: First, we construct a graph with O(nmt) vertices and edges, where each vertex corresponds to a specific
+location and time and each edge corresponds to a the way an occupant could move at that point in time. Then, and show
+how to reduce the problem to finding the maximum flow with edge capacities END ANNOTATION
 */
 
 #include <bits/stdc++.h>
@@ -18,16 +17,17 @@ constexpr T MAX = numeric_limits<T>::max();
 
 struct edge
 {
-	int to; // destination
-	int idx; // index of reverse edge in adj[to]
+	int	 to;  // destination
+	int	 idx; // index of reverse edge in adj[to]
 	bool cap; // residual capacity
 };
 
 // Variant of Dinic's algorithm.
 // A simplified version of https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/Dinic.h
 // The version on KACTL runs in O(V E log U), where U is an upper bound on flow and is assumed to be about 2^30.
-// The for-loop that causes the different complexity has been removed from this version, since the change is useless for unit-capacity networks.
-// This version *should* (I'm not 100% sure) have the same time complexity as the usual version of Dinic's algorithm, including for unit-capacity networks.
+// The for-loop that causes the different complexity has been removed from this version, since the change is useless for
+// unit-capacity networks. This version *should* (I'm not 100% sure) have the same time complexity as the usual version
+// of Dinic's algorithm, including for unit-capacity networks.
 struct dinic
 {
 	// Queue used for finding blocking flows with BFS.
@@ -40,14 +40,12 @@ struct dinic
 	vector<vector<edge>> adj;
 	// Start and end point of the flow.
 	int source, sink;
-	dinic(int n, int source, int sink):
-		level(n), idx(n), adj(n), source(source), sink(sink)
-	{}
+	dinic(int n, int source, int sink) : level(n), idx(n), adj(n), source(source), sink(sink) {}
 	// Adds a from->to edge with capacity 1 its reverse with capacity 0 to the residual graph.
 	void add(int from, int to)
 	{
-		edge fromTo{ to, (int)size(adj[to]), true };
-		edge toFrom{ from, (int)size(adj[from]), false };
+		edge fromTo{to, (int)size(adj[to]), true};
+		edge toFrom{from, (int)size(adj[from]), false};
 		adj[from].push_back(fromTo);
 		adj[to].push_back(toFrom);
 	}
@@ -62,12 +60,13 @@ struct dinic
 		// Iterate over adjacent vertices in the residual graph, skipping those already considered this iteration.
 		for (; idx[from] < (int)size(adj[from]); idx[from]++)
 		{
-			auto& [to, j, cap] = adj[from][idx[from]];
-			// Only consider edges with positive capacity in the layered graph from which a positive-capacity path to the sink can be found.
+			auto &[to, j, cap] = adj[from][idx[from]];
+			// Only consider edges with positive capacity in the layered graph from which a positive-capacity path to
+			// the sink can be found.
 			if (cap && level[to] == level[from] + 1 && dfs(to))
 			{
 				// An augmenting path has been found, so augment this edge and return true.
-				cap = false;
+				cap			   = false;
 				adj[to][j].cap = true;
 				return true;
 			}
@@ -81,8 +80,8 @@ struct dinic
 	{
 		int flow = 0;
 
-		// For non-unit capacities, this would be enclosed in a for loop, which is the source of the O(log U) in the time complexity.
-		// See the KACTL implementation for an example.
+		// For non-unit capacities, this would be enclosed in a for loop, which is the source of the O(log U) in the
+		// time complexity. See the KACTL implementation for an example.
 		do
 		{
 			// Reset level and idx
@@ -115,7 +114,8 @@ struct dinic
 				flow++;
 			// Iterate until the BFS terminates without reaching the sink.
 			// This happens only once the sink is disconnected and the flow is maximized
-		} while (level[sink] != 0);
+		}
+		while (level[sink] != 0);
 		return flow;
 	}
 };
@@ -131,15 +131,16 @@ constexpr array<pair<int, int>, 5> DIR{
 
 int main()
 {
+	cin.tie(0)->sync_with_stdio(0);
 	// Parse input
 	int n, m, t;
 	cin >> n >> m >> t;
 	vector<string> grid(n);
-	for (string& row : grid)
+	for (string &row : grid)
 		cin >> row;
 
 	// Nodes are ordered by row, then column, then time, followed by the source and the sink.
-	int N = n * m * (t + 1) * 2 + 2;
+	int N	   = n * m * (t + 1) * 2 + 2;
 	int source = N - 2, sink = N - 1;
 	// The index of the virtual vertex at cell (i, j) and time k. If u = idx(i, j, k), the vertices for
 	//     incoming and outgoing edges making up this virtual vertex are 2u and 2u+1, respectively.
@@ -179,5 +180,5 @@ int main()
 				if (cell == 'E')
 					D.add(fromOut, sink);
 			}
-	cout << D.flow() << endl;
+	cout << D.flow() << '\n';
 }

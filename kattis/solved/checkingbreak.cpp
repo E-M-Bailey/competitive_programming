@@ -2,54 +2,13 @@
 
 using namespace std;
 
-/*
-template<size_t D>
-vector<pair<array<int, D>, array<int, D>>> solve(array<int, D> dims, vector<array<int, D>> const &P)
-{
-
-
-	int n = (int)P.size();
-	vector<int> Z(n);
-	for (int i = 0; i < n; i++)
-		Z[i] = P[i].back();
-	sort(begin(Z), end(Z));
-	Z.erase(unique(begin(Z), end(Z)), end(Z));
-	int k = (int)Z.size();
-
-	vector<vector<array<int, D - 1>>> Q(k);
-	for (auto const &p : P)
-	{
-		int cc = lower_bound(begin(Z), end(Z), p.back()) - begin(Z);
-		Q[cc].emplace_back(begin(p), prev(end(p)));
-	}
-
-	vector<vector<pair<array<int, D - 1>, array<int, D - 1>>>> qans(k);
-	for (int i = 0; i < k; i++)
-	{
-		qans[i] = solve(array<int, D - 1>(begin(dims), prev(end(dims))));
-		reverse(begin(qans[i]), end(qans[i]));
-	}
-
-	vector<pair<array<int, D>, array<int, D>>> pans(n);
-	for (int i = 0; i < n; i++)
-	{
-		int cc = lower_bound(begin(Z), end(Z), p.back()) - begin(Z);
-		copy(begin(qans[cc].back().first), end(qans[cc].back().first), begin(pans[i].first));
-		copy(begin(qans[cc].back().second), end(qans[cc].back().second), begin(pans[i].second));
-		qans[cc].pop_back();
-		pans[i].first.back() =
-	}
-
-
-}
-*/
-
 int main()
 {
+	cin.tie(0)->sync_with_stdio(0);
 	for (;;)
 	{
 		array<int, 3> dims;
-		int n;
+		int			  n;
 		for (int &d : dims)
 			if (cin >> d, d < 0)
 				return 0;

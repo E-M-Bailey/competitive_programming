@@ -4,9 +4,9 @@ using namespace std;
 
 struct dso
 {
-	int n;
+	int			n;
 	vector<int> R, P, L;
-	dso(vector<int>&& lens): n(size(lens)), R(n), P(n), L(move(lens))
+	dso(vector<int> &&lens) : n(size(lens)), R(n), P(n), L(move(lens))
 	{
 		iota(begin(P), end(P), 0);
 	}
@@ -32,14 +32,14 @@ struct dso
 	}
 };
 
-int main(int argc, const char* argv[])
+int main()
 {
 	int n, m;
 	cin >> n >> m;
 
 	unordered_map<string, int> CC;
-	vector<string> ICC;
-	vector<int> A(n);
+	vector<string>			   ICC;
+	vector<int>				   A(n);
 
 	CC.reserve(n + 2 * m);
 	ICC.reserve(n + 2 * m);
@@ -55,20 +55,20 @@ int main(int argc, const char* argv[])
 	}
 
 	vector<pair<int, int>> E(m);
-	for (auto& [u, v] : E)
+	for (auto &[u, v] : E)
 	{
 		cin >> s >> t;
 		auto [it, ins] = CC.try_emplace(s, size(CC));
 		if (ins)
 			ICC.push_back(move(s));
-		u = it->second;
+		u			 = it->second;
 		tie(it, ins) = CC.try_emplace(t, size(CC));
 		if (ins)
 			ICC.push_back(move(t));
 		v = it->second;
 	}
 
-	int k = size(CC);
+	int			k = size(CC);
 	vector<int> lens(k);
 	for (int i = 0; i < k; i++)
 		lens[i] = size(ICC[i]);

@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
+
 using namespace std;
+
 constexpr int64_t MOD = 1'000'000'007;
+
 int rup2(int x)
 {
 	--x;
@@ -8,10 +11,11 @@ int rup2(int x)
 		x |= x >> i;
 	return x + 1;
 }
+
 struct cubic
 {
 	array<int, 4> C{};
-	constexpr cubic(int a = 0, int b = 0, int c = 0, int d = 0): C{ a, b, c, d } {}
+	constexpr cubic(int a = 0, int b = 0, int c = 0, int d = 0) : C{a, b, c, d} {}
 	constexpr int operator()(int x) const
 	{
 		int y = 0;
@@ -28,17 +32,17 @@ struct cubic
 	{
 		return (sum(hi) - sum(lo) + MOD) % MOD;
 	}
-	constexpr cubic& operator+=(const cubic& b)
+	constexpr cubic &operator+=(const cubic &b)
 	{
 		for (int i = 0; i < 4; i++)
 			C[i] = (C[i] + b.C[i]) % MOD;
 		return *this;
 	}
-	constexpr cubic operator+(const cubic& b) const
+	constexpr cubic operator+(const cubic &b) const
 	{
 		return cubic(*this) += b;
 	}
-	constexpr cubic& operator*=(int b)
+	constexpr cubic &operator*=(int b)
 	{
 		for (int i = 0; i < 4; i++)
 			C[i] = (C[i] * (int64_t)b) % MOD;
@@ -50,16 +54,16 @@ struct cubic
 	}
 };
 constexpr cubic unit{};
-constexpr cubic operator+(const cubic& a, const cubic& b)
+constexpr cubic operator+(const cubic &a, const cubic &b)
 {
 	return cubic(a) += b;
 }
 struct tree
 {
-	int n, m;
-	vector<vector<int>> s;
+	int					  n, m;
+	vector<vector<int>>	  s;
 	vector<vector<cubic>> l;
-	tree(vector<int>&& lv): n(rup2(size(lv)))
+	tree(vector<int> &&lv) : n(rup2(size(lv)))
 	{
 		s.push_back(forward<vector<int>>(lv));
 		s.back().resize(n, 0);
@@ -85,7 +89,6 @@ struct tree
 			l[i - 1][j * 2] += l[i][j];
 			l[i - 1][j * 2 + 1] += l[i][j];
 		}
-		//cerr << "adding " << l[i][j].sum(nlo, nhi) << " to " << nlo << ' ' << nhi << endl;
 		s[i][j] = get(i, j, nlo, nhi);
 		l[i][j] = 0;
 	}
@@ -96,21 +99,17 @@ struct tree
 		if (hi <= lo)
 			return 0;
 		if (lo == nlo && hi == nhi)
-		{
-			//cerr << lo << ' ' << hi << ' ' << nlo << ' ' << nhi << ' ' << get(i, j, nlo, nhi) << endl;
 			return get(i, j, nlo, nhi);
-		}
 		pd(i, j, nlo, nhi);
 		int mid = (nlo + nhi) / 2;
 		int ans = (query(lo, hi, nlo, mid, i - 1, j * 2) + query(lo, hi, mid, nhi, i - 1, j * 2 + 1)) % MOD;
-		//cerr << lo << ' ' << hi << ' ' << nlo << ' ' << nhi << ' ' << ans << endl;
 		return ans;
 	}
 	int query(int lo, int hi)
 	{
 		return query(lo, hi, 0, n, m - 1, 0);
 	}
-	void update(int lo, int hi, int nlo, int nhi, int i, int j, const cubic& f)
+	void update(int lo, int hi, int nlo, int nhi, int i, int j, const cubic &f)
 	{
 		lo = max(lo, nlo);
 		hi = min(hi, nhi);
@@ -122,23 +121,15 @@ struct tree
 			l[i][j] += f;
 			return;
 		}
-		//cerr << "adding " << f.sum(lo, hi) << " to " << nlo << ' ' << nhi << endl;
 		s[i][j] = (s[i][j] + f.sum(lo, hi)) % MOD;
 		int mid = (nlo + nhi) / 2;
 		update(lo, hi, nlo, mid, i - 1, j * 2, f);
 		update(lo, hi, mid, nhi, i - 1, j * 2 + 1, f);
 	}
-	void update(int lo, int hi, const cubic& f)
+	void update(int lo, int hi, const cubic &f)
 	{
 		update(lo, hi, 0, n, m - 1, 0, f);
 	}
-	/*void dbg()
-	{
-		for (int i = 0; i < m; i++)
-		{
-			for (int j = 0; j < size(m); j++)
-		}
-	}*/
 };
 int main()
 {
@@ -154,16 +145,13 @@ int main()
 		cin >> t >> x >> y;
 		x--;
 		if (t == 0)
-			cout << T.query(x, y) << endl;
+			cout << T.query(x, y) << '\n';
 		else
 		{
 			int64_t a = (MOD + 1 - x) % MOD, b = (MOD + 2 - x) % MOD, c = (MOD + 3 - x) % MOD;
-			cubic f(a * b % MOD * c % MOD, (a * b + a * c + b * c) % MOD, (a + b + c) % MOD, 1);
-			//cerr << c << endl;
-			//cerr << f.C[0] << ' ' << f.C[1] << ' ' << f.C[2] << ' ' << f.C[3] << endl;
+			cubic	f(a * b % MOD * c % MOD, (a * b + a * c + b * c) % MOD, (a + b + c) % MOD, 1);
 			if (t == 2)
 				f *= MOD - 1;
-			//cerr << ' ' << f.C[0] << ' ' << f.C[1] << ' ' << f.C[2] << ' ' << f.C[3] << endl;
 			T.update(x, y, f);
 		}
 	}

@@ -48,12 +48,12 @@ int main()
 {
 	int n, m;
 	cin >> n >> m;
-	bit T(n);
+	bit		 T(n);
 	set<int> P{0, n}, Q{0, n};
-	string s;
+	string	 s;
 	cin >> s;
 	vector<int> A(n);
-	int a = 0, b = 0;
+	int			a = 0, b = 0;
 
 	{
 		vector<bool> B(n);
@@ -69,14 +69,14 @@ int main()
 			if (plus)
 			{
 				P.insert(i);
-				a = (a + cura) % MOD;
+				a	 = (a + cura) % MOD;
 				cura = A[i];
 				curb = int((long long)curb * A[i] % MOD);
 			}
 			else
 			{
 				Q.insert(i);
-				b = (b + curb) % MOD;
+				b	 = (b + curb) % MOD;
 				curb = A[i];
 				cura = int((long long)cura * A[i] % MOD);
 			}
@@ -122,8 +122,8 @@ int main()
 	auto const set_val = [&](int i, int ratio, int &c, set<int> const &R)
 	{
 		auto it = R.upper_bound(i);
-		int l = *prev(it), r = *it;
-		int q = T.query(l, r);
+		int	 l = *prev(it), r = *it;
+		int	 q = T.query(l, r);
 		c -= q;
 		if (c < 0)
 			c += MOD;
@@ -134,7 +134,7 @@ int main()
 	while (m--)
 	{
 		char c;
-		int i, j, rji, rij;
+		int	 i, j, rji, rij;
 		cin >> c;
 		switch (c)
 		{

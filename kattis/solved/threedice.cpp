@@ -3,19 +3,19 @@ using namespace std;
 
 void fail()
 {
-	cout << 0 << endl;
+	cout << 0 << '\n';
 	exit(0);
 }
 
 unordered_map<char, int> ID;
-int id(char c)
+int						 id(char c)
 {
 	return ID.try_emplace(c, size(ID)).first->second;
 }
 
 // Adjacency matrix with bitmasks
 array<int, 26> G{};
-void add(int u, int v)
+void		   add(int u, int v)
 {
 	// duplicate letters => no solution
 	if (u == v)
@@ -25,7 +25,7 @@ void add(int u, int v)
 }
 
 // Print the dice corresponding to this coloring.
-void print(const array<int, 3>& M)
+void print(const array<int, 3> &M)
 {
 	array<string, 3> S;
 	for (auto [c, id] : ID)
@@ -36,13 +36,13 @@ void print(const array<int, 3>& M)
 			if (M[k] & m)
 				S[k] += c;
 	}
-	for (const string& s : S)
+	for (const string &s : S)
 		cout << s << ' ';
 }
 
 // Recursively search for a balanced 3-coloring, pruning early when the current path is known to be impossible.
 // params are current node
-bool rec(int i, array<int, 3>& M)
+bool rec(int i, array<int, 3> &M)
 {
 	// Success! All nodes have a color, so print the solution.
 	if (i == 18)

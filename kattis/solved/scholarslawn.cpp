@@ -3,8 +3,8 @@
 using namespace std;
 
 typedef long double T;
-const T E = 1e-7l;
-const T INF = numeric_limits<T>::infinity();
+const T				E	= 1e-7l;
+const T				INF = numeric_limits<T>::infinity();
 
 vector<pair<T, T>> P;
 
@@ -22,13 +22,8 @@ struct line
 	{
 		return a * y - b * x;
 	}
-	line(T x1, T y1, T x2, T y2):
-		a(y2 - y1),
-		b(x1 - x2),
-		c(a* x1 + b * y1),
-		m(sqrtl(a* a + b * b)),
-		l(t(x1, y1) - E),
-		r(t(x2, y2) + E)
+	line(T x1, T y1, T x2, T y2) :
+		a(y2 - y1), b(x1 - x2), c(a * x1 + b * y1), m(sqrtl(a * a + b * b)), l(t(x1, y1) - E), r(t(x2, y2) + E)
 	{}
 	bool on(T x, T y) const
 	{
@@ -37,7 +32,7 @@ struct line
 		T tim = t(x, y);
 		return l < tim && tim < r;
 	}
-	friend int isect(const line& l, const line& r)
+	friend int isect(const line &l, const line &r)
 	{
 		T a = l.a, b = l.b, c = r.a, d = r.b, e = l.c, f = r.c;
 		T det = a * d - b * c;
@@ -54,13 +49,9 @@ struct line
 	}
 };
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		freopen(argv[1], "r", stdin);
-		freopen(argv[2], "w", stdout);
-	}
+	cin.tie(0)->sync_with_stdio(0);
 
 	int n;
 	cin >> n;
@@ -106,28 +97,31 @@ int main(int argc, const char* argv[])
 	}
 
 	int N = (int)P.size();
+
 	vector<vector<pair<int, T>>> G(N);
 	for (int i = 0; i < n; i++)
 	{
-		sort(begin(I[i]), end(I[i]), [&](int a, int b)
-			{
-				auto [xa, ya] = P[a];
-				auto [xb, yb] = P[b];
-				return L[i].t(xa, ya) < L[i].t(xb, yb);
-			});
+		sort(begin(I[i]),
+			 end(I[i]),
+			 [&](int a, int b)
+			 {
+				 auto [xa, ya] = P[a];
+				 auto [xb, yb] = P[b];
+				 return L[i].t(xa, ya) < L[i].t(xb, yb);
+			 });
 		for (int j = 1; j < (int)I[i].size(); j++)
 		{
 			int a = I[i][j - 1], b = I[i][j];
 			auto [xa, ya] = P[a];
 			auto [xb, yb] = P[b];
-			T d = (L[i].t(xb, yb) - L[i].t(xa, ya)) / L[i].m;
+			T d			  = (L[i].t(xb, yb) - L[i].t(xa, ya)) / L[i].m;
 			G[a].emplace_back(b, d);
 			G[b].emplace_back(a, d);
 		}
 	}
 
-	vector<T> D(N, INF);
-	vector<bool> vis(N);
+	vector<T>																  D(N, INF);
+	vector<bool>															  vis(N);
 	priority_queue<pair<T, int>, vector<pair<T, int>>, greater<pair<T, int>>> Q;
 	D[s] = 0;
 	Q.emplace(0, s);
@@ -149,11 +143,8 @@ int main(int argc, const char* argv[])
 
 	T ans = INF;
 	for (auto [u, d] : F)
-	{
-		//cerr << P[u].first << ' ' << P[u].second << ' ' << D[u] / V << ' ' << d << endl;
 		if (D[u] / V < d + E)
 			ans = min(ans, d);
-	}
 
 	if (ans == INF)
 		cout << "Impossible";

@@ -11,7 +11,7 @@ int main()
 		int n;
 		cin >> n;
 		vector<int> A(n);
-		int sum = 0;
+		int			sum = 0;
 		for (int &a : A)
 		{
 			cin >> a;

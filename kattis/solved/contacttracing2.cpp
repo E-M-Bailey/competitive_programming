@@ -7,7 +7,7 @@ int main()
 	int n, k, c;
 	cin >> n >> k >> c;
 	vector<vector<int>> G(n);
-	vector<int> L(n, -1);
+	vector<int>			L(n, -1);
 	while (c--)
 	{
 		int a, b, d;
@@ -15,8 +15,10 @@ int main()
 		a--;
 		b--;
 		d--;
-		if (d > L[a]) G[a].clear();
-		if (d > L[b]) G[b].clear();
+		if (d > L[a])
+			G[a].clear();
+		if (d > L[b])
+			G[b].clear();
 		if (d >= L[a])
 		{
 			L[a] = d;

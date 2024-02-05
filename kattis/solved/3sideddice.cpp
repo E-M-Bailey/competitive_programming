@@ -9,7 +9,7 @@ struct v2
 
 v2 operator-(v2 a, v2 b)
 {
-	return { a.x - b.x, a.y - b.y };
+	return {a.x - b.x, a.y - b.y};
 }
 
 int operator*(v2 a, v2 b)
@@ -40,7 +40,7 @@ bool operator!=(v2 a, v2 b)
 int main()
 {
 	cin.tie(0)->sync_with_stdio(0);
-	v2 T[4];
+	v2	T[4];
 	int z;
 	while (cin >> T[0].x >> T[0].y >> z, T[0].x + T[0].y + z > 0)
 	{
@@ -56,19 +56,19 @@ int main()
 		}
 		else if (T[0] == T[1])
 		{
-			v2 d1 = T[2] - T[1], d2 = T[3] - T[1];
+			v2	d1 = T[2] - T[1], d2 = T[3] - T[1];
 			int cp = d1 ^ d2, dp1 = d1 * d1, dp2 = d1 * d2;
 			ans = cp == 0 && dp2 > 0 && dp2 < dp1;
 		}
 		else if (T[1] == T[2])
 		{
-			v2 d1 = T[0] - T[1], d2 = T[3] - T[1];
+			v2	d1 = T[0] - T[1], d2 = T[3] - T[1];
 			int cp = d1 ^ d2, dp1 = d1 * d1, dp2 = d1 * d2;
 			ans = cp == 0 && dp2 > 0 && dp2 < dp1;
 		}
 		else if (((T[2] - T[1]) ^ (T[1] - T[0])) == 0)
 		{
-			v2 d1 = T[2] - T[0], d2 = T[3] - T[0];
+			v2	d1 = T[2] - T[0], d2 = T[3] - T[0];
 			int cp = d1 ^ d2, dp1 = d1 * d1, dp2 = d1 * d2;
 			ans = cp == 0 && dp2 > 0 && dp2 < dp1;
 		}

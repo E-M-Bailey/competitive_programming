@@ -45,7 +45,7 @@ int main()
 			while (!S.empty());
 			ctr++;
 		}
-	
+
 	int q;
 	cin >> q;
 	while (q--)

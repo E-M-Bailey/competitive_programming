@@ -4,7 +4,7 @@ using namespace std;
 
 struct sky
 {
-	int n;
+	int																					   n;
 	unordered_map<int, unordered_map<int, unordered_map<int64_t, unordered_set<int64_t>>>> L;
 
 	void add_seg(pair<int, int> p1, pair<int, int> p2)
@@ -17,13 +17,13 @@ struct sky
 		int g = gcd(dx, dy);
 		dx /= g;
 		dy /= g;
-		int64_t cp = (int64_t)dx * y1 - (int64_t)dy * x1;
+		int64_t cp	= (int64_t)dx * y1 - (int64_t)dy * x1;
 		int64_t dp1 = (int64_t)dx * x1 + (int64_t)dy * y1;
 		int64_t dp2 = (int64_t)dx * x2 + (int64_t)dy * y2;
 
-		auto& LL = L[dx];
-		auto& LLL = LL[dy];
-		auto& LLLL = LLL[cp];
+		auto &LL   = L[dx];
+		auto &LLL  = LL[dy];
+		auto &LLLL = LLL[cp];
 		if (!LLLL.insert(dp1).second)
 			LLLL.erase(dp1);
 		if (!LLLL.insert(dp2).second)
@@ -43,21 +43,15 @@ struct sky
 		{
 			int x1, y1, x2, y2, x3, y3;
 			cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
-			add_seg({ x1, y1 }, { x2, y2 });
-			add_seg({ x1, y1 }, { x3, y3 });
-			add_seg({ x2, y2 }, { x3, y3 });
+			add_seg({x1, y1}, {x2, y2});
+			add_seg({x1, y1}, {x3, y3});
+			add_seg({x2, y2}, {x3, y3});
 		}
 	}
 };
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	sky G{}, J{};
 
 	cout << (G.L == J.L ? "yes" : "no");

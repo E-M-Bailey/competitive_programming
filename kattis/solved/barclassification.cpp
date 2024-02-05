@@ -7,7 +7,7 @@ int main()
 	int n;
 	cin >> n;
 	vector<vector<bool>> G(n, vector<bool>(n));
-	int total = 0;
+	int					 total = 0;
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)

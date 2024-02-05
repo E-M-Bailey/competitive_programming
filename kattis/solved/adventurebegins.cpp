@@ -84,7 +84,6 @@ int minv(int a)
 	return x;
 }
 
-
 int main()
 {
 	cin.tie(0)->sync_with_stdio(0);

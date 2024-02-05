@@ -7,7 +7,7 @@ uint64_t constexpr A1 = 11, A2 = 13, M1 = 1e9 + 7, M2 = 1e9 + 9, I1 = 818181824,
 struct hash_deque
 {
 	deque<char> S;
-	uint64_t h1 = 0, h2 = 0, p1 = 1, p2 = 1;
+	uint64_t	h1 = 0, h2 = 0, p1 = 1, p2 = 1;
 
 	size_t size() const
 	{
@@ -74,10 +74,10 @@ int main()
 {
 	string s;
 	cin >> s;
-	int n = (int)s.size();
-	int i = 0, j = n - 1;
+	int		   n = (int)s.size();
+	int		   i = 0, j = n - 1;
 	hash_deque A, B;
-	int ans = 0;
+	int		   ans = 0;
 	while (i < j)
 	{
 		A.push_back(s[i++]);
@@ -91,6 +91,6 @@ int main()
 	}
 	if (!A.empty() || n % 2 == 1)
 		ans++;
-	
+
 	cout << ans;
 }

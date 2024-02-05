@@ -4,10 +4,10 @@ using namespace std;
 struct mul
 {
 	int64_t M;
-	mul(int64_t M): M(M) {}
-	vector<vector<int>> operator()(const vector<vector<int>>& A, const vector<vector<int>>& B) const
+	mul(int64_t M) : M(M) {}
+	vector<vector<int>> operator()(const vector<vector<int>> &A, const vector<vector<int>> &B) const
 	{
-		int a = size(A), b = size(A[0]), c = size(B[0]);
+		int					a = size(A), b = size(A[0]), c = size(B[0]);
 		vector<vector<int>> C(a, vector<int>(c));
 		for (int i = 0; i < a; i++)
 			for (int j = 0; j < b; j++)
@@ -20,19 +20,22 @@ struct mul
 vector<vector<int>> eye(int n)
 {
 	vector<vector<int>> I(n, vector<int>(n));
-	for (int i = 0; i < n; i++) I[i][i] = 1;
+	for (int i = 0; i < n; i++)
+		I[i][i] = 1;
 	return I;
 }
 
-vector<vector<int>> mpow(const vector<vector<int>>& A, int64_t t, const auto& op)
+vector<vector<int>> mpow(const vector<vector<int>> &A, int64_t t, const auto &op)
 {
-	if (t <= 1) return t ? A : eye(size(A));
+	if (t <= 1)
+		return t ? A : eye(size(A));
 	auto B = mpow(A, t / 2, op);
 	return t % 2 ? op(op(B, B), A) : op(B, B);
 }
 
 int main()
 {
+	cin.tie(0)->sync_with_stdio(0);
 	int n;
 	cin >> n;
 	vector<vector<int>> A(n + 1, vector<int>(n + 1));
@@ -59,6 +62,6 @@ int main()
 			Y[i][0] = (Y[i][0] % m + m) % m;
 		}
 		auto op = mul(m);
-		cout << op(mpow(B, t, op), Y)[n - 1][0] << endl;
+		cout << op(mpow(B, t, op), Y)[n - 1][0] << '\n';
 	}
 }

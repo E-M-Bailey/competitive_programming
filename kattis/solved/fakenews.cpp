@@ -2,21 +2,26 @@
 using namespace std;
 enum TYPE : int
 {
-	T, F, C
+	T,
+	F,
+	C
 };
 const array<string, 3> NAMES = {"truther", "fabulist", "charlatan"};
 enum OP : int
 {
-	TYP, NOT, AND, XOR
+	TYP,
+	NOT,
+	AND,
+	XOR
 };
 struct node
 {
-	OP op;
+	OP	op;
 	int a, b;
 };
-vector<node> E;
+vector<node>		E;
 vector<vector<int>> A;
-int n, k;
+int					n, k;
 
 int parse()
 {
@@ -28,44 +33,44 @@ int parse()
 	{
 	case 't':
 		E[i].op = TYP;
-		E[i].a = T;
+		E[i].a	= T;
 		cin >> E[i].b;
 		E[i].b--;
 		break;
 	case 'f':
 		E[i].op = TYP;
-		E[i].a = F;
+		E[i].a	= F;
 		cin >> E[i].b;
 		E[i].b--;
 		break;
 	case 'c':
 		E[i].op = TYP;
-		E[i].a = C;
+		E[i].a	= C;
 		cin >> E[i].b;
 		E[i].b--;
 		break;
 	case 'n':
 		E[i].op = NOT;
-		E[i].a = parse();
-		E[i].b = -1;
+		E[i].a	= parse();
+		E[i].b	= -1;
 		break;
 	case 'a':
 		E[i].op = AND;
-		E[i].a = parse();
-		E[i].b = parse();
+		E[i].a	= parse();
+		E[i].b	= parse();
 		break;
 	case 'x':
 		E[i].op = XOR;
-		E[i].a = parse();
-		E[i].b = parse();
+		E[i].a	= parse();
+		E[i].b	= parse();
 		break;
 	}
 	return i;
 }
 
-bool eval(int i, const vector<int>& t)
+bool eval(int i, const vector<int> &t)
 {
-	const node& e = E[i];
+	const node &e = E[i];
 	switch (e.op)
 	{
 	case TYP:
@@ -91,7 +96,7 @@ int main()
 		A[c].push_back(parse());
 	}
 	vector<int> t(n, 0);
-	const auto inc = [&]() -> bool
+	const auto	inc = [&]() -> bool
 	{
 		for (int i = 0; i < n; i++)
 		{
@@ -103,8 +108,6 @@ int main()
 	};
 	do
 	{
-		//for (int tt : t)
-		//	cerr << tt << ' ';
 		bool good = true;
 		for (int i = 0; good && i < n; i++)
 		{
@@ -132,23 +135,24 @@ int main()
 				for (int a : A[i])
 				{
 					bool cur = eval(a, t);
-					if (cur && !prev) {
+					if (cur && !prev)
+					{
 						good = false;
 						break;
 					}
 					(cur ? tr : fa) = true;
-					prev = cur;
+					prev			= cur;
 				}
 				good &= tr && fa;
 				break;
 			}
 		}
-		//cerr << good << endl;
-		if (good) {
+		if (good)
+		{
 			for (int typ : t)
-				cout << NAMES[typ] << endl;
+				cout << NAMES[typ] << '\n';
 			return 0;
 		}
-	} while (inc());
-	//cerr << "fail?" << endl;
+	}
+	while (inc());
 }

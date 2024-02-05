@@ -15,8 +15,8 @@ void parse(char const *&ptr, vector<pair<int, int>> &S)
 		parse(ptr, S);
 	++ptr;
 
-	int r = (int)S.size();
-	S[sz + 2] = { r, r };
+	int r	  = (int)S.size();
+	S[sz + 2] = {r, r};
 }
 
 int main()
@@ -33,7 +33,7 @@ int main()
 			parse(ptr, S);
 	}
 
-	int n = (int)S.size();
+	int			n = (int)S.size();
 	vector<int> A(n + 1);
 
 	for (bool done = false; !done;)

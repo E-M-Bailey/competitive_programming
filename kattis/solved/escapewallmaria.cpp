@@ -1,16 +1,17 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+
 int t, n, m;
 
 int main()
 {
 	cin >> t >> n >> m;
 	vector<string> GR(n);
-	for (auto& gr : GR)
+	for (auto &gr : GR)
 		cin >> gr;
 	vector<vector<int>> G(n * m);
-	int s = 0;
+	int					s = 0;
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
@@ -62,5 +63,5 @@ int main()
 	if (d < 0 || d > t)
 		cout << "NOT POSSIBLE\n";
 	else
-		cout << d << endl;
+		cout << d << '\n';
 }

@@ -2,21 +2,21 @@
 
 using namespace std;
 
-int constexpr PTS[31]{ 100, 75, 60, 50, 45, 40, 36, 32, 29, 26, 24, 22, 20, 18, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+int constexpr PTS[31]{100, 75, 60, 50, 45, 40, 36, 32, 29, 26, 24, 22, 20, 18, 16, 15,
+					  14,  13, 12, 11, 10, 9,  8,  7,  6,  5,  4,  3,  2,  1,  0};
 
 int main()
 {
 	int n;
 	cin >> n;
 	map<int, map<int, map<int, vector<int>>>> A;
-	vector<int> ans(n);
+	vector<int>								  ans(n);
 	for (int i = 0; i < n; i++)
 	{
 		int s, p, f;
 		cin >> s >> p >> f >> ans[i];
 		A[-s][p][f].push_back(i);
 	}
-
 
 	int rank = 0;
 	for (auto const &[s, AA] : A)
@@ -30,7 +30,7 @@ int main()
 				for (int i : AAAA)
 					ans[i] += pts;
 			}
-	
+
 	for (int a : ans)
 		cout << a << '\n';
 }

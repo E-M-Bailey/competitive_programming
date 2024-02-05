@@ -1,16 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
-int n;
-vector<int> G;
-vector<int> C;
-vector<int> A;
+int					n;
+vector<int>			G;
+vector<int>			C;
+vector<int>			A;
 vector<vector<int>> IC;
-int lo = numeric_limits<int>::max();
-int hi = numeric_limits<int>::min();
+int					lo = numeric_limits<int>::max();
+int					hi = numeric_limits<int>::min();
 
-vector<bool> S, V;
+vector<bool>		S, V;
 vector<vector<int>> IG;
-vector<bool> SM;
+vector<bool>		SM;
 
 int dfs1(int v)
 {
@@ -21,10 +21,10 @@ int dfs1(int v)
 	}
 	if (V[v])
 		return -1;
-	S[v] = true;
-	V[v] = true;
+	S[v]  = true;
+	V[v]  = true;
 	int c = dfs1(G[v]);
-	S[v] = false;
+	S[v]  = false;
 	if (c >= 0)
 	{
 		C[v] = size(IC) - 1;
@@ -33,7 +33,7 @@ int dfs1(int v)
 	return c == v ? -1 : c;
 }
 
-int dfs2(int v, int64_t& tot)
+int dfs2(int v, int64_t &tot)
 {
 	int w = v < n;
 
@@ -59,8 +59,8 @@ int main()
 	for (int i = 0; i < n; i++)
 	{
 		cin >> A[i];
-		lo = min(lo, A[i]);
-		hi = max(hi, A[i]);
+		lo	 = min(lo, A[i]);
+		hi	 = max(hi, A[i]);
 		G[i] = i + A[i];
 		if (G[i] < 0 || G[i] >= n)
 			G[i] = n;
@@ -76,12 +76,13 @@ int main()
 		dfs1(i);
 	SM.resize(hi - lo + 1);
 	int64_t tot = 0;
-	for (const auto& CC : IC)
+	for (const auto &CC : IC)
 	{
 		int cnt = 0, num = 0;
 		for (int v : CC)
 		{
-			if (v == n) continue;
+			if (v == n)
+				continue;
 			num += !SM[A[v] - lo];
 			SM[A[v] - lo] = true;
 		}
@@ -93,5 +94,5 @@ int main()
 			if (v != n)
 				SM[A[v] - lo] = false;
 	}
-	cout << tot << endl;
+	cout << tot << '\n';
 }

@@ -21,6 +21,7 @@ int main()
 				cout << a << ' ';
 			return 0;
 		}
-	} while (next_permutation(begin(A), end(A)));
+	}
+	while (next_permutation(begin(A), end(A)));
 	cout << "Niebb";
 }

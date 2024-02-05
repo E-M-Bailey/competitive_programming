@@ -56,7 +56,7 @@ int main()
 					if (cur >= DP[i][j])
 					{
 						DP[i][j] = cur;
-						P[i][j] = l;
+						P[i][j]	 = l;
 					}
 				}
 			}

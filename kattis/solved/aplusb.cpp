@@ -3,7 +3,7 @@
 using namespace std;
 
 typedef long double T;
-typedef complex<T> C;
+typedef complex<T>	C;
 
 constexpr int rup2(int n)
 {
@@ -18,7 +18,7 @@ void fft(C w, vector<C> &A)
 	int n = (int)A.size();
 	if (n <= 1)
 		return;
-	int m = n / 2;
+	int		  m = n / 2;
 	vector<C> E(m), O(m);
 	for (int i = 0; i < m; i++)
 	{
@@ -33,7 +33,7 @@ void fft(C w, vector<C> &A)
 	C wi = 1;
 	for (int i = 0; i < m; i++)
 	{
-		A[i] = E[i] + wi * O[i];
+		A[i]	 = E[i] + wi * O[i];
 		A[i + m] = E[i] - wi * O[i];
 		wi *= w;
 	}
@@ -43,15 +43,15 @@ const T PI = 4 * atanl(1);
 
 void fft(vector<C> &A)
 {
-	int n = (int)A.size();
-	T theta = 2 * PI / n;
+	int n	  = (int)A.size();
+	T	theta = 2 * PI / n;
 	fft(polar<T>(1, -theta), A);
 }
 
 void ifft(vector<C> &A)
 {
-	int n = (int)A.size();
-	T theta = 2 * PI / n;
+	int n	  = (int)A.size();
+	T	theta = 2 * PI / n;
 	fft(polar<T>(1, theta), A);
 	for (auto &a : A)
 		a /= n;

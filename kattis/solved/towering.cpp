@@ -5,7 +5,7 @@ using namespace std;
 int main()
 {
 	vector<int> A(6);
-	int x, y;
+	int			x, y;
 	for (int &a : A)
 		cin >> a;
 	cin >> x >> y;

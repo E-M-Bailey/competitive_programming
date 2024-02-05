@@ -114,7 +114,7 @@ int main()
 			msg += '+';
 	}
 	auto pos = msg.find('+');
-	msg = to_string(stoi(msg.substr(0, pos)) + stoi(msg.substr(pos + 1)));
+	msg		 = to_string(stoi(msg.substr(0, pos)) + stoi(msg.substr(pos + 1)));
 	for (int i = 0; i < 7; i++)
 	{
 		bool nfst = false;

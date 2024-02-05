@@ -11,7 +11,7 @@ int main()
 
 	while (k--)
 	{
-		int i;
+		int	   i;
 		string s;
 		cin >> i >> s;
 		I[s].push_back(i);
@@ -42,7 +42,7 @@ int main()
 	int sum = 0;
 	for (auto [j, f] : F)
 		sum += f;
-	
+
 	if (sum == 0)
 		cout << "impossible";
 	else if (sum == 1)

@@ -2,13 +2,9 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
+	cin.tie(0)->sync_with_stdio(0);
 
 	int HP[10'001]{};
 	for (int i = 2; i <= 10'000; i++)
@@ -18,7 +14,7 @@ int main(int argc, const char* argv[])
 		for (int j = i; j <= 10'000; j += i)
 			HP[j] = i;
 	}
-	
+
 	int ans[10'001];
 	ans[2] = 5;
 	for (int N = 3; N <= 10'000; N++)
@@ -27,7 +23,7 @@ int main(int argc, const char* argv[])
 		for (int n = N; n > 1;)
 		{
 			int hp = HP[n];
-			phi = phi / hp * (hp - 1);
+			phi	   = phi / hp * (hp - 1);
 			do
 				n /= hp;
 			while (HP[n] == hp);

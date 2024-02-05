@@ -10,7 +10,7 @@ int main()
 	long long n;
 	long long t;
 	cin >> n >> t;
-	long long a, b, c;
+	long long		  a, b, c;
 	vector<long long> T(1);
 	cin >> a >> b >> c >> T[0];
 	vector<long long> F(c + 1);
@@ -31,7 +31,7 @@ int main()
 			while (T[l] != T[r])
 				l++;
 			long long prd = r - l;
-			long long q = (n - r) / prd;
+			long long q	  = (n - r) / prd;
 			for (long long i = l; i < r; i++)
 				F[T[i]] += q;
 			for (auto i = r; i < n - q * prd; i++)

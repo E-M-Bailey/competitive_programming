@@ -14,12 +14,12 @@ constexpr array<bool, 127> allowed()
 }
 array<bool, 127> constexpr AL = allowed();
 
-int h, w;
+int			   h, w;
 vector<string> G;
 
 struct rect
 {
-	int i1, j1, i2, j2, a;
+	int			i1, j1, i2, j2, a;
 	friend bool operator<(rect const &a, rect const &b)
 	{
 		return a.a < b.a;
@@ -51,7 +51,7 @@ int main()
 				while (j2 < w && G[i][j2] == '+')
 					j2++;
 				j2--;
-				R.push_back({ i, j, i2, j2, (i2 - i + 1) * (j2 - j + 1) });
+				R.push_back({i, j, i2, j2, (i2 - i + 1) * (j2 - j + 1)});
 			}
 	sort(begin(R), end(R));
 

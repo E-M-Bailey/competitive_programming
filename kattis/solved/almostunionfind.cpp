@@ -7,15 +7,15 @@ int main()
 	int n, m;
 	while (cin >> n >> m)
 	{
-		vector<int64_t> A(n);
-		vector<list<int>> S(n);
-		vector<int> I(n);
+		vector<int64_t>				A(n);
+		vector<list<int>>			S(n);
+		vector<int>					I(n);
 		vector<list<int>::iterator> IT(n);
 		for (int i = 0; i < n; i++)
 		{
-			A[i] = i;
-			S[i] = { i };
-			I[i] = i;
+			A[i]  = i;
+			S[i]  = {i};
+			I[i]  = i;
 			IT[i] = S[i].begin();
 		}
 
@@ -59,5 +59,4 @@ int main()
 			}
 		}
 	}
-
 }

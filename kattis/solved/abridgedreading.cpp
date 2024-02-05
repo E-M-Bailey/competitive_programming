@@ -2,9 +2,9 @@
 
 using namespace std;
 
-vector<int> C;
-vector<int> P;
-vector<bool> CC;
+vector<int>			   C;
+vector<int>			   P;
+vector<bool>		   CC;
 vector<pair<int, int>> DP;
 
 int main()
@@ -26,7 +26,7 @@ int main()
 		cin >> a >> b;
 		a--;
 		b--;
-		P[b] = a;
+		P[b]  = a;
 		CC[a] = false;
 	}
 
@@ -40,8 +40,8 @@ int main()
 	{
 		if (CC[i])
 		{
-			ans = min(ans, M + C[i]);
-			M = min(M, C[i]);
+			ans			= min(ans, M + C[i]);
+			M			= min(M, C[i]);
 			DP[i].first = C[i];
 		}
 		else
@@ -53,7 +53,7 @@ int main()
 			if (DP[i].first < DP[P[i]].first)
 			{
 				DP[P[i]].second = DP[P[i]].first;
-				DP[P[i]].first = DP[i].first;
+				DP[P[i]].first	= DP[i].first;
 			}
 			else if (DP[i].first < DP[P[i]].second)
 				DP[P[i]].second = DP[i].first;

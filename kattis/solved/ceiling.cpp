@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int n, k;
+int					n, k;
 vector<vector<int>> A;
 
 bool same(vector<int> const &X, vector<int> const &Y)

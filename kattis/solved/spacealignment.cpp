@@ -7,8 +7,8 @@ int main()
 	int n;
 	cin >> n;
 	vector<tuple<int, int, int>> A(n);
-	string ln;
-	int lvl = 0;
+	string						 ln;
+	int							 lvl = 0;
 	for (auto &[s, t, d] : A)
 	{
 		cin >> ln;
@@ -27,7 +27,7 @@ int main()
 	for (int num = 1; num <= 1000; num++)
 	{
 		bool good = true;
-		int per = -1;
+		int	 per  = -1;
 		for (auto [s, t, d] : A)
 		{
 			int amt = s + t * num;

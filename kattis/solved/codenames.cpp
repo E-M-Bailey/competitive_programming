@@ -9,15 +9,11 @@ struct dinic
 	struct edge
 	{
 		int v, r;
-		ll c, f = 0;
-		edge(int V, int R, ll C) :
-			v(V),
-			r(R),
-			c(C)
-		{}
+		ll	c, f = 0;
+		edge(int V, int R, ll C) : v(V), r(R), c(C) {}
 	};
-	vector<int> L, I;
-	queue<int> Q;
+	vector<int>			 L, I;
+	queue<int>			 Q;
 	vector<vector<edge>> A;
 	dinic(int n) : L(n), I(n), A(n) {}
 
@@ -80,14 +76,10 @@ struct dinic
 	}
 };
 
-int main(int argc, char const *argv[])
+int main()
 {
-	if (argc > 2)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
+	cin.tie(0)->sync_with_stdio(0);
+	
 	int n;
 	cin >> n;
 	vector<string> S(n);
@@ -106,7 +98,7 @@ int main(int argc, char const *argv[])
 		}
 
 	vector<bool> A(n), B(n);
-	vector<int> ST;
+	vector<int>	 ST;
 	for (int i = 0; i < n; i++)
 		if (!A[i] && !B[i])
 		{

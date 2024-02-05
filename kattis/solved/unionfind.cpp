@@ -2,9 +2,9 @@
 using namespace std;
 struct dso
 {
-	int n;
+	int			n;
 	vector<int> P, R;
-	dso(int n): n(n), P(n), R(n)
+	dso(int n) : n(n), P(n), R(n)
 	{
 		iota(begin(P), end(P), 0);
 	}
@@ -37,7 +37,7 @@ int main()
 	while (q--)
 	{
 		char c;
-		int a, b;
+		int	 a, b;
 		cin >> c >> a >> b;
 		if (c == '=')
 			D.onion(a, b);

@@ -6,7 +6,7 @@ char const A = 'z' + 1;
 
 string after(string const &s, string const &t)
 {
-	int i = 0, j = 0, bj = -1, bk = -1;
+	int	   i = 0, j = 0, bj = -1, bk = -1;
 	string u;
 	while (i < s.size() && j < t.size())
 	{

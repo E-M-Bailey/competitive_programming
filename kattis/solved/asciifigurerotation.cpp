@@ -4,9 +4,9 @@ using namespace std;
 
 int main()
 {
-	int n;
+	int	   n;
 	string dummy;
-	bool nfst = false;
+	bool   nfst = false;
 	while (cin >> n, n)
 	{
 		if (nfst)
@@ -14,7 +14,7 @@ int main()
 		nfst = true;
 		getline(cin, dummy);
 		vector<string> in(n);
-		int m = 0;
+		int			   m = 0;
 		for (auto &row : in)
 		{
 			getline(cin, row);

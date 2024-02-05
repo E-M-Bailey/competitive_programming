@@ -2,9 +2,9 @@
 
 using namespace std;
 
-int n, m, q;
+int					 n, m, q;
 vector<vector<bool>> G, H;
-bool tr = false;
+bool				 tr = false;
 
 constexpr int64_t MOD = 1e9 + 7;
 
@@ -17,8 +17,10 @@ int main()
 
 	const auto conn = [](int a, int b) -> bool
 	{
-		if (a == b) return false;
-		if (tr) swap(a, b);
+		if (a == b)
+			return false;
+		if (tr)
+			swap(a, b);
 		return G[a][b];
 	};
 	const auto vert = []()
@@ -33,8 +35,10 @@ int main()
 	};
 	const auto edge = [](int a, int b)
 	{
-		if (a == b) return;
-		if (tr) swap(a, b);
+		if (a == b)
+			return;
+		if (tr)
+			swap(a, b);
 		G[a][b] = true;
 		H[a][b] = false;
 	};
@@ -71,9 +75,11 @@ int main()
 		{
 			cin >> x;
 			cmpl();
-			for (y = 0; y < n; y++) edge(x, y);
+			for (y = 0; y < n; y++)
+				edge(x, y);
 			tpse();
-			for (y = 0; y < n; y++) edge(x, y);
+			for (y = 0; y < n; y++)
+				edge(x, y);
 			tpse();
 			cmpl();
 		}
@@ -85,32 +91,21 @@ int main()
 			cmpl();
 		}
 		else if (t == 5)
-		{
 			tpse();
-		}
 		else if (t == 6)
-		{
 			cmpl();
-		}
-		// for (x = 0; x < n; x++)
-		// {
-		// 	for (y = 0; y < n; y++)
-		// 		cout << conn(x, y);
-		// 	cout << '\n';
-		// }
-		// cout << '\n';
 	}
 
 	cout << n << '\n';
 	for (int x = 0; x < n; x++)
 	{
-		int d = 0, h = 0;
+		int		d = 0, h = 0;
 		int64_t p7 = 1;
 		for (int y = 0; y < n; y++)
 			if (conn(x, y))
 			{
 				d++;
-				h = int((h + p7 * y) % MOD);
+				h  = int((h + p7 * y) % MOD);
 				p7 = p7 * 7 % MOD;
 			}
 		cout << d << ' ' << h << '\n';

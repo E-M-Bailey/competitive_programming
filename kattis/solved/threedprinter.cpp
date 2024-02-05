@@ -16,12 +16,12 @@ struct v3
 
 v3 operator+(v3 a, v3 b)
 {
-	return { a.x + b.x, a.y + b.y, a.z + b.z };
+	return {a.x + b.x, a.y + b.y, a.z + b.z};
 }
 
 v3 operator-(v3 a, v3 b)
 {
-	return { a.x - b.x, a.y - b.y, a.z - b.z };
+	return {a.x - b.x, a.y - b.y, a.z - b.z};
 }
 
 T operator*(v3 a, v3 b)
@@ -31,12 +31,12 @@ T operator*(v3 a, v3 b)
 
 v3 operator^(v3 a, v3 b)
 {
-	return { det2(a.y, a.z, b.y, b.z), det2(a.z, a.x, b.z, b.x), det2(a.x, a.y, b.x, b.y) };
+	return {det2(a.y, a.z, b.y, b.z), det2(a.z, a.x, b.z, b.x), det2(a.x, a.y, b.x, b.y)};
 }
 
 v3 operator*(v3 a, T b)
 {
-	return { a.x * b, a.y * b, a.z * b };
+	return {a.x * b, a.y * b, a.z * b};
 }
 
 istream &operator>>(istream &is, v3 &a)
@@ -46,7 +46,7 @@ istream &operator>>(istream &is, v3 &a)
 
 ostream &operator<<(ostream &os, v3 a)
 {
-	return os << '(' << a.x << ',' << a.y << ',' << a.z << ')' << endl;
+	return os << '(' << a.x << ',' << a.y << ',' << a.z << ')' << '\n';
 }
 
 struct tri
@@ -75,18 +75,17 @@ T vol_with_0(tri const &t)
 int main()
 {
 	cout << fixed << setprecision(2);
-	cerr << fixed << setprecision(2);
 
 	int n;
 	cin >> n;
 	T ans = 0;
 	while (n--)
 	{
-		T cur = 0;
+		T	cur = 0;
 		int f;
 		cin >> f;
-		int tv = 0;
-		v3 c{ 0, 0, 0 };
+		int				   tv = 0;
+		v3				   c{0, 0, 0};
 		vector<vector<v3>> faces(f);
 		for (auto &face : faces)
 		{
@@ -101,12 +100,11 @@ int main()
 			tv += v;
 		}
 		c = c * (T(1) / tv);
-		cerr << "center: " << c.x << ' ' << c.y << ' ' << c.z << endl;
 		for (auto const &face : faces)
 		{
 			for (int i = 2; i < (int)face.size(); i++)
 			{
-				tri t{ face[0], face[i - 1], face[i] };
+				tri t{face[0], face[i - 1], face[i]};
 				point_out(c, t);
 				cur += vol_with_0(t);
 			}

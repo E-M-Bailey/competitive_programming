@@ -37,7 +37,7 @@ int main()
 		}
 		l -= n;
 		r -= n;
-		
+
 		int ls = lower_bound(begin(mst[lvl]) + l, begin(mst[lvl]) + r, suf) - (begin(mst[lvl]) + l);
 		int rs = lower_bound(begin(mst[lvl]) + l, begin(mst[lvl]) + r, suf + char('z' + 1)) - (begin(mst[lvl]) + l);
 		return rs - ls;

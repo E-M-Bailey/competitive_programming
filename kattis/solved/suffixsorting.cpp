@@ -18,12 +18,12 @@ static inline void counting_sort(int const A[], int B[], T const key[], int n, i
 		C[i] += C[i - 1];
 	for (int i = n; i-- > 0;)
 		B[--C[(int)key[f * A[i]]]] = A[i];
-
 }
 
 // Computes the suffix array A and LCP array L of S, which has length n and values in [1, lim), in O(n).
 // Heavily based on https://www.cs.helsinki.fi/u/tpkarkka/publications/icalp03.pdf.
-// Preconditions: n >= 2 and S should be padded with three zeros at the end (i.e. s[n], s[n + 1], and s[n + 2] should be zero.)
+// Preconditions: n >= 2 and S should be padded with three zeros at the end (i.e. s[n], s[n + 1], and s[n + 2] should be
+// zero.)
 template<typename T>
 static inline void suffix_array_helper(T const S[], int A[], int n, int lim)
 {
@@ -51,13 +51,13 @@ static inline void suffix_array_helper(T const S[], int A[], int n, int lim)
 
 	// Rank these indices by (S[i], S[i + 1], S[i + 2]), accounting for ties.
 	// S12 is partitioned into these ranks for 1 (mod 3) indices on the left and for 2 (mod 3) indices on the right.
-	int lim2 = 0;
-	auto tup = make_tuple(-1, -1, -1);
+	int	 lim2 = 0;
+	auto tup  = make_tuple(-1, -1, -1);
 	for (int i = 0; i < n02; i++)
 	{
-		auto tup2 = make_tuple(S[A12[i]], S[A12[i] + 1], S[A12[i] + 2]);
+		auto tup2									 = make_tuple(S[A12[i]], S[A12[i] + 1], S[A12[i] + 2]);
 		S12[A12[i] / 3 + (A12[i] % 3 == 1 ? 0 : n0)] = lim2 += tup2 != tup;
-		tup = tup2;
+		tup											 = tup2;
 	}
 
 	// Finalize the ranks and the suffix array for indices not divisible by 3.
@@ -88,13 +88,14 @@ static inline void suffix_array_helper(T const S[], int A[], int n, int lim)
 	// This is similar to the merge subroutine of merge sort.
 	for (int p = 0, t = n0 - n1, k = 0; k < n; k++)
 	{
-		int a = A12[t];
+		int	 a	= A12[t];
 		bool a1 = a < n0; // Whether a = A12[t] refers to a 1 (mod 3) or to a 2 (mod 3) suffix (true means 1 (mod 3))
-		int i0 = A0[p], i03 = i0 * 3, i12 = a1 ? a * 3 + 1 : (a - n0) * 3 + 2;
-		if (a1
-			? make_tuple(S[i12], S12[A12[t] + n0]) <= make_tuple(S[i03], S12[i0]) // Comparison for indices = 1 (mod 3) and ...
-			: make_tuple(S[i12], S[i12 + 1], S12[A12[t] - n0 + 1]) <= make_tuple(S[i03], S[i03 + 1], S12[i0 + n0])) // for 2 (mod 3).
-			// Next suffix is 1 or 2 (mod 3).
+		int	 i0 = A0[p], i03 = i0 * 3, i12 = a1 ? a * 3 + 1 : (a - n0) * 3 + 2;
+		if (a1 ? make_tuple(S[i12], S12[A12[t] + n0]) <=
+					 make_tuple(S[i03], S12[i0]) // Comparison for indices = 1 (mod 3) and ...
+			   : make_tuple(S[i12], S[i12 + 1], S12[A12[t] - n0 + 1]) <=
+					 make_tuple(S[i03], S[i03 + 1], S12[i0 + n0])) // for 2 (mod 3).
+																   // Next suffix is 1 or 2 (mod 3).
 		{
 			A[k] = i12;
 			if (++t == n02) // Done with 1 and 2 (mod 3) suffixes, fill in the rest of the 0 (mod 3) suffixes.
@@ -102,14 +103,14 @@ static inline void suffix_array_helper(T const S[], int A[], int n, int lim)
 					A[k] = 3 * A0[p];
 		}
 		else
-			// Next suffix is 0 (mod 3).
+		// Next suffix is 0 (mod 3).
 		{
 			A[k] = i03;
 			if (++p == n0) // Done with 0 (mod 3) suffixes, fill in the rest of the 1 and 2 (mod 3) suffixes.
 				for (k++; t < n02; k++, t++)
 				{
-					a = A12[t];
-					a1 = a < n0;
+					a	 = A12[t];
+					a1	 = a < n0;
 					A[k] = a1 ? a * 3 + 1 : (a - n0) * 3 + 2;
 				}
 		}
@@ -118,7 +119,7 @@ static inline void suffix_array_helper(T const S[], int A[], int n, int lim)
 
 vector<int> suffix_array(string const &S)
 {
-	int n = (int)S.size();
+	int			 n = (int)S.size();
 	vector<char> S2(begin(S), end(S));
 	S2.resize(n + 3);
 	auto ans = vector<int>(n);
@@ -126,7 +127,6 @@ vector<int> suffix_array(string const &S)
 		suffix_array_helper(S2.data(), ans.data(), n, 256);
 	return ans;
 }
-
 
 int main()
 {
@@ -137,7 +137,7 @@ int main()
 	while (getline(cin, str))
 	{
 		auto A = suffix_array(str);
-		int q;
+		int	 q;
 		cin >> q;
 		while (q--)
 		{

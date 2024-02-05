@@ -11,48 +11,48 @@ int ans[100][100];
 struct pt
 {
 	int x, y, i;
-	pt(int X = 0, int Y = 0): x(X), y(Y), i(X* n + Y) {}
-	friend bool operator<(const pt& l, const pt& r)
+	pt(int X = 0, int Y = 0) : x(X), y(Y), i(X * n + Y) {}
+	friend bool operator<(const pt &l, const pt &r)
 	{
 		if (l.x != r.x)
 			return l.x < r.x;
 		return l.y < r.y;
 	}
-	friend bool operator>(const pt& l, const pt& r)
+	friend bool operator>(const pt &l, const pt &r)
 	{
 		if (l.x != r.x)
 			return l.x > r.x;
 		return l.y > r.y;
 	}
-	friend bool operator<=(const pt& l, const pt& r)
+	friend bool operator<=(const pt &l, const pt &r)
 	{
 		return !(l > r);
 	}
-	friend bool operator>=(const pt& l, const pt& r)
+	friend bool operator>=(const pt &l, const pt &r)
 	{
 		return !(l < r);
 	}
-	friend bool operator==(const pt& l, const pt& r)
+	friend bool operator==(const pt &l, const pt &r)
 	{
 		return l.x == r.x && l.y == r.y;
 	}
-	friend bool operator!=(const pt& l, const pt& r)
+	friend bool operator!=(const pt &l, const pt &r)
 	{
 		return !(l == r);
 	}
-	friend pt operator-(const pt& a, const pt& b)
+	friend pt operator-(const pt &a, const pt &b)
 	{
-		return { a.x - b.x, a.y - b.y };
+		return {a.x - b.x, a.y - b.y};
 	}
-	friend int operator*(const pt& a, const pt& b)
+	friend int operator*(const pt &a, const pt &b)
 	{
 		return a.x * b.x + a.y * b.y;
 	}
-	friend int operator^(const pt& a, const pt& b)
+	friend int operator^(const pt &a, const pt &b)
 	{
 		return a.x * b.y - a.y * b.x;
 	}
-	pt& operator++()
+	pt &operator++()
 	{
 		if (++y == n)
 		{
@@ -62,7 +62,7 @@ struct pt
 		++i;
 		return *this;
 	}
-	pt& operator--()
+	pt &operator--()
 	{
 		if (--y < 0)
 		{
@@ -79,7 +79,7 @@ struct pt
 	}
 	pt fl() const
 	{
-		return pt{ n - 1 - x, n - 1 - y };
+		return pt{n - 1 - x, n - 1 - y};
 	}
 	operator int() const
 	{
@@ -89,7 +89,7 @@ struct pt
 	{
 		return x == 0 && y == 0;
 	}
-	friend ostream& operator<<(ostream& os, const pt& p)
+	friend ostream &operator<<(ostream &os, const pt &p)
 	{
 		return os << '(' << p.x << ',' << p.y << ')';
 	}
@@ -101,7 +101,7 @@ void solve(int DP[100][100][100])
 		for (pt b = a; b.x < n; ++b)
 		{
 			A[a][b] = B[a][b] = C[a][b] = 0;
-			for (pt c{ a.x, 0 }; c.x <= b.x; ++c)
+			for (pt c{a.x, 0}; c.x <= b.x; ++c)
 			{
 				int cp = (b - a) ^ (c - a);
 				if (a.x == b.x)
@@ -114,14 +114,14 @@ void solve(int DP[100][100][100])
 		for (pt b = a; b.x < n; ++b)
 			DP1[a][b][b] = DP2[a][b][b] = 0;
 
-	for (pt a{ n - 1, n - 1 }; a.x >= 0; --a)
-		for (pt b{ n - 1, n - 1 }; b >= a; --b)
-			for (pt z{ n - 1, n - 1 }; z > b; --z)
+	for (pt a{n - 1, n - 1}; a.x >= 0; --a)
+		for (pt b{n - 1, n - 1}; b >= a; --b)
+			for (pt z{n - 1, n - 1}; z > b; --z)
 			{
-				pt db = a == b ? pt{0, 1} : b - a;
-				pt dz = z - b;
-				int& dp = DP[a][b][z];
-				dp = INT_MIN;
+				pt	 db = a == b ? pt{0, 1} : b - a;
+				pt	 dz = z - b;
+				int &dp = DP[a][b][z];
+				dp		= INT_MIN;
 				for (pt c = b.nxt(); c <= z; ++c)
 				{
 					pt dc = c - b;
@@ -133,14 +133,8 @@ void solve(int DP[100][100][100])
 			}
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
-	if (argc > 1)
-	{
-		ignore = freopen(argv[1], "r", stdin);
-		ignore = freopen(argv[2], "w", stdout);
-	}
-
 	int T;
 	cin >> T;
 	while (T--)

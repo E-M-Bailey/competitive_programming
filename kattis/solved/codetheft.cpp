@@ -8,8 +8,8 @@ constexpr uint64_t A1 = 1010003, A2 = 1010033, M1 = 1e9 + 9, M2 = 1e9 + 7;
 
 struct fragment
 {
-	vector<int> D;
-	int n;
+	vector<int>		D;
+	int				n;
 	friend istream &operator>>(istream &is, fragment &F)
 	{
 		static string ln, ln2;
@@ -85,10 +85,10 @@ int main()
 	int n;
 	cin >> n;
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	vector<string> names(n);
+	vector<string>	 names(n);
 	vector<fragment> frags(n);
-	fragment src;
-	int hi = 0;
+	fragment		 src;
+	int				 hi = 0;
 
 	for (int i = 0; i < n; i++)
 	{
@@ -97,8 +97,8 @@ int main()
 	}
 	cin >> src;
 
-	int lo = 0;
-	vector<int> fnd, ans;
+	int						lo = 0;
+	vector<int>				fnd, ans;
 	unordered_set<uint64_t> H;
 	while (lo < hi)
 	{

@@ -3,9 +3,9 @@
 using namespace std;
 
 unordered_map<string, int> N;
-vector<string> S;
-vector<vector<int>> C;
-vector<int> P, D;
+vector<string>			   S;
+vector<vector<int>>		   C;
+vector<int>				   P, D;
 
 int id()
 {
@@ -64,7 +64,7 @@ int main()
 		while (d--)
 		{
 			int w = id();
-			P[w] = v;
+			P[w]  = v;
 			C[v].push_back(w);
 		}
 	}
@@ -92,9 +92,9 @@ int main()
 
 	while (p--)
 	{
-		int a = id(), b = id();
+		int			  a = id(), b = id();
 		string const &A = S[a], &B = S[b];
-		int x = 0, y = 0;
+		int			  x = 0, y = 0;
 		while (D[a] > D[b])
 		{
 			a = P[a];
@@ -119,6 +119,7 @@ int main()
 		else if (x == y)
 			cout << A << " and " << B << " are " << (x == 1 ? "siblings" : ord(x - 1) + " cousins") << '\n';
 		else
-			cout << A << " and " << B << " are " << ord(min(x, y) - 1) << " cousins, " << abs(x - y) << ' ' << times(abs(x - y)) << " removed" << '\n';
+			cout << A << " and " << B << " are " << ord(min(x, y) - 1) << " cousins, " << abs(x - y) << ' '
+				 << times(abs(x - y)) << " removed" << '\n';
 	}
 }

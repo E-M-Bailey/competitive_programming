@@ -31,7 +31,7 @@ int main()
 			for (int d2 = d; d2 > 1;)
 			{
 				int p = HP[d2];
-				phi = phi / p * (p - 1);
+				phi	  = phi / p * (p - 1);
 				do
 					d2 /= p;
 				while (d2 % p == 0);
@@ -39,5 +39,4 @@ int main()
 			ans += phi;
 		}
 	cout << ans;
-
 }

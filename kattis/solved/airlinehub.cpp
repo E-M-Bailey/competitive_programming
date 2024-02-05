@@ -34,7 +34,7 @@ T const EPS = 1e-9l;
 
 int main()
 {
-	int n;
+	int				n;
 	vector<airport> A;
 	while (cin >> n)
 	{
@@ -47,7 +47,7 @@ int main()
 			A.emplace_back(la, lo);
 			for (int j = 0; j < i; j++)
 			{
-				T d2 = dist2(A[i], A[j]);
+				T d2   = dist2(A[i], A[j]);
 				A[i].M = max(A[i].M, d2 - i * EPS);
 				A[j].M = max(A[j].M, d2 - j * EPS);
 			}

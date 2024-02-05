@@ -22,7 +22,7 @@ int main()
 
 	sort(begin(A), end(A));
 	A.erase(unique(begin(A), end(A)), end(A));
-	n = (int)A.size();
+	n	  = (int)A.size();
 	int g = accumulate(begin(A), end(A), 0, gcd<int, int>);
 	if (t % g)
 	{
@@ -38,11 +38,8 @@ int main()
 	}
 	if (t == 0)
 		return 0;
-	// for (int a : A)
-	// 	cerr << a << ' ';
-	// cerr << endl << t << endl;
 
-	int lim = 2 * A.back() + 1;
+	int					lim = 2 * A.back() + 1;
 	vector<vector<int>> D(1, vector<int>(lim));
 	D.back()[0] = INT_MIN;
 	while (!D.back()[t])
@@ -58,9 +55,6 @@ int main()
 				if (!NW[j - a] && D.back()[j])
 					NW[j - a] = -(i + 1);
 		}
-		// for (int d : NW)
-		// 	cerr << d << ' ';
-		// cerr << endl;
 		D.push_back(move(NW));
 	}
 
@@ -83,7 +77,7 @@ int main()
 		}
 	}
 
-	vector<int> P{ -1 }, N{ -1 };
+	vector<int> P{-1}, N{-1};
 	for (auto [d, f] : F)
 	{
 		while (f > 0)
@@ -98,9 +92,8 @@ int main()
 		}
 	}
 
-
 	vector<int> B(n, 0);
-	int tot = 0, ip = P.back(), in = N.back();
+	int			tot = 0, ip = P.back(), in = N.back();
 	while (ip >= 0 || in >= 0)
 	{
 		if (in >= 0 && tot >= A[in])

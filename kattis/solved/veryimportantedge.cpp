@@ -31,12 +31,12 @@ struct dso
 	}
 };
 
-vector<vector<long long>> DP;
-vector<bool> del;
+vector<vector<long long>>	   DP;
+vector<bool>				   del;
 vector<vector<pair<int, int>>> G;
-vector<pair<int, int>> par;
-long long krusk = 0, ans;
-vector<int> depp;
+vector<pair<int, int>>		   par;
+long long					   krusk = 0, ans;
+vector<int>					   depp;
 
 void dfs(int u, int v)
 {
@@ -44,7 +44,7 @@ void dfs(int u, int v)
 	{
 		if (w == u)
 			continue;
-		par[w] = {v, wt};
+		par[w]	= {v, wt};
 		depp[w] = depp[v] + 1;
 		dfs(v, w);
 	}
@@ -92,7 +92,7 @@ int main()
 	for (int i = 0; i < m; i++)
 	{
 		auto [d, a, b] = E[i];
-		int mn = INT_MAX;
+		int mn		   = INT_MAX;
 		if (par[a].first == b || par[b].first == a)
 			continue;
 		a = d2.T[d2.find(a)];
@@ -108,5 +108,5 @@ int main()
 		ans = max(ans, krusk - mn + d);
 	}
 
-	cout << ans << endl;
+	cout << ans << '\n';
 }

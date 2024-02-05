@@ -14,7 +14,7 @@ T rup2(T x)
 
 const double PI2 = atan(1) * 8;
 
-void fft(vector<complex<double>>& X)
+void fft(vector<complex<double>> &X)
 {
 	int n = X.size();
 	if (n <= 1)
@@ -32,38 +32,38 @@ void fft(vector<complex<double>>& X)
 	fft(X0);
 	fft(X1);
 
-	complex<double> w = polar<double>(1, PI2 / n), wi = 1.+0i;
+	complex<double> w = polar<double>(1, PI2 / n), wi = 1. + 0i;
 	for (int i = 0; i < n / 2; i++)
 	{
-		X[i] = X0[i] + wi * X1[i];
+		X[i]		 = X0[i] + wi * X1[i];
 		X[i + n / 2] = X0[i] - wi * X1[i];
 		wi *= w;
 	}
 }
 
-void ifft(vector<complex<double>>& X)
+void ifft(vector<complex<double>> &X)
 {
 	int n = X.size();
 	if (n <= 1)
 		return;
 
-	for (auto& x : X)
+	for (auto &x : X)
 		x = conj(x);
 
 	fft(X);
 
 	double f = 1. / n;
-	for (auto& x : X)
+	for (auto &x : X)
 		x = conj(x) * f;
 }
 
-vector<int> convolve(const vector<int>& A, const vector<int>& B)
+vector<int> convolve(const vector<int> &A, const vector<int> &B)
 {
 	int na = A.size(), nb = B.size();
 	int nc = na + nb - 1;
-	int n = rup2(nc);
+	int n  = rup2(nc);
 
-	vector<int> C(nc);
+	vector<int>				C(nc);
 	vector<complex<double>> AA(n), BB(n), CC(n);
 	for (int i = 0; i < na; i++)
 		AA[i] = complex<double>(A[i], 0);
@@ -83,16 +83,16 @@ vector<int> convolve(const vector<int>& A, const vector<int>& B)
 	return C;
 }
 
-vector<int> cross_correlate(const vector<int>& A, const vector<int>& B)
+vector<int> cross_correlate(const vector<int> &A, const vector<int> &B)
 {
 	vector<int> RA(A.crbegin(), A.crend());
 	return convolve(RA, B);
 }
 
-
 int main()
 {
-    string S;
+	cin.tie(0)->sync_with_stdio(0);
+	string S;
 	cin >> S;
 	int n = S.size();
 
@@ -108,5 +108,5 @@ int main()
 	vector<int> C = cross_correlate(B, A);
 
 	for (int k = n; k < n * 2 - 1; k++)
-		cout << C[k] << endl;
+		cout << C[k] << '\n';
 }

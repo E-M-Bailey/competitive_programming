@@ -4,7 +4,7 @@ using namespace std;
 
 bool dfs(vector<vector<int>> const &G, vector<int> &C, int k, int v)
 {
-	C[v] = k;
+	C[v]	 = k;
 	bool ans = true;
 	for (int w : G[v])
 	{
@@ -50,7 +50,7 @@ int main()
 		}
 	}
 	vector<int> C(n + 2, -1);
-	int k = 0;
+	int			k = 0;
 	for (int i = 0; i < n + 2; i++)
 	{
 		if (C[i] >= 0)
