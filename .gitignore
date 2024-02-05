@@ -13,9 +13,6 @@
 # Ignore directories beginning with a dot
 **/.*/
 
-# Don't leak Project Euler solutions
-/project_euler
-
 # Ignore top-level source files
 /*.h
 /*.cpp
@@ -25,10 +22,13 @@
 /*.s
 /*.asm
 
-# Ignore files that may contain sensitive information
-**/.cprc
-**/.kattisrc
-
 # Un-ignore submodules
 !/dactl/
 !/kattis-cli/
+
+# Don't leak Project Euler solutions
+/project_euler
+
+# Ignore files that may contain sensitive information
+**/.cprc
+**/.kattisrc
