@@ -1,3 +1,6 @@
 [submodule "dactl"]
 	path = dactl
 	url = git@github.com:E-M-Bailey/dactl.git
+[submodule "kattis-cli"]
+	path = kattis-cli
+	url = git@github.com:Kattis/kattis-cli.git
