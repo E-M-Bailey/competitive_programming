@@ -63,9 +63,9 @@ int main()
 		if (V[n])
 			continue;
 		if (++ctr % 1000 == 0)
-			cerr << ctr << ' ' << Q.size() << endl;
+			cout << ctr << ' ' << Q.size() << endl;
 		if (C[n] >= 62)
-			cerr << "! " << C[n] << endl;
+			cout << "! " << C[n] << endl;
 		V[n] = true;
 		I.push_back(n);
 		for (int i : I)
@@ -86,12 +86,12 @@ int main()
 	for (auto c : C)
 	{
 		if (c < 10)
-			cerr << char(c + '0');
+			cout << char(c + '0');
 		else if (c < 36)
-			cerr << char(c - 10 + 'A');
+			cout << char(c - 10 + 'A');
 		else
-			cerr << char(c - 36 + 'a');
+			cout << char(c - 36 + 'a');
 	}
-	cerr << '\n' << *max_element(begin(C), end(C)) << endl;
+	cout << '\n' << *max_element(begin(C), end(C)) << endl;
 }
 */
