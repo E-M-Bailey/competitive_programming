@@ -14,7 +14,7 @@ int main()
 		while (y)
 		{
 			int64_t d = c * x / a;
-			if (c * d == 0)
+			if (d == 0)
 			{
 				ans = -1;
 				break;
