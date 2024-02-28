@@ -29,7 +29,7 @@ Note that this must terminate after at most k steps since no path with more than
 Thus, since there are <= k iterations, each of which loops over k values of each of u and v, the runtime is O(k^3).
 
 This can be sped up and simplified by representing each S_m and the adjacency matrix using bitmasks, which I did below.
-Depending on how the adjacency matrix is constructed, this takes O(n k^2)
+Depending on how the adjacency matrix is constructed, this takes O((n + k)k^2 / w), where w is the bit-length of a machine word.
 */
 
 #include <bits/stdc++.h>
