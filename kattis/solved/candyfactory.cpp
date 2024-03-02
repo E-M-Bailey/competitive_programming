@@ -4,10 +4,13 @@ using namespace std;
 
 int main()
 {
-	int64_t n, k;
+	int64_t n, k, a, m = 0, s = 0;
 	cin >> n >> k;
-	vector<int64_t> A(n);
-	copy(istream_iterator<int>(cin), istream_iterator<int>(), begin(A));
-	int64_t s = accumulate(begin(A), end(A), k - 1);
-	cout << max(*max_element(begin(A), end(A)), s / k) * k - s;
+	while (n--)
+	{
+		cin >> a;
+		m = max(m, a);
+		s += a;
+	}
+	cout << max(m, (s + k - 1) / k) * k - s;
 }
