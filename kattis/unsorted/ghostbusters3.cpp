@@ -1,0 +1,2 @@
+#include <iostream>
+typedef int64_t x;int main(){x n,m,M=1e9+7;std::cin>>n>>m;if(n>m)std::swap(--n,--m);x d=1,i=0,F[m+1]{1};while(i++<m)F[i]=F[i-1]*i%M;for(x a=F[n]*F[m-n]%M,b=M-2;b;a=a*a%M,b/=2)d=b%2?d*a%M:d;std::cout<<F[m]*d%M;}
