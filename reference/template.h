@@ -126,16 +126,19 @@ template<class T> struct tuple_like_helper
 	using type = decltype(f((tuple_size<T>*)nullptr));
 };
 template<class T> concept tuple_like = tuple_like_helper<remove_reference_t<T>>::type::value;
-template<class R, class S> concept read_as_range = !tuple_like<R> && ranges::range<R> && ranges::output_range<R, ranges::range_value_t<R>>&& istrm<S>&& requires(S& is, ranges::iterator_t<R> it) { {is >> *it} -> same_as<S&>; };
-template<class R, class S> concept write_as_range = !tuple_like<R> && ranges::input_range<R> && ostrm<S> && requires(S & os, ranges::iterator_t<R> it) { {os << *it} -> same_as<S&>; };
+template<class R, class S> concept read_as_range = !tuple_like<R> && ranges::range<R> && ranges::output_range<R, ranges::range_value_t<R>> &&istrm<S>;
+template<class R, class S> concept write_as_range = !tuple_like<R> && ranges::input_range<R> && ostrm<S>;
 
-template<class T> [[nodiscard]] T read(istrm auto& is) { T x; is >> x; return x; }
-auto& operator>>(istrm auto& is, tuple_like auto&& x) { return apply([&](auto&&... ts) -> auto& { return (is >> ... >> ts); }, x); }
-auto& operator<<(ostrm auto& os, tuple_like auto&& x) { return apply([&](auto&&... ts) -> auto& { return (os << ... << ts); }, x); }
-template<class T> auto& operator>>(istrm auto& is, optional<T>&& o) { o.emplace(read<T>(is)); return is; }
-template<class T> auto& operator<<(ostrm auto& os, optional<T>&& o) { if (o) os << *o; return os; }
-template<istrm S> S& operator>>(S& is, read_as_range<S> auto&& r) { for (auto it = begin(r); it != end(r); ++it) is >> *it; return is; }
-template<ostrm S> S& operator<<(S& os, write_as_range<S> auto&& r) { for (auto it = begin(r); it != end(r); ++it) os << *it; return os; }
+template<class T> [[nodiscard]] T read(istrm auto &is) { T x; is >> x; return x; }
+template<istrm S> S &operator>>(S &is, tuple_like auto &&tup) { return apply([&](auto&&... ts) -> auto & { return (is >> ... >> ts); }, tup); }
+template<istrm S> S &operator>>(S &is, tuple_like auto &tup) { return apply([&](auto&&... ts) -> auto & { return (is >> ... >> ts); }, tup); }
+template<ostrm S> S &operator<<(S &os, tuple_like auto const &tup) { return apply([&](auto&&... ts) -> auto & { return (os << ... << ts); }, tup); }
+template<class T, istrm S> S &operator>>(S &is, optional<T> &&opt) { opt.emplace(read<T>(is)); return is; }
+template<class T, istrm S> S &operator>>(S &is, optional<T> &opt) { opt.emplace(read<T>(is)); return is; }
+template<class T, ostrm S> S &operator<<(S &os, optional<T> const &opt) { if (opt) os << *opt; return os; }
+template<istrm S> S &operator>>(S &is, read_as_range<S> auto &&r) { for (auto it = begin(r); it != end(r); ++it) is >> *it; return is; }
+template<istrm S> S &operator>>(S &is, read_as_range<S> auto &r) { for (auto it = begin(r); it != end(r); ++it) is >> *it; return is; }
+template<ostrm S> S &operator<<(S &os, write_as_range<S> auto const &r) { for (auto it = begin(r); it != end(r); ++it) os << *it; return os; }
 
 // Allows reading bitstrings without whitespace
 auto& operator>>(istrm auto& is, vector<bool>& r) { for (auto it = begin(r); it != end(r); it++) *it = read<char>(is) == '1'; return is; }
@@ -528,21 +531,22 @@ template<uint32_t M> struct mint
 	friend ostream& operator<<(ostream& ostrm, mint a) { return ostrm << a.v; }
 };
 
-#define TDEFS1(T)using p##T=pair<T,T>;using a2##T=array<T,2>;using v##T=vector<T>;using v##p##T=vector<p##T>;using v##a2##T=vector<a2##T>;using vv##T=vector<v##T>;using vv##p##T=vector<v##p##T>;using vv##a2##T=vector<v##a2##T>;using vvv##T=vector<vv##T>;using vvv##p##T=vector<vv##p##T>;using vvv##a2##T=vector<vv##a2##T>;using vvvv##T=vector<vvv##T>;using vvvv##p##T=vector<vvv##p##T>;using vvvv##a2##T=vector<vvv##a2##T>;using l##T=list<T>;using l##p##T=list<p##T>;using l##a2##T=list<a2##T>;using vl##T=vector<l##T>;using vl##p##T=vector<l##p##T>;using vl##a2##T=vector<l##a2##T>;using s##T=set<T>;using s##p##T=set<p##T>;using s##a2##T=set<a2##T>;using vs##T=vector<s##T>;using vs##p##T=vector<s##p##T>;using vs##a2##T=vector<s##a2##T>;template<class Pr> using S##T=set<T,Pr>;template<class Pr> using S##p##T=set<p##T,Pr>;template<class Pr> using S##a2##T=set<a2##T,Pr>;template<class Pr> using vS##T=vector<S##T<Pr>>;template<class Pr> using vS##p##T=vector<S##p##T<Pr>>;template<class Pr> using vS##a2##T=vector<S##a2##T<Pr>>;using ms##T=multiset<T>;using ms##p##T=multiset<p##T>;using ms##a2##T=multiset<a2##T>;using vms##T=vector<ms##T>;using vms##p##T=vector<ms##p##T>;using vms##a2##T=vector<ms##a2##T>;template<class Pr> using MS##T=multiset<T,Pr>;template<class Pr> using MS##p##T=multiset<p##T,Pr>;template<class Pr> using MS##a2##T=multiset<a2##T,Pr>;template<class Pr> using vMS##T=vector<MS##T<Pr>>;template<class Pr> using vMS##p##T=vector<MS##p##T<Pr>>;template<class Pr> using vMS##a2##T=vector<MS##a2##T<Pr>>;using us##T=unordered_set<T>;using us##p##T=unordered_set<p##T>;using us##a2##T=unordered_set<a2##T>;using vus##T=vector<us##T>;using vus##p##T=vector<us##p##T>;using vus##a2##T=vector<us##a2##T>;template<class H,class Eq> using US##T=unordered_set<T,H,Eq>;template<class H,class Eq> using US##p##T=unordered_set<p##T,H,Eq>;template<class H,class Eq> using US##a2##T=unordered_set<a2##T,H,Eq>;template<class H,class Eq> using vUS##T=vector<US##T<H,Eq>>;template<class H,class Eq> using vUS##p##T=vector<US##p##T<H,Eq>>;template<class H,class Eq> using vUS##a2##T=vector<US##a2##T<H,Eq>>;using ums##T=unordered_multiset<T>;using ums##p##T=unordered_multiset<p##T>;using ums##a2##T=unordered_multiset<a2##T>;using vums##T=vector<ums##T>;using vums##p##T=vector<ums##p##T>;using vums##a2##T=vector<ums##a2##T>;template<class H,class Eq> using UMS##T=unordered_multiset<T,H,Eq>;template<class H,class Eq> using UMS##p##T=unordered_multiset<p##T,H,Eq>;template<class H,class Eq> using UMS##a2##T=unordered_multiset<a2##T,H,Eq>;template<class H,class Eq> using vUMS##T=vector<UMS##T<H,Eq>>;template<class H,class Eq> using vUMS##p##T=vector<UMS##p##T<H,Eq>>;template<class H,class Eq> using vUMS##a2##T=vector<UMS##a2##T<H,Eq>>;using q##T=queue<T>;using q##p##T=queue<p##T>;using q##a2##T=queue<a2##T>;using vq##T=vector<q##T>;using vq##p##T=vector<q##p##T>;using vq##a2##T=vector<q##a2##T>;using d##T=deque<T>;using d##p##T=deque<p##T>;using d##a2##T=deque<a2##T>;using vd##T=vector<d##T>;using vd##p##T=vector<d##p##T>;using vd##a2##T=vector<d##a2##T>;using pq##T=priority_queue<T>;using pq##p##T=priority_queue<p##T>;using pq##a2##T=priority_queue<a2##T>;using vpq##T=vector<pq##T>;using vpq##p##T=vector<pq##p##T>;using vpq##a2##T=vector<pq##a2##T>;template<class Pr> using PQ##T=priority_queue<T,v##T,Pr>;template<class Pr> using PQ##p##T=priority_queue<p##T,v##p##T,Pr>;template<class Pr> using PQ##a2##T=priority_queue<a2##T,v##a2##T,Pr>;template<class Pr> using vPQ##T=vector<PQ##T<Pr>>;template<class Pr> using vPQ##p##T=vector<PQ##p##T<Pr>>;template<class Pr> using vPQ##a2##T=vector<PQ##a2##T<Pr>>;
-#define TDEFS2(T,N)using N=T;TDEFS1(N)
+#define TDEFS1(T)using p##T=pair<T,T>;using a2##T=array<T,2>;using v##T=vector<T>;using v##p##T=vector<p##T>;using v##a2##T=vector<a2##T>;using vv##T=vector<v##T>;using vv##p##T=vector<v##p##T>;using vv##a2##T=vector<v##a2##T>;using vvv##T=vector<vv##T>;using vvv##p##T=vector<vv##p##T>;using vvv##a2##T=vector<vv##a2##T>;using vvvv##T=vector<vvv##T>;using vvvv##p##T=vector<vvv##p##T>;using vvvv##a2##T=vector<vvv##a2##T>;using l##T=list<T>;using l##p##T=list<p##T>;using l##a2##T=list<a2##T>;using vl##T=vector<l##T>;using vl##p##T=vector<l##p##T>;using vl##a2##T=vector<l##a2##T>;using s##T=set<T>;using s##p##T=set<p##T>;using s##a2##T=set<a2##T>;using vs##T=vector<s##T>;using vs##p##T=vector<s##p##T>;using vs##a2##T=vector<s##a2##T>;template<class Pr>using S##T=set<T,Pr>;template<class Pr>using S##p##T=set<p##T,Pr>;template<class Pr>using S##a2##T=set<a2##T,Pr>;template<class Pr>using vS##T=vector<S##T<Pr>>;template<class Pr>using vS##p##T=vector<S##p##T<Pr>>;template<class Pr>using vS##a2##T=vector<S##a2##T<Pr>>;using ms##T=multiset<T>;using ms##p##T=multiset<p##T>;using ms##a2##T=multiset<a2##T>;using vms##T=vector<ms##T>;using vms##p##T=vector<ms##p##T>;using vms##a2##T=vector<ms##a2##T>;template<class Pr>using MS##T=multiset<T,Pr>;template<class Pr>using MS##p##T=multiset<p##T,Pr>;template<class Pr>using MS##a2##T=multiset<a2##T,Pr>;template<class Pr>using vMS##T=vector<MS##T<Pr>>;template<class Pr>using vMS##p##T=vector<MS##p##T<Pr>>;template<class Pr>using vMS##a2##T=vector<MS##a2##T<Pr>>;using us##T=unordered_set<T>;using us##p##T=unordered_set<p##T>;using us##a2##T=unordered_set<a2##T>;using vus##T=vector<us##T>;using vus##p##T=vector<us##p##T>;using vus##a2##T=vector<us##a2##T>;template<class H,class Eq> using US##T=unordered_set<T,H,Eq>;template<class H,class Eq> using US##p##T=unordered_set<p##T,H,Eq>;template<class H,class Eq> using US##a2##T=unordered_set<a2##T,H,Eq>;template<class H,class Eq> using vUS##T=vector<US##T<H,Eq>>;template<class H,class Eq> using vUS##p##T=vector<US##p##T<H,Eq>>;template<class H,class Eq> using vUS##a2##T=vector<US##a2##T<H,Eq>>;using ums##T=unordered_multiset<T>;using ums##p##T=unordered_multiset<p##T>;using ums##a2##T=unordered_multiset<a2##T>;using vums##T=vector<ums##T>;using vums##p##T=vector<ums##p##T>;using vums##a2##T=vector<ums##a2##T>;template<class H,class Eq> using UMS##T=unordered_multiset<T,H,Eq>;template<class H,class Eq> using UMS##p##T=unordered_multiset<p##T,H,Eq>;template<class H,class Eq> using UMS##a2##T=unordered_multiset<a2##T,H,Eq>;template<class H,class Eq> using vUMS##T=vector<UMS##T<H,Eq>>;template<class H,class Eq> using vUMS##p##T=vector<UMS##p##T<H,Eq>>;template<class H,class Eq> using vUMS##a2##T=vector<UMS##a2##T<H,Eq>>;using q##T=queue<T>;using q##p##T=queue<p##T>;using q##a2##T=queue<a2##T>;using vq##T=vector<q##T>;using vq##p##T=vector<q##p##T>;using vq##a2##T=vector<q##a2##T>;using d##T=deque<T>;using d##p##T=deque<p##T>;using d##a2##T=deque<a2##T>;using vd##T=vector<d##T>;using vd##p##T=vector<d##p##T>;using vd##a2##T=vector<d##a2##T>;using pq##T=priority_queue<T>;using pq##p##T=priority_queue<p##T>;using pq##a2##T=priority_queue<a2##T>;using vpq##T=vector<pq##T>;using vpq##p##T=vector<pq##p##T>;using vpq##a2##T=vector<pq##a2##T>;template<class Pr>using PQ##T=priority_queue<T,v##T,Pr>;template<class Pr> using PQ##p##T=priority_queue<p##T,v##p##T,Pr>;template<class Pr> using PQ##a2##T=priority_queue<a2##T,v##a2##T,Pr>;template<class Pr> using vPQ##T=vector<PQ##T<Pr>>;template<class Pr> using vPQ##p##T=vector<PQ##p##T<Pr>>;template<class Pr> using vPQ##a2##T=vector<PQ##a2##T<Pr>>;
+#define TDEFS3(T,N,U)U T N;TDEFS1(N)
+#define TDEFS2(T,N)TDEFS3(T,N,typedef)
 TDEFS2(bool, bl);
 TDEFS2(char, c8);
 TDEFS2(unsigned char, uc8);
 TDEFS2(int8_t, i8);
 TDEFS2(int16_t, i16);
 TDEFS2(int32_t, i32);
-TDEFS2(int64_t, i64)
-TDEFS2(__int128, i128);
+TDEFS2(int64_t, i64);
+TDEFS3(__int128, i128, __extension__ typedef);
 TDEFS2(uint8_t, u8);
 TDEFS2(uint16_t, u16);
 TDEFS2(uint32_t, u32);
 TDEFS2(uint64_t, u64);
-TDEFS2(unsigned __int128, u128);
+TDEFS3(unsigned __int128, u128, __extension__ typedef);
 TDEFS2(float, f32);
 TDEFS2(double, f64);
 TDEFS2(long double, fld);

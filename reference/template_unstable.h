@@ -19,7 +19,7 @@
 using namespace std;
 using namespace chrono;
 using namespace string_literals;
-using namespace __gnu_pbds;
+namespace pbds = __gnu_pbds;
 
 // TODO fix tuple hashing
 template<size_t S, class... Ts>
@@ -400,7 +400,7 @@ template<integral T> struct bits: ranges::view_interface<bits>
 };
 
 template<class T>
-using os_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+using os_set = pbds::tree<T, pbds::null_type, less<T>, pbds::rb_tree_tag, pbds::tree_order_statistics_node_update>;
 
 template<integral T> constexpr [[nodiscard]] T rup2(T x) noexcept
 {
