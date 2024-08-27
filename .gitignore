@@ -10,6 +10,12 @@
 **/*.out
 **/*.ans
 
+# Ignore build files
+**/main
+**/*.o
+**/*.cmi
+**/*.cmx
+
 # Ignore directories beginning with a dot
 **/.*/
 
