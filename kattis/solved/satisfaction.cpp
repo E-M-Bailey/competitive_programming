@@ -1,61 +1,5 @@
-/*
-BEGIN ANNOTATION
-PROBLEM URL: https://open.kattis.com/problems/satisfaction
-TAGS: recursion, recursive descent, parsing, string, string parsing, ast, abstract syntax tree, bitset, constant factor,
-optimization, SIMD EXPLANATION: We can parse the programming language using recursive descent. Then, we can solve the
-problem by recursing on the resulting abstract syntax tree.
-
-Let k <= 20 be the number of variables which occur in the program. Let run(l, A) be a function which interprets the
-statement list l. A is the set of variable assignments that can reach this part of the program, represented by a bitset
-of size 2^k.
-For each statement s in l:
-	if s is "checkpoint":
-		if A is empty, print "unreachable".
-		otherwise:
-			for each variable v in alphabetical order:
-				let V be the set of assignments where v is true and ~V be the set where v is false.
-				if ~V and A are disjoint, print v uppercase since it must be true.
-				otherwise, if V and A are disjoint, print v lowercase since it must be false.
-	otherwise, s is an "if" statement:
-		recursively compute the set B of assignments satisfying s's condition.
-		let l_1 be the statement list inside the condition.
-		run(l_1, A & B), since an assignment must satisfy B to get inside the "if" statement.
-		if s has an "else" clause:
-			let l_2 be the statement list inside the clause.
-			run(l_2, A & ~B), since an assignment must not satisfy B to get inside the "else" clause.
-
-To parse a boolean expression, taking precedence into account, use this grammer:
-	S -> A "|" S
-	A -> B "&" A
-	B -> "~" B + C
-	C -> "(" S ")" + <variable>
-
-Using a bitset is already sufficient to pass under time and memory constraints, but some extra constant-factor
-optimizations are possible:
-
- - Solve the problem as you parse it instead of constructing the abstract syntax tree. This also simplifies the
-   implementation considerably.
-
- - To reduce recursion and bitset operations, replace the boolean expression grammer with:
-	   S -> A ("|" A)*
-	   A -> B ("&" B)*
-	   B -> "~"* ("(" S ")" + <variable>)
-   This allows you to ignore consecutive pairs of ~'s (double negation).
-
- - Accelerate bitset operations with SIMD instructions.
-
- - Make k a template parameter for better constant folding.
-
- - Avoid unnecessary copying of bitsets.
-
-END ANNOTATION
-*/
-
 #pragma GCC optimize("Ofast,no-stack-protector,unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,sse4.1,sse4.2,popcnt,abm,mmx,avx,avx2,fma")
-#ifndef GODBOLT
-#pragma GCC target("tune=native")
-#endif
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,sse4.1,sse4.2,popcnt,abm,mmx,avx,avx2,fma,tune=native")
 
 #include <bits/stdc++.h>
 #include <immintrin.h>
@@ -63,1354 +7,516 @@ END ANNOTATION
 
 using namespace std;
 
+#define BUFS 1 << 20
+alignas(256) static inline char buf[BUFS];
+static inline int iptr, optr;
+
 // number of variables
-int k = 0;
+static inline int k = 0;
 
 // variable name -> id
-int ids[91];
+static inline int ids[91];
 
 // variable id -> name
-char vars[20];
+static inline char vars[20];
 
-vector<string> tokens;
+alignas(256) static inline __m256i ARENA[1 << 19];
+alignas(256) static inline int F[1 << 19];
+static inline int nxt, fnxt;
 
-// This section is an implementation of bitset operations using SIMD instructions. You can skip to line 154
-// without missing anything important.
+// var_st[i] is the set of assignments where variable i is set to true.
+// alignas(256) static inline __m256i var_st[81920];
 
-// Lookup table for single bits
-alignas(256) uint64_t const BITS[256 * 4]{0,
-										  0,
-										  0,
-										  0x0000000000000001ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000002ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000004ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000008ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000010ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000020ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000040ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000080ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000100ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000200ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000400ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000800ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000001000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000002000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000004000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000008000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000010000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000020000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000040000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000080000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000100000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000200000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000400000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000800000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000001000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000002000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000004000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000008000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000010000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000020000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000040000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000080000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000100000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000200000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000400000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000800000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000001000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000002000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000004000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000008000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000010000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000020000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000040000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000080000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000100000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000200000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000400000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000800000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0001000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0002000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0004000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0008000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0010000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0020000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0040000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0080000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0100000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0200000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0400000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0800000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x1000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x2000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x4000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x8000000000000000ll,
-										  0,
-										  0,
-										  0x0000000000000001ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000002ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000004ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000008ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000010ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000020ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000040ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000080ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000100ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000200ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000400ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000800ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000001000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000002000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000004000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000008000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000010000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000020000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000040000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000080000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000100000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000200000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000400000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000800000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000001000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000002000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000004000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000008000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000010000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000020000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000040000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000080000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000100000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000200000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000400000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000800000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000001000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000002000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000004000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000008000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000010000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000020000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000040000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000080000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000100000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000200000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000400000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000800000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0001000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0002000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0004000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0008000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0010000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0020000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0040000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0080000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0100000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0200000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0400000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0800000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x1000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x2000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x4000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x8000000000000000ll,
-										  0,
-										  0,
-										  0x0000000000000001ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000002ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000004ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000008ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000010ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000020ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000040ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000080ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000100ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000200ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000400ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000800ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000001000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000002000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000004000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000008000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000010000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000020000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000040000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000080000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000100000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000200000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000400000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000800000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000001000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000002000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000004000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000008000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000010000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000020000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000040000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000080000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000100000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000200000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000400000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000800000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000001000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000002000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000004000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000008000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000010000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000020000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000040000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000080000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000100000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000200000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000400000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000800000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0001000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0002000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0004000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0008000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0010000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0020000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0040000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0080000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0100000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0200000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0400000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0800000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x1000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x2000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x4000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x8000000000000000ll,
-										  0,
-										  0,
-										  0x0000000000000001ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000002ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000004ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000008ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000010ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000020ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000040ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000080ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000100ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000200ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000400ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000000800ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000001000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000002000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000004000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000008000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000010000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000020000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000040000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000080000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000100000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000200000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000400000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000000800000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000001000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000002000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000004000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000008000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000010000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000020000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000040000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000080000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000100000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000200000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000400000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000000800000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000001000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000002000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000004000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000008000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000010000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000020000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000040000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000080000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000100000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000200000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000400000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0000800000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0001000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0002000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0004000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0008000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0010000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0020000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0040000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0080000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0100000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0200000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0400000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x0800000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x1000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x2000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x4000000000000000ll,
-										  0,
-										  0,
-										  0,
-										  0x8000000000000000ll,
-										  0,
-										  0,
-										  0};
-
-// SIMD-enabled bitset (this could probably be optimized further, but it does slightly outperform std::bitset):
-template<int K>
-struct fast_bitset_large
+template<int K, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int alc() noexcept
 {
-	static constexpr int N = 1 << K, M = N / 256;
-	alignas(256) __m256i data[M];
-
-	[[gnu::always_inline]] inline fast_bitset_large &operator|=(fast_bitset_large const &B) noexcept
+	int ans;
+	if (fnxt)
 	{
-		for (int i = 0; i < M; i++)
-			data[i] = _mm256_or_si256(data[i], B.data[i]);
-		return *this;
+		fnxt--;
+		ans = F[fnxt];
 	}
-	[[gnu::always_inline]] inline fast_bitset_large &operator&=(fast_bitset_large const &B) noexcept
+	else
 	{
-		for (int i = 0; i < M; i++)
-			data[i] = _mm256_and_si256(data[i], B.data[i]);
-		return *this;
+		ans = nxt;
+		nxt += L;
 	}
-	[[gnu::always_inline]] inline fast_bitset_large &set() noexcept
-	{
-		__m256i const ONES = _mm256_set1_epi64x(-1ll);
-		for (int i = 0; i < M; i++)
-			data[i] = ONES;
-		return *this;
-	}
-	[[gnu::always_inline]] inline fast_bitset_large &set(int i) noexcept
-	{
-		data[i / 256] = _mm256_or_si256(data[i / 256], _mm256_load_si256((__m256i *)(BITS + i % 256 * 4)));
-		return *this;
-	}
-	[[gnu::always_inline]] inline fast_bitset_large &flip() noexcept
-	{
-		__m256i const ONES = _mm256_set1_epi64x(-1ll);
-		for (int i = 0; i < M; i++)
-			data[i] = _mm256_xor_si256(data[i], ONES);
-		return *this;
-	}
-	[[gnu::always_inline]] inline bool none() const noexcept
-	{
-		for (int i = 0; i < M; i++)
-			if (!_mm256_testz_si256(data[i], data[i]))
-				return false;
-		return true;
-	}
-
-	inline friend ostream &operator<<(ostream &os, fast_bitset_large const &A)
-	{
-		for (int i = M; i-- > 0;)
-		{
-			for (int j = 4; j-- > 0;)
-				os << bitset<64>(((uint64_t *)(A.data + i))[j]);
-		}
-		return os;
-	}
-};
-
-template<int K>
-[[gnu::always_inline]] inline fast_bitset_large<K> operator|(fast_bitset_large<K> const &A,
-															 fast_bitset_large<K> const &B) noexcept
-{
-	fast_bitset_large<K> ans;
-	for (int i = 0; i < fast_bitset_large<K>::M; i++)
-		ans.data[i] = _mm256_or_si256(A.data[i], B.data[i]);
 	return ans;
 }
-template<int K>
-[[gnu::always_inline]] inline fast_bitset_large<K> operator&(fast_bitset_large<K> const &A,
-															 fast_bitset_large<K> const &B) noexcept
+__attribute__((always_inline)) static inline void dealc(int a) noexcept
 {
-	fast_bitset_large<K> ans;
-	for (int i = 0; i < fast_bitset_large<K>::M; i++)
-		ans.data[i] = _mm256_and_si256(A.data[i], B.data[i]);
-	return ans;
+	F[fnxt++] = a;
 }
 
-// Returns whether B is disjoint from ~A and from A, respectively.
-template<int K>
-[[gnu::always_inline]] inline pair<bool, bool> test_cz(fast_bitset_large<K> const &A,
-													   fast_bitset_large<K> const &B) noexcept
+template<int K, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline __m256i fmask() noexcept
 {
-	bool a = true, b = true;
-	for (int i = 0; i < fast_bitset_large<K>::M; i++)
-	{
-		a &= _mm256_testc_si256(A.data[i], B.data[i]);
-		b &= _mm256_testz_si256(A.data[i], B.data[i]);
-	}
-	return {a, b};
+	if constexpr (K == 1)
+		return _mm256_setr_epi64x(
+			0x0000000000000003ll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 2)
+		return _mm256_setr_epi64x(
+			0x000000000000000fll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 3)
+		return _mm256_setr_epi64x(
+			0x00000000000000ffll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 4)
+		return _mm256_setr_epi64x(
+			0x000000000000ffffll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 5)
+		return _mm256_setr_epi64x(
+			0x00000000ffffffffll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 6)
+		return _mm256_setr_epi64x(
+			0xffffffffffffffffll, 0x0000000000000000ll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else if constexpr (K == 7)
+		return _mm256_setr_epi64x(
+			0xffffffffffffffffll, 0xffffffffffffffffll, 0x0000000000000000ll, 0x0000000000000000ll);
+	else
+		return _mm256_setr_epi64x(
+			0xffffffffffffffffll, 0xffffffffffffffffll, 0xffffffffffffffffll, 0xffffffffffffffffll);
 }
 
-// Returns whether B is disjoint from ~A and from A, respectively.
-template<size_t N>
-[[gnu::always_inline]] inline pair<bool, bool> test_cz(bitset<N> const &A, bitset<N> const &B) noexcept
+template<int K, bool DB = true, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int avx_or(int a, int b) noexcept
 {
-	return {(~A & B).none(), (A & B).none()};
+	for (int i = 0; i < L; i++)
+		ARENA[a + i] = _mm256_or_si256(ARENA[a + i], ARENA[b + i]);
+	if constexpr (DB)
+		dealc(b);
+	return a;
+}
+template<int K, bool DB = true, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int avx_and(int a, int b) noexcept
+{
+	for (int i = 0; i < L; i++)
+		ARENA[a + i] = _mm256_and_si256(ARENA[a + i], ARENA[b + i]);
+	if constexpr (DB)
+		dealc(b);
+	return a;
+}
+template<int K, bool DB = true, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int avx_andnot(int a, int b) noexcept
+{
+	for (int i = 0; i < L; i++)
+		ARENA[a + i] = _mm256_andnot_si256(ARENA[a + i], ARENA[b + i]);
+	if constexpr (DB)
+		dealc(b);
+	return a;
+}
+// TODO lazily evaluate this
+template<int K, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int avx_var(int id, bool fl) noexcept
+{
+	static __m256i const M[8]{
+		_mm256_set1_epi64x(0xaaaaaaaaaaaaaaaall),
+		_mm256_set1_epi64x(0xccccccccccccccccll),
+		_mm256_set1_epi64x(0xf0f0f0f0f0f0f0f0ll),
+		_mm256_set1_epi64x(0xff00ff00ff00ff00ll),
+		_mm256_set1_epi64x(0xffff0000ffff0000ll),
+		_mm256_set1_epi64x(0xffffffff00000000ll),
+		_mm256_setr_epi64x(0x0000000000000000ll, 0xffffffffffffffffll, 0x0000000000000000ll, 0xffffffffffffffffll),
+		_mm256_setr_epi64x(0x0000000000000000ll, 0x0000000000000000ll, 0xffffffffffffffffll, 0xffffffffffffffffll)};
+	static const __m256i zero = _mm256_setzero_si256();
+	static const __m256i ones = _mm256_set1_epi32(-1);
+
+	int a = alc<K>();
+	if constexpr (K < 8)
+	{
+		if (fl)
+			ARENA[a] = _mm256_xor_si256(M[id], fmask<K>());
+		else
+			ARENA[a] = M[id];
+	}
+	else if (id < 8)
+	{
+		if (fl)
+			for (int i = 0; i < L; i++)
+				ARENA[a + i] = _mm256_xor_si256(M[id], fmask<K>());
+		else
+			for (int i = 0; i < L; i++)
+				ARENA[a + i] = M[id];
+	}
+	else
+	{
+		int bit = 1 << (id - 8);
+		if (fl)
+			for (int i = 0; i < L; i++)
+				ARENA[a + i] = (i & bit) ? zero : ones;
+		else
+			for (int i = 0; i < L; i++)
+				ARENA[a + i] = (i & bit) ? ones : zero;
+	}
+	return a;
+}
+template<int K, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int avx_any(int a) noexcept
+{
+	for (int i = 0; i < L; i++)
+		if (!_mm256_testz_si256(ARENA[a + i], ARENA[a + i]))
+			return true;
+	return false;
+}
+template<int K, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline pair<bool, bool> avx_var_cz(int id, int a) noexcept
+{
+	bool c = true, z = true;
+	int	 i = 0;
+
+	static __m256i const M[8]{
+		_mm256_set1_epi64x(0xaaaaaaaaaaaaaaaall),
+		_mm256_set1_epi64x(0xccccccccccccccccll),
+		_mm256_set1_epi64x(0xf0f0f0f0f0f0f0f0ll),
+		_mm256_set1_epi64x(0xff00ff00ff00ff00ll),
+		_mm256_set1_epi64x(0xffff0000ffff0000ll),
+		_mm256_set1_epi64x(0xffffffff00000000ll),
+		_mm256_setr_epi64x(0x0000000000000000ll, 0xffffffffffffffffll, 0x0000000000000000ll, 0xffffffffffffffffll),
+		_mm256_setr_epi64x(0x0000000000000000ll, 0x0000000000000000ll, 0xffffffffffffffffll, 0xffffffffffffffffll)};
+	static const __m256i zero = _mm256_setzero_si256();
+	static const __m256i ones = _mm256_set1_epi32(-1);
+
+	if (K < 8 || id < 8)
+		for (; (c || z) && i < L; i++)
+		{
+			c &= _mm256_testc_si256(M[id], ARENA[a + i]);
+			z &= _mm256_testz_si256(M[id], ARENA[a + i]);
+		}
+	else
+	{
+		int bit = 1 << (id - 8);
+		for (; (c || z) && i < L; i++)
+		{
+			c &= _mm256_testc_si256(i & bit ? ones : zero, ARENA[a + i]);
+			z &= _mm256_testz_si256(i & bit ? ones : zero, ARENA[a + i]);
+		}
+	}
+	return {c, z};
 }
 
-template<int K>
-using fast_bitset = conditional_t < K<8, bitset<1 << K>, fast_bitset_large<K>>;
-
-template<int K>
-struct solver
+template<int K, bool N, int L = 1 << max(K - 8, 0)>
+static inline int eval_or() noexcept;
+// B -> "~"* ("(" S ")" + <variable>)
+template<int K, bool N, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int eval_literal() noexcept
 {
-	// var_st[i] is the set of assignments where variable i is set to true.
-	static fast_bitset<K> var_st[K];
-
-	// S -> A ("|" A)*
-	static constexpr fast_bitset<K> eval_or(char const *&ptr) noexcept
+	bool flip = N;
+	// skip the ~'s and determine whether there is an even or odd number of them.
+	while (buf[iptr] == '~')
 	{
-		// Recursively evaluate the first A
-		fast_bitset<K> ans = eval_and(ptr);
-		while (*ptr == '|')
-		{
-			// Skip the |
-			ptr++;
-			// Recursively evaluate subsequent A's and update the result.
-			ans |= eval_and(ptr);
-		}
-		return ans;
+		iptr++;
+		flip = !flip;
 	}
-	// A -> B ("&" B)*
-	static constexpr fast_bitset<K> eval_and(char const *&ptr) noexcept
+	// For "(" S ")", skip the parenthesis and recursively evaluate S.
+	// For <variable>, look up its evaluation.
+	int ans;
+	if (buf[iptr] == '(')
 	{
-		// Recursively evaluate the first B
-		fast_bitset<K> ans = eval_literal(ptr);
-		while (*ptr == '&')
-		{
-			// Skip the &
-			ptr++;
-			// Recursively evaluate subsequent B's and update the result.
-			ans &= eval_literal(ptr);
-		}
-		return ans;
-	}
-	// B -> "~"* ("(" S ")" + <variable>)
-	static constexpr fast_bitset<K> eval_literal(char const *&ptr) noexcept
-	{
-		bool flip = false;
-		// skip the ~'s and determine whether there is an even or odd number of them.
-		while (*ptr == '~')
-		{
-			ptr++;
-			flip = !flip;
-		}
-		// For "(" S ")", skip the parenthesis and recursively evaluate S.
-		// For <variable>, look up its evaluation.
-		fast_bitset<K> ans = *ptr == '(' ? eval_or(++ptr) : var_st[ids[(int)*ptr]];
-		// skip variable name or closing parenthesis
-		ptr++;
-		// flip iff an odd number of ~'s
+		iptr++;
 		if (flip)
-			ans.flip();
-		return ans;
+			ans = eval_or<K, 1>();
+		else
+			ans = eval_or<K, 0>();
 	}
+	else
+		ans = avx_var<K>(ids[(int)buf[iptr]], flip);
 
-	// Run the statement list starting with the token *it, given that only assignments in st can make it here.
-	static void run(vector<string>::const_iterator &it, fast_bitset<K> st)
+	iptr++;
+	return ans;
+}
+// A -> B ("&" B)*
+template<int K, bool N, int L = 1 << max(K - 8, 0)>
+__attribute__((always_inline)) static inline int eval_and() noexcept
+{
+	// Recursively evaluate the first B
+	int ans = eval_literal<K, N>();
+	while (buf[iptr] == '&')
 	{
-		// For each statement:
-		for (;; it++)
+		// Skip the &
+		iptr++;
+		// Recursively evaluate subsequent B's and update the result.
+		if constexpr (N)
+			ans = avx_or<K>(ans, eval_literal<K, N>());
+		else
+			ans = avx_and<K>(ans, eval_literal<K, N>());
+	}
+	return ans;
+}
+// S -> A ("|" A)*
+template<int K, bool N, int L>
+static inline int eval_or() noexcept
+{
+	// Recursively evaluate the first A
+	int ans = eval_and<K, N>();
+	while (buf[iptr] == '|')
+	{
+		// Skip the |
+		iptr++;
+		// Recursively evaluate subsequent A's and update the result.
+		if constexpr (N)
+			ans = avx_and<K>(ans, eval_and<K, N>());
+		else
+			ans = avx_or<K>(ans, eval_and<K, N>());
+	}
+	return ans;
+}
+
+__attribute__((always_inline)) static inline void skip() noexcept
+{
+	while (buf[iptr] == ' ' || buf[iptr] == '\n' || buf[iptr] == '\t')
+		iptr++;
+}
+
+// static inline void run_ur() noexcept
+// {
+//  for (;;)
+//  {
+//      skip();
+//      if (buf[iptr] == 'i')
+//      {
+//          iptr += 3;
+//          skip();
+//          while (buf[iptr] != ' ' && buf[iptr] != '\n' && buf[iptr] != '\t')
+//              iptr++;
+//          iptr++;
+//          skip();
+//          iptr += 5;
+//          run_ur();
+//          if (buf[iptr] == 'e')
+//          {
+//              iptr += 5;
+//              run_ur();
+//          }
+//          iptr += 2;
+//      }
+//      else if (buf[iptr] == 'c')
+//      {
+//          iptr += 11;
+//          buf[optr++] = '>';
+//          buf[optr++] = 'u';
+//          buf[optr++] = 'n';
+//          buf[optr++] = 'r';
+//          buf[optr++] = 'e';
+//          buf[optr++] = 'a';
+//          buf[optr++] = 'c';
+//          buf[optr++] = 'h';
+//          buf[optr++] = 'a';
+//          buf[optr++] = 'b';
+//          buf[optr++] = 'l';
+//          buf[optr++] = 'e';
+//          buf[optr++] = '\n';
+//      }
+//      else
+//          break;
+//  }
+// }
+static inline int ur_stack[1 << 13];
+
+static inline void run_ur() noexcept
+{
+	int ur_nxt		   = 0;
+	ur_stack[ur_nxt++] = 0;
+	while (ur_nxt)
+	{
+		switch (ur_stack[ur_nxt - 1])
 		{
-			// "if"
-			if (it->front() == 'i')
+		case 0:
+			skip();
+			if (buf[iptr] == 'i')
 			{
-				// Skip "if"
-				char const *ptr = (++it)->c_str();
-				// Evaluate the condition for all assignments
-				fast_bitset<K> cond = eval_or(ptr);
-				// Skip the condition and "then", then run the statement list inside given st & cond
-				run(it += 2, cond & st);
-				// else
-				if (it->front() == 'e')
-				{
-					cond.flip();
-					// Skip "else", then run the statement list inside given st & ~cond
-					run(++it, cond &= st);
-				}
+				iptr += 3;
+				skip();
+				while (buf[iptr] != ' ' && buf[iptr] != '\n' && buf[iptr] != '\t')
+					iptr++;
+				iptr++;
+				skip();
+				iptr += 5;
+				ur_stack[ur_nxt - 1] = 1;
+				ur_stack[ur_nxt++]	 = 0;
+				break;
 			}
-			else if (it->front() == 'c')
+			else if (buf[iptr] == 'c')
 			{
-				cout << '>';
-				// no assignments are possible:
-				if (st.none())
-					cout << "unreachable\n";
+				iptr += 11;
+				buf[optr++] = '>';
+				buf[optr++] = 'u';
+				buf[optr++] = 'n';
+				buf[optr++] = 'r';
+				buf[optr++] = 'e';
+				buf[optr++] = 'a';
+				buf[optr++] = 'c';
+				buf[optr++] = 'h';
+				buf[optr++] = 'a';
+				buf[optr++] = 'b';
+				buf[optr++] = 'l';
+				buf[optr++] = 'e';
+				buf[optr++] = '\n';
+			}
+			else
+				ur_nxt--;
+			break;
+		case 1:
+			ur_stack[ur_nxt - 1] = 2;
+			if (buf[iptr] == 'e')
+			{
+				iptr += 5;
+				ur_stack[ur_nxt++] = 0;
+			}
+			break;
+		case 2:
+			iptr += 2;
+			ur_stack[ur_nxt - 1] = 0;
+			break;
+		}
+	}
+}
+
+template<int K, bool T = true, int L = 1 << max(K - 8, 0)>
+static inline void run(int st, int mask0, int mask1) noexcept
+{
+	bool first_chkpt = !T;
+	bool ur			 = false;
+	for (;;)
+	{
+		skip();
+		if (buf[iptr] == 'i')
+		{
+			iptr += 3;
+			skip();
+			int cond = eval_or<K, 0>();
+			iptr++;
+			skip();
+			iptr += 5;
+			cond = avx_and<K, 0>(cond, st);
+			if (ur)
+				run_ur();
+			else
+				run<K, false>(cond, mask0, mask1);
+			if (buf[iptr] == 'e')
+			{
+				iptr += 5;
+				cond = avx_andnot<K, 0>(cond, st);
+				if (ur)
+					run_ur();
 				else
+					run<K, false>(cond, mask0, mask1);
+			}
+			dealc(cond);
+			iptr += 2;
+		}
+		else if (buf[iptr] == 'c')
+		{
+			iptr += 11;
+			bool reachable = !ur && avx_any<K>(st);
+			buf[optr++]	   = '>';
+			if (!reachable)
+			{
+				buf[optr++] = 'u';
+				buf[optr++] = 'n';
+				buf[optr++] = 'r';
+				buf[optr++] = 'e';
+				buf[optr++] = 'a';
+				buf[optr++] = 'c';
+				buf[optr++] = 'h';
+				buf[optr++] = 'a';
+				buf[optr++] = 'b';
+				buf[optr++] = 'l';
+				buf[optr++] = 'e';
+				buf[optr++] = '\n';
+				ur			= true;
+			}
+			else
+			{
+				if (first_chkpt)
 				{
 					for (int i = 0; i < K; i++)
 					{
-						auto [c, z] = test_cz(var_st[i], st);
-						// st disjoint from ~var_st[i]: no assignments have variable i set to false
+						int bit = 1 << i;
+						if (bit & (mask0 | mask1))
+							continue;
+						auto [c, z] = avx_var_cz<K>(i, st);
 						if (c)
-							cout << vars[i];
-						// st disjoint from var_st[i]: no assignments have variable i set to true
+							mask1 |= bit;
 						else if (z)
-							cout << char(vars[i] | 32);
+							mask0 |= bit;
 					}
-					cout << '\n';
+					first_chkpt = false;
 				}
+				for (int i = 0; i < K; i++)
+				{
+					int bit = 1 << i;
+					if (mask1 & bit)
+						buf[optr++] = vars[i];
+					else if (mask0 & bit)
+						buf[optr++] = char(vars[i] | 32);
+				}
+				buf[optr++] = '\n';
 			}
-			else
-				break;
 		}
+		else
+			break;
 	}
+}
 
-	static void solve()
-	{
-		// calculate var_st[i] for all i
-		for (int i = 0; i < K; i++)
-			for (int j = 0; j < (1 << K); j++)
-				if ((1 << i) & j)
-					var_st[i].set(j);
-
-		fast_bitset<K> st;
-		// initially all assignments are possible
-		st.set();
-		auto it = cbegin(tokens);
-		// run the program
-		run(it, st);
-	}
-};
-template<int K>
-fast_bitset<K> solver<K>::var_st[K];
+template<int K, int L = 1 << max(K - 8, 0)>
+static void solve()
+{
+	int st = alc<K>();
+	// initially all assignments are possible
+	for (int i = 0; i < L; i++)
+		ARENA[st + i] = fmask<K>();
+	run<K>(st, 0, 0);
+}
 
 int main()
 {
-	cin.tie(0)->sync_with_stdio(0);
+	read(STDIN_FILENO, buf, BUFS);
 
-	// read and tokenize input
-	for (string token; cin >> token;)
+	int seen = 0;
+
+	for (int i = 0; buf[i] != '\0';)
 	{
-		// determine which variables are used in this token
-		for (char c : token)
-			if ('A' <= c && c <= 'Z' && find(vars, vars + k, c) == vars + k)
-				vars[k++] = c;
-		// add this token to the list
-		tokens.push_back(move(token));
+		if ('A' <= buf[i] && buf[i] <= 'Z')
+			seen |= 1 << (buf[i] - 'A');
+		i++;
 	}
-	// add dummy end token
-	tokens.push_back("e");
 
-	// sort variables alphabetically
-	sort(vars, vars + k);
-	// find variables' indices in alphabetic order (aka their id's)
-	for (int i = 0; i < k; i++)
-		ids[(int)vars[i]] = i;
+	for (char c = 'A'; c <= 'Z'; c++)
+		if (seen & (1 << (c - 'A')))
+		{
+			ids[(int)c] = k;
+			vars[k++]	= c;
+		}
 
-	// since K is a template parameter, it can't be assigned dynamically at runtime, so this switch is necessary.
 	switch (k)
 	{
-	case 1:
-		solver<1>::solve();
+#define C(a)                                                                                                           \
+	case a:                                                                                                            \
+		solve<a>();                                                                                                    \
 		break;
-	case 2:
-		solver<2>::solve();
-		break;
-	case 3:
-		solver<3>::solve();
-		break;
-	case 4:
-		solver<4>::solve();
-		break;
-	case 5:
-		solver<5>::solve();
-		break;
-	case 6:
-		solver<6>::solve();
-		break;
-	case 7:
-		solver<7>::solve();
-		break;
-	case 8:
-		solver<8>::solve();
-		break;
-	case 9:
-		solver<9>::solve();
-		break;
-	case 10:
-		solver<10>::solve();
-		break;
-	case 11:
-		solver<11>::solve();
-		break;
-	case 12:
-		solver<12>::solve();
-		break;
-	case 13:
-		solver<13>::solve();
-		break;
-	case 14:
-		solver<14>::solve();
-		break;
-	case 15:
-		solver<15>::solve();
-		break;
-	case 16:
-		solver<16>::solve();
-		break;
-	case 17:
-		solver<17>::solve();
-		break;
-	case 18:
-		solver<18>::solve();
-		break;
-	case 19:
-		solver<19>::solve();
-		break;
-	case 20:
-		solver<20>::solve();
-		break;
+		C(1)
+		C(2)
+		C(3)
+		C(4)
+		C(5)
+		C(6)
+		C(7)
+		C(8)
+		C(9)
+		C(10)
+		C(11)
+		C(12)
+		C(13)
+		C(14)
+		C(15)
+		C(16)
+		C(17)
+		C(18)
+		C(19)
+		C(20)
+#undef C
+	default:
+		__builtin_unreachable();
 	}
+
+	write(STDOUT_FILENO, buf, optr);
 }
