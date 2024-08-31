@@ -1,0 +1,66 @@
+#! /bin/bash
+
+if [ ! -d "$CPROOT/.cppath" ]
+then
+	>&2 echo "Please source .cprc first"
+	exit 1
+fi
+
+BUILD="$CPROOT/.build"
+
+SOURCE="$1"
+BASENAME=$(basename -- "$SOURCE")
+EXTENSION="${BASENAME##*.}"
+TARGET="$BUILD/main"
+
+shift
+
+# C/C++
+CC="gcc"
+CXX="g++"
+CFLAGS="-std=gnu23 -lm"
+CXXFLAGS="-std=gnu++23 -lrt -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"
+CPPFLAGS="-g -O2 -static"
+
+# OCaml configuration
+CML="ocamlopt"
+MLFLAGS="unix.cmxa str.cmxa bigarray.cmxa"
+MLTARGET="$TARGET.cmx"
+
+# Based on https://open.kattis.com/languages
+
+case "$EXTENSION" in
+
+	# C
+	c)
+		mkdir -p "$BUILD" && \
+			"$CC" $CPPFLAGS $CFLAGS "$SOURCE" -o "$TARGET" && \
+			"$TARGET" "$@"
+		;;
+
+	# C++
+	cpp | cc | C | cxx | c++)
+		mkdir -p "$BUILD" && \
+			"$CXX" $CPPFLAGS $CXXFLAGS "$SOURCE" -o "$TARGET" && \
+			"$TARGET" "$@"
+		;;
+	
+	# Ocaml
+	ml)
+		mkdir -p "$BUILD" && \
+			"$CML" $MLFLAGS "$SOURCE" -c -o "$MLTARGET" && \
+			"$CML" "$MLTARGET" -o "$TARGET" && \
+			"$TARGET" "$@"
+		;;
+
+	# Python 3
+	py)
+		python3 "$SOURCE" "$@"
+		;;
+
+	*)
+		echo "Unknown file extension \"$EXTENSION\""
+		;;
+
+esac
+

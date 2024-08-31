@@ -1,7 +1,3 @@
-# Ignore files without extensions
-*
-!*.*
-!*/
 
 # Ignore data files
 **/*.txt
@@ -10,14 +6,14 @@
 **/*.out
 **/*.ans
 
-# Ignore build files
-**/main
-**/*.o
-**/*.cmi
-**/*.cmx
-
-# Ignore directories beginning with a dot
+# Ignore most directories beginning with a dot by default
 **/.*/
+!/.dactl/
+!/.kattis-cli/
+!/.util/
+!/.util/*
+!/.cppath/
+!/.cppath/*
 
 # Ignore top-level source files
 /*.h
@@ -28,14 +24,7 @@
 /*.s
 /*.asm
 
-# Un-ignore submodules
-!/dactl/
-!/kattis-cli/
-!/.kattis-cli/
-
-# Don't leak Project Euler solutions
+# Ignore sensitive information
+**/.kattisrc
 **/project_euler
 
-# Ignore files that may contain sensitive information
-**/.cprc
-**/.kattisrc

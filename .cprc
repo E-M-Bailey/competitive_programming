@@ -1,0 +1,40 @@
+#! /bin/bash
+# The above is used to enable syntax highlighting of this file for some editors.
+# This file should not really be run directly with bash; rather, it should be sourced.
+
+export CPSTYLE='01;36'
+export CPERROR='01;31'
+
+if [ "${BASH_SOURCE-}" = "$0" ]
+then
+	>&2 echo -e "\033[${CPSTYLE}m.cprc\033[0m: \033[${CPERROR}m.cprc must be sourced\033[0m"
+	exit 1
+fi
+
+# Make the command idempotent
+if [ ! -d "$CPROOT/.cppath" ]
+then
+	# https://stackoverflow.com/a/246128/5781491
+	export CPROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+	export PATH="$CPROOT/.cppath:$PATH"
+
+	if [ -f "$CPROOT/.cpenv/bin/activate" ]
+	then
+		source "$CPROOT/.cpenv/bin/activate"
+	fi
+fi
+
+# echo -e "\033[${CPSTYLE}m.cprc\033[0m: \$CPROOT is $CPROOT"
+
+if [ ! -d "$CPROOT/.cppath" ]
+then
+	>&2 echo -e "\033[${CPSTYLE}m.cprc\033[0m: \033[${CPERROR}minvalid directory structure\033[0m"
+	return 1
+fi
+
+# Make it obvious when this has successfully run in some terminals.
+# This requires some changes to .bashrc to do anything. For example, with WSL2/Ubuntu/Bash if terminal supports color:
+# PS1='${debian_chroot:+($debian_chroot)}${host_style:+\[\033[${host_style}m\]}\u@\h\[\033[00m\]:${path_style:+\[\033[${path_style}m\]}\w\[\033[00m\]\$ '
+host_style="$CPSTYLE"
+# TODO do something similar to the above with neovim
+
