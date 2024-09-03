@@ -15,16 +15,8 @@
 !/.cppath/
 !/.cppath/*
 
-# Ignore top-level source files
-/*.h
-/*.cpp
-/*.java
-/*.py
-/*.ipynb
-/*.s
-/*.asm
-
-# Ignore sensitive information
+# Failsafe for files with sensitive information
 **/.kattisrc
-**/project_euler
+
+# See also project_euler/.gitignore
 

@@ -1,0 +1,8 @@
+# Don't share any solutions!
+# Specifically, allow directories and .gitignores, but nothing else.
+# This may change later if I add instructive comments to any of the first 100 problems.
+
+**
+!**/
+!.gitignore
+
