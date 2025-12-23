@@ -1,0 +1,8 @@
+-g
+-O2
+-std=gnu++23
+-static
+-lrt
+-Wl,--whole-archive
+-lpthread
+-Wl,--no-whole-archive
