@@ -1,0 +1,39 @@
+[atcoder]
+path = "j/ac"
+name = "atcoder"
+alias = [ "ac" ]
+
+[codechef]
+path = "j/cc"
+name = "codechef"
+alias = [ "cc", "chef" ]
+
+[codeforces]
+path = "j/co"
+name = "codeforces"
+alias = [ "cf" ]
+
+[domjudge]
+path = "j/dj"
+name = "domjudge"
+alias = [ "dj" ]
+
+[kattis]
+path = "j/ka"
+name = "kattis"
+alias = [ "ka" ]
+
+[project_euler]
+path = "j/pe"
+name = "project euler"
+alias = [ "euler", "pe" ]
+
+[uva]
+path = "j/uv"
+name = "uva"
+alias = [ "online judge", "onlinejudge", "uv" ]
+
+[yosupo]
+path = "j/lc"
+name = "yosupo"
+alias = [ "checker", "library checker", "yo" ]
