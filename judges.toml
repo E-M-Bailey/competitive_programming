@@ -18,6 +18,11 @@ path = "j/dj"
 name = "domjudge"
 alias = [ "dj" ]
 
+[meta_hacker_cup]
+path = "j/hc"
+hame = "meta hacker cup"
+alias = [ "facebook", "facebook hacker cup", "fhc", "hacker cup", "hc", "meta", "mhc" ]
+
 [kattis]
 path = "j/ka"
 name = "kattis"
