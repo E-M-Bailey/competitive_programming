@@ -1,4 +1,2 @@
 .build/
 .cache/
-**/*.venv
-**/__pycache__
