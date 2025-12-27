@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "cp",
+    },
+  ],
+  "settings": {
+    "[makefile]": {
+      "editor.insertSpaces": false,
+      "editor.tabSize": 2,
+    },
+  },
+}

@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "ka",
+    },
+  ],
+  "settings": {
+    "editor.rulers": [79,119],
+    "[makefile]": {
+      "editor.insertSpaces": false,
+      "editor.tabSize": 2,
+    },
+  },
+}
