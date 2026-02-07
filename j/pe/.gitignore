@@ -1,3 +1,7 @@
 *
+!p
+p/*
+!p/.gitkeep
+
 !.gitignore
 !*.code-workspace
