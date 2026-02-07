@@ -11,7 +11,7 @@ case "$1" in
     case "$1" in
       *.cpp)
         base="${file%.cpp}"
-        g++-14 -g -O2 -o build/j/ka/"$base" -std=gnu++23 -static -lrt -Wl,--whole-archive -lpthread -Wl,--no-whole-archive "$1"
+        g++-14 -g -O2 -o build/j/ka/"$base" -std=gnu++23 -static -lrt -Wl,--whole-archive -lpthread -Wl,--no-whole-archive "$1" || exit
         build/j/ka/"$base"
         ;;
     esac
