@@ -1,0 +1,5 @@
+-g
+-O2
+-std=gnu23
+-static
+-lm
