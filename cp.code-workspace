@@ -10,5 +10,19 @@
       "editor.insertSpaces": false,
       "editor.tabSize": 2,
     },
+    "makefile.configureOnOpen": true,
+    "clangd.arguments": [
+      "-header-insertion=never"
+    ],
+    "chat.agent.maxRequests": 0,
+    "workbench.commandPalette.showAskInChat": false,
+    "accessibility.verboseChatProgressUpdates": false,
+    "accessibility.verbosity.inlineChat": false,
+    "accessibility.verbosity.panelChat": false,
+    "accessibility.verbosity.terminalChatOutput": false,
+    "chat.agent.codeBlockProgress": false,
+    "chat.agent.enabled": false,
+    "chat.agentsControl.enabled": false,
+    "chat.disableAIFeatures": true
   },
 }
