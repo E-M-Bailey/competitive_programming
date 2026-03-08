@@ -9,6 +9,7 @@ if [ ! -f "$CPROOT/cp.marker" ] ; then
   return 1
 fi
 
+alias cpinit='. "$CPROOT/.cpinit"'
 alias ccp='code "$CPROOT/cp.code-workspace" --profile cp'
 
 function run {
@@ -47,7 +48,7 @@ function run {
         "$bdir/$stem"
         ;;
       *)
-        >&2 printf -- 'Run doesn'\''t support file name %s for Kattis.\n' "$name"
+        >&2 printf -- 'Kattis run doesn'\''t support file name %s.\n' "$name"
         exit 1
         ;;
       esac
@@ -62,7 +63,7 @@ function run {
         "$bdir/$stem"
         ;;
       *)
-        >&2 printf -- 'Run doesn'\''t support file name %s for Codeforces.\n' "$name"
+        >&2 printf -- 'Codeforces run doesn'\''t support file name %s.\n' "$name"
         exit 1
         ;;
       esac
@@ -106,7 +107,7 @@ function run {
         "$bdir/$stem"
         ;;
       *)
-        >&2 printf -- 'Run doesn'\''t support file name %s for Atcoder.\n' "$name"
+        >&2 printf -- 'AtCoder run doesn'\''t support file name %s.\n' "$name"
         exit 1
         ;;
       esac
